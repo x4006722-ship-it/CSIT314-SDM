@@ -20,32 +20,27 @@ public class UserAccount {
         this.profile_id = profile_id;
     }
 
-    public static boolean verifyCredentials(String username, String password) {
-        String sql = "SELECT * FROM user_account WHERE username = ? AND password = ?";
+    public static String getRoleIfValid(String username, String password) {
+        String sql = "SELECT p.role FROM user_account u " +
+                     "JOIN user_profile p ON u.profile_id = p.profile_id " +
+                     "WHERE u.username = ? AND u.password = ? " +
+                     "AND u.a_status = 'Active' AND p.p_status = 'Active'";
+
         try (Connection conn = DBUtils.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
             pstmt.setString(1, username);
             pstmt.setString(2, password);
+            
             ResultSet rs = pstmt.executeQuery();
-            return rs.next();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public static boolean checkAccountStatus(String username) {
-        String sql = "SELECT a_status FROM user_account WHERE username = ?";
-        try (Connection conn = DBUtils.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, username);
-            ResultSet rs = pstmt.executeQuery();
+            
             if (rs.next()) {
-                return "Active".equalsIgnoreCase(rs.getString("a_status"));
+                return rs.getString("role");
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return false;
+        return null;
     }
+
 }

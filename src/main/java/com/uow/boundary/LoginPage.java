@@ -16,17 +16,26 @@ public class LoginPage {
     private LoginController loginController = new LoginController();
 
     @PostMapping("/login")
-    public void onLoginClick(
-    @RequestParam("username") String username, 
-    @RequestParam("password") String password, 
-    HttpServletResponse response) throws IOException {
+    public void onLoginClick(@RequestParam("username") String username, 
+                            @RequestParam("password") String password, 
+                            HttpServletResponse response) throws IOException {
         
-        String result = loginController.processLogin(username, password);
+        String role = loginController.processLogin(username, password);
 
-        if ("Success".equals(result)) {
+        if ("User Admin".equalsIgnoreCase(role)) {
             response.sendRedirect("/admin_dashboard.html");
-        } else {
-            response.getWriter().write("Login Failed: " + result);
+        } 
+        else if ("Fund Raiser".equalsIgnoreCase(role)) {
+            response.sendRedirect("/fundraiser_dashboard.html");
+        } 
+        else if ("Donee".equalsIgnoreCase(role)) {
+            response.sendRedirect("/donee_dashboard.html");
+        } 
+        else if ("Platform Management".equalsIgnoreCase(role)) {
+            response.sendRedirect("/platform_dashboard.html");
+        } 
+        else {
+            response.getWriter().write("Login Failed: Invalid credentials or account suspended.");
         }
     }
 }

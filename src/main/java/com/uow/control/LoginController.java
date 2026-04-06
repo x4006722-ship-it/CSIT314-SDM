@@ -5,18 +5,12 @@ import com.uow.entity.UserAccount;
 public class LoginController {
 
     public String processLogin(String username, String password) {
-        if (!UserAccount.verifyCredentials(username, password)) {
-            return "Invalid username or password"; 
+        String role = UserAccount.getRoleIfValid(username, password);
+
+        if (role != null) {
+            return role; 
+        } else {
+            return "Invalid";
         }
-
-        if (!UserAccount.checkAccountStatus(username)) {
-            return "Account suspended";
-        }
-
-        return "Success"; 
-    }
-
-    public boolean validateSession() {
-        return true;
     }
 }
