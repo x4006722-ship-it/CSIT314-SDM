@@ -1,18 +1,141 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Platform Management Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform Management - System Control</title>
     <style>
-        body { font-family: Arial; background-color: #f3e5f5; text-align: center; padding-top: 50px; }
-        .card { background: white; padding: 30px; border-radius: 15px; display: inline-block; }
-        h1 { color: #7b1fa2; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f8f9fa; display: flex; min-height: 100vh; }
+        
+        .sidebar { width: 260px; background-color: #2c3e50; color: white; padding: 20px; flex-shrink: 0; }
+        .sidebar h2 { font-size: 16px; text-align: center; padding-bottom: 20px; border-bottom: 1px solid #34495e; margin-bottom: 20px; letter-spacing: 1px; color: #9b59b6; }
+        .nav-item { padding: 12px 15px; color: #bdc3c7; text-decoration: none; display: block; border-radius: 6px; margin-bottom: 8px; transition: 0.3s; font-size: 14px; }
+        .nav-item:hover { background-color: #34495e; color: white; }
+        .nav-item.active { background-color: #8e44ad; color: white; }
+
+        .main-content { flex: 1; padding: 25px; overflow-y: auto; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background: white; padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .header h1 { font-size: 20px; color: #2c3e50; }
+        .btn-logout { background-color: #e74c3c; color: white; border: none; padding: 8px 18px; border-radius: 6px; cursor: pointer; text-decoration: none; font-size: 13px; }
+
+        .report-tabs { display: flex; gap: 15px; margin-bottom: 25px; }
+        .tab-card { background: white; flex: 1; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); text-align: center; border-bottom: 4px solid #8e44ad; cursor: pointer; transition: 0.3s; }
+        .tab-card:hover { transform: translateY(-5px); }
+        .tab-card h3 { font-size: 14px; color: #7f8c8d; margin-bottom: 5px; }
+        .tab-card p { font-size: 12px; color: #8e44ad; font-weight: bold; }
+
+        .management-section { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .btn-add { background-color: #8e44ad; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+
+        .search-bar { display: flex; gap: 10px; margin-bottom: 20px; }
+        input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px; outline: none; }
+
+        .category-table { width: 100%; border-collapse: collapse; }
+        .category-table th { text-align: left; padding: 15px; background: #fdfaff; font-size: 13px; color: #8e44ad; border-bottom: 2px solid #eee; }
+        .category-table td { padding: 15px; border-bottom: 1px solid #eee; font-size: 14px; color: #34495e; }
+
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; }
+        .status-active { background: #ebf5fb; color: #3498db; }
+        .status-suspended { background: #fdedec; color: #e74c3c; }
+
+        .action-link { color: #8e44ad; text-decoration: none; margin-right: 10px; font-size: 13px; font-weight: bold; }
+        .action-link:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>⚙️ Platform Management</h1>
-        <p>Welcome! You can monitor <b>System Statistics</b> and reports here.</p>
-        <button onclick="location.href='/login.html'">Logout</button>
+
+    <div class="sidebar">
+        <h2>PLATFORM MGMT</h2>
+        <a href="#" class="nav-item active">FSA Categories</a>
+        <a href="#" class="nav-item">System Reports</a>
+        <a href="#" class="nav-item">Audit Trail</a>
+        <a href="#" class="nav-item">System Settings</a>
     </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>System Administration</h1>
+            <a href="/index.html" class="btn-logout">Logout</a>
+        </div>
+
+        <div class="report-tabs">
+            <div class="tab-card">
+                <h3>Daily Performance</h3>
+                <p>Generate Today's Report</p>
+            </div>
+            <div class="tab-card">
+                <h3>Weekly Trends</h3>
+                <p>Generate Weekly Analysis</p>
+            </div>
+            <div class="tab-card">
+                <h3>Monthly Growth</h3>
+                <p>Generate Monthly Data</p>
+            </div>
+        </div>
+
+        <div class="management-section">
+            <div class="section-header">
+                <h2>FSA Category Management</h2>
+                <button class="btn-add">+ Create New Category</button>
+            </div>
+
+            <div class="search-bar">
+                <input type="text" placeholder="Search by Category Name or ID...">
+                <button style="background: #2c3e50; color: white; border: none; padding: 0 20px; border-radius: 6px; cursor: pointer;">Search</button>
+            </div>
+
+            <table class="category-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Category Name</th>
+                        <th>Description</th>
+                        <th>Created Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>#CAT-01</td>
+                        <td>Medical Aid</td>
+                        <td>Healthcare and medical expense support</td>
+                        <td>2026-01-10</td>
+                        <td><span class="status-badge status-active">Active</span></td>
+                        <td>
+                            <a href="#" class="action-link">Update</a>
+                            <a href="#" class="action-link" style="color: #e67e22;">Suspend</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>#CAT-02</td>
+                        <td>Education</td>
+                        <td>Scholarships and school supplies</td>
+                        <td>2026-01-12</td>
+                        <td><span class="status-badge status-active">Active</span></td>
+                        <td>
+                            <a href="#" class="action-link">Update</a>
+                            <a href="#" class="action-link" style="color: #e67e22;">Suspend</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>#CAT-03</td>
+                        <td>Food Supply</td>
+                        <td>Direct food assistance programs</td>
+                        <td>2026-02-05</td>
+                        <td><span class="status-badge status-suspended">Suspended</span></td>
+                        <td>
+                            <a href="#" class="action-link">Update</a>
+                            <a href="#" class="action-link" style="color: #27ae60;">Activate</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
 </body>
 </html>

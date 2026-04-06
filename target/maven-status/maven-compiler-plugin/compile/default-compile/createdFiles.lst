@@ -1,3 +1,4 @@
+com\uow\config\WebConfig.class
 com\uow\boundary\LoginPage.class
 com\uow\control\LoginController.class
 com\uow\util\DBUtils.class
