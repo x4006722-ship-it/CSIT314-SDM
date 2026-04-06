@@ -1,3 +1,4 @@
+package com.uow;
 public class LoginPage {
     // 界面上的输入框
     private String username;
