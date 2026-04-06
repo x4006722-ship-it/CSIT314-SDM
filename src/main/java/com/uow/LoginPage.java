@@ -1,27 +1,32 @@
 package com.uow;
-public class UserAccount {
-    // 对应 BCE 图中的私有属性 (-号)
+
+public class LoginPage {
     private String username;
     private String password;
-    private String a_status; // 状态：Normal 或 Suspend
-    private int profile_id;
+    private LoginControl controller;
 
-    // 构造函数：模拟数据库里存好的数据
-    public UserAccount(String username, String password, String a_status) {
-        this.username = username;
-        this.password = password;
-        this.a_status = a_status;
+    public void setController(LoginControl controller) {
+        this.controller = controller;
     }
 
-    // 对应时序图 Step 3: 验证凭据
-    public boolean verifyCredentials(String inputUsername, String inputPassword) {
-        // 如果输入的账号密码和数据库存的一样，返回 true
-        return this.username.equals(inputUsername) && this.password.equals(inputPassword);
+    public void displayPage() {
+        System.out.println("=== Welcome to Login Page ===");
     }
 
-    // 对应时序图 Step 4: 检查账号状态
-    public boolean checkAccountStatus() {
-        // 如果状态是 Normal，返回 true
-        return "Normal".equalsIgnoreCase(this.a_status);
+    public void inputData(String inputUser, String inputPass) {
+        this.username = inputUser;
+        this.password = inputPass;
+    }
+
+    public void onLoginClick() {
+        controller.processLogin(username, password);
+    }
+
+    public void showSuccessMessage() {
+        System.out.println("Login successful.");
+    }
+
+    public void showErrorMessage(String msg) {
+        System.out.println("Error: " + msg);
     }
 }
