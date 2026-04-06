@@ -21,7 +21,7 @@ public class FinalTest {
 
                 // 3. 检查账号状态 (对应时序图第 8/9 步)
                 if (account.checkAccountStatus()) {
-                    System.out.println("🎊 [Login Successful");
+                    System.out.println("🎊 [Login Successful]");
                 } else {
                     System.out.println("❌ [Account Suspended] 账号已被封禁！");
                 }
