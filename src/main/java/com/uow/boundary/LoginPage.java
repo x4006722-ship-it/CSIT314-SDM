@@ -1,4 +1,6 @@
-package com.uow;
+package com.uow.boundary;
+
+import com.uow.control.LoginControl;
 
 public class LoginPage {
     private String username;
