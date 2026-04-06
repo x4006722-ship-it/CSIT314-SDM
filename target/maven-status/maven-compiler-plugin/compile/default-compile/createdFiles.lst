@@ -1,7 +1,5 @@
-com\uow\control\LoginControl.class
-com\uow\FinalTest.class
-com\uow\TestConn.class
 com\uow\boundary\LoginPage.class
+com\uow\control\LoginController.class
 com\uow\util\DBUtils.class
 com\uow\DemoApplication.class
 com\uow\entity\UserAccount.class
