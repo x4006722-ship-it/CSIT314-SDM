@@ -1,3 +1,4 @@
+package com.uow;
 public class LoginControl {
     // Controller 需要认识界面(UI)和数据库(DB)，才能在中间当传话筒
     private LoginPage ui;
