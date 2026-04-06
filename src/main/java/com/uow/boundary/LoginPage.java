@@ -1,10 +1,14 @@
 package com.uow.boundary;
 
+import java.io.IOException;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.uow.control.LoginController;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 public class LoginPage {
@@ -12,14 +16,17 @@ public class LoginPage {
     private LoginController loginController = new LoginController();
 
     @PostMapping("/login")
-    public String onLoginClick(@RequestParam String username, @RequestParam String password) {
+    public void onLoginClick(
+    @RequestParam("username") String username, 
+    @RequestParam("password") String password, 
+    HttpServletResponse response) throws IOException {
         
         String result = loginController.processLogin(username, password);
 
         if ("Success".equals(result)) {
-            return "showSuccessMessage() -> Login successful!";
+            response.sendRedirect("/admin_dashboard.html");
         } else {
-            return "showErrorMessage() -> " + result;
+            response.getWriter().write("Login Failed: " + result);
         }
     }
 }

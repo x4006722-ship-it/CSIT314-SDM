@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - User Management</title>
+    <style>
+        :root {
+            --sidebar-width: 280px;
+            --primary-black: #000000;
+            --bg-light: #f8f9fa;
+            --text-gray: #666;
+            --border-color: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            display: flex;
+            background-color: var(--bg-light);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: #ffffff;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 30px 20px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .sidebar-header h2 {
+            margin: 0;
+            font-size: 20px;
+            letter-spacing: 1px;
+        }
+
+        .nav-menu {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+
+        .nav-section-title {
+            padding: 10px 25px;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #999;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 12px 25px;
+            color: #333;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-item:hover {
+            background-color: #f0f0f0;
+            color: var(--primary-black);
+            border-left: 4px solid var(--primary-black);
+        }
+
+        .nav-item.active {
+            background-color: #f0f0f0;
+            font-weight: 600;
+            border-left: 4px solid var(--primary-black);
+        }
+
+        .main-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-bar {
+            height: 70px;
+            background-color: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+        }
+
+        .user-info {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .logout-btn {
+            background-color: transparent;
+            border: 1px solid var(--primary-black);
+            padding: 8px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.3s;
+        }
+
+        .logout-btn:hover {
+            background-color: var(--primary-black);
+            color: #fff;
+        }
+
+        .content-body {
+            padding: 40px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .welcome-card {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        h3 { margin-top: 0; }
+        
+        .placeholder-text {
+            color: var(--text-gray);
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h2>USER ADMIN</h2>
+        </div>
+        
+        <div class="nav-menu">
+            <div class="nav-section-title">Account Management</div>
+            <a href="#" class="nav-item">Create User Account</a>
+            <a href="#" class="nav-item">View User Account</a>
+            <a href="#" class="nav-item">Update User Account</a>
+            <a href="#" class="nav-item">Suspend User Account</a>
+            <a href="#" class="nav-item">Search User Account</a>
+
+            <div class="nav-section-title" style="margin-top: 20px;">Profile Management</div>
+            <a href="#" class="nav-item">Create User Profile</a>
+            <a href="#" class="nav-item">View User Profile</a>
+            <a href="#" class="nav-item">Update User Profile</a>
+            <a href="#" class="nav-item">Suspend User Profile</a>
+            <a href="#" class="nav-item">Search User Profile</a>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <header class="top-bar">
+            <div class="user-info">Logged in as: <strong>Admin</strong></div>
+            <button class="logout-btn" onclick="location.href='/login.html'">Logout</button>
+        </header>
+
+        <main class="content-body">
+            <div class="welcome-card">
+                <h3>Welcome back, Administrator</h3>
+                <p class="placeholder-text">
+                    Select a function from the sidebar to manage system users and profiles. 
+                    This dashboard provides centralized control for all administrative tasks.
+                </p>
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>
