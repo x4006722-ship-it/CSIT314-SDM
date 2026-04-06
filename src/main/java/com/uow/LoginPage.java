@@ -1,3 +1,4 @@
+package com.uow;
 public class UserAccount {
     // 对应 BCE 图中的私有属性 (-号)
     private String username;
