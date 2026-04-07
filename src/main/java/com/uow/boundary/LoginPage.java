@@ -22,6 +22,8 @@ public class LoginPage {
         
         String role = loginController.processLogin(username, password);
 
+        response.setContentType("text/html;charset=UTF-8");
+
         if ("User Admin".equalsIgnoreCase(role)) {
             response.sendRedirect("/admin_dashboard.html");
         } 
@@ -35,7 +37,11 @@ public class LoginPage {
             response.sendRedirect("/platform_dashboard.html");
         } 
         else {
-            response.getWriter().write("Login Failed: Invalid credentials or account suspended.");
+            String alertScript = "<script>" +
+                                "alert('Login Failed: Invalid credentials or account suspended.');" +
+                                "window.location.href='/login.html';" +
+                                "</script>";
+            response.getWriter().write(alertScript);
         }
     }
 }
