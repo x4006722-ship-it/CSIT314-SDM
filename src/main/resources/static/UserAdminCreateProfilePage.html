@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create User Profile</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f5f5f5; padding: 50px; }
+        .form-container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
+        h2 { margin-bottom: 20px; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-size: 14px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
+        button { background: black; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; cursor: pointer; margin-top: 10px; }
+        .back-link { display: block; margin-top: 15px; text-align: center; font-size: 13px; color: #666; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>Create New Role</h2>
+    <form action="/api/profiles/create" method="POST">
+        <div class="input-group">
+            <label>Role Name</label>
+            <input type="text" name="roleName" placeholder="e.g. Senior Fund Raiser" required>
+        </div>
+        <div class="input-group">
+            <label>Status</label>
+            <select name="status">
+                <option value="Active">Active</option>
+                <option value="Suspended">Suspended</option>
+            </select>
+        </div>
+        <button type="submit">Create Profile</button>
+    </form>
+    <a href="AdminPage.html" class="back-link">← Back to Dashboard</a>
+</div>
+
+</body>
+</html>
