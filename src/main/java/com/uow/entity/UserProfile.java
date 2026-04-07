@@ -1,18 +1,51 @@
 package com.uow.entity;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import com.uow.util.DBUtils; // Importing your database utility
+
 public class UserProfile {
     private String profileId;
     private String roleName;
     private String status;
 
+    // Constructor
     public UserProfile(String profileId, String roleName, String status) {
         this.profileId = profileId;
         this.roleName = roleName;
         this.status = status;
     }
 
+    // Getters and Setters
     public String getProfileId() { return profileId; }
     public String getRoleName() { return roleName; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    // ========================================================
+    // Database Interaction: The object saves itself to the DB
+    // ========================================================
+    public boolean saveToDatabase() {
+        // Note: Ensure the table name 'user_profile' and column names match your DB
+        String sql = "INSERT INTO user_profile (role_name, status) VALUES (?, ?)";
+
+        // Use try-with-resources to ensure the connection closes automatically
+        try (Connection conn = DBUtils.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            // Insert this object's variables (this.roleName, this.status) into the SQL query
+            pstmt.setString(1, this.roleName);
+            pstmt.setString(2, this.status);
+            
+            // Execute the update
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+            
+        } catch (SQLException e) {
+            System.err.println("Database save failed! Reason: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

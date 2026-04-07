@@ -1,37 +1,20 @@
 package com.uow.control;
 
-import com.uow.entity.UserProfile;
-import java.util.ArrayList;
-import java.util.List;
+import com.uow.entity.UserProfile; 
+import org.springframework.stereotype.Service;
 
+@Service // Tells Spring this is the "Brain" (Control layer logic)
 public class UserAdminCreateProfileController {
-    private List<UserProfile> profileDatabase;
 
-    public UserAdminCreateProfileController() {
-        this.profileDatabase = new ArrayList<>();
-        this.profileDatabase.add(new UserProfile("P001", "Admin", "Active"));
-    }
-
-    public boolean checkRoleExists(String roleName) {
-        for (UserProfile profile : profileDatabase) {
-            if (profile.getRoleName().equalsIgnoreCase(roleName)) {
-                return true; 
-            }
-        }
-        return false;
-    }
-
+    // This is a regular Java method called by the Boundary
     public boolean createProfile(String roleName, String status) {
-        if (checkRoleExists(roleName)) {
-            System.out.println("❌ Error: The role '" + roleName + "' already exists!");
-            return false;
-        }
-
-        String newId = "P00" + (profileDatabase.size() + 1);
-        UserProfile newProfile = new UserProfile(newId, roleName, status);
-        profileDatabase.add(newProfile);
         
-        System.out.println("✅ Success: Role '" + roleName + "' created with ID: " + newId);
-        return true;
+        System.out.println("Control layer processing logic for: " + roleName);
+        
+        // 1. Create the Entity object
+        UserProfile newProfile = new UserProfile(null, roleName, status);
+        
+        // 2. Command the Entity to save itself to the database
+        return newProfile.saveToDatabase();
     }
 }
