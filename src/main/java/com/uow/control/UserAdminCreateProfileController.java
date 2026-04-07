@@ -3,18 +3,17 @@ package com.uow.control;
 import com.uow.entity.UserProfile; 
 import org.springframework.stereotype.Service;
 
-@Service // Tells Spring this is the "Brain" (Control layer logic)
+@Service // Only use @Service here!
 public class UserAdminCreateProfileController {
 
-    // This is a regular Java method called by the Boundary
+    // A regular Java method called by the Boundary Layer
     public boolean createProfile(String roleName, String status) {
-        
-        System.out.println("Control layer processing logic for: " + roleName);
+        System.out.println("Control layer logic: Creating profile object...");
         
         // 1. Create the Entity object
         UserProfile newProfile = new UserProfile(null, roleName, status);
         
-        // 2. Command the Entity to save itself to the database
+        // 2. Command the Entity to save itself to the MySQL database
         return newProfile.saveToDatabase();
     }
 }
