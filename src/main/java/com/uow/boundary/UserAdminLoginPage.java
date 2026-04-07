@@ -37,11 +37,11 @@ public class UserAdminLoginPage {
             session.setAttribute("role", userAdminLoginController.getUserAdminLoginAccount().getRole());
             session.setAttribute("profile_id", userAdminLoginController.getUserAdminLoginAccount().getProfile_id());
             return "redirect:" + redirectPage;
-        } else {
-            String errorMessage = userAdminLoginController.getErrorMessage();
-            String encodedMessage = URLEncoder.encode(errorMessage, StandardCharsets.UTF_8);
-            return "redirect:/LoginPage.html?error=" + encodedMessage;
         }
+
+        String errorMessage = userAdminLoginController.getErrorMessage();
+        String encodedMessage = URLEncoder.encode(errorMessage, StandardCharsets.UTF_8);
+        return "redirect:/LoginPage.html?error=" + encodedMessage;
     }
 
     public void showSuccessMessage() {
