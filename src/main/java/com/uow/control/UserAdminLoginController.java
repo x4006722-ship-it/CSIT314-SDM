@@ -10,8 +10,8 @@ public class UserAdminLoginController {
     private final UserAdminLoginAccount userAdminLoginAccount = new UserAdminLoginAccount();
     private String errorMessage = "";
 
-    public String processLogin(String username, String password) {
-        boolean credentialsValid = userAdminLoginAccount.verifyCredentials(username, password);
+    public String processLogin(String username, String userPassword) {
+        boolean credentialsValid = userAdminLoginAccount.verifyCredentials(username, userPassword);
 
         if (!credentialsValid) {
             errorMessage = "Invalid username or password.";
@@ -19,17 +19,23 @@ public class UserAdminLoginController {
         }
 
         if (!userAdminLoginAccount.checkAccountStatus()) {
-            errorMessage = "Your account has been suspended. Please contact the platform management.";
+            errorMessage = "Account suspended.";
+            return null;
+        }
+
+        if (!userAdminLoginAccount.checkProfileStatus()) {
+            errorMessage = "Role suspended.";
             return null;
         }
 
         String redirectPage = userAdminLoginAccount.getRedirectPageByRole();
 
         if (redirectPage == null) {
-            errorMessage = "Unauthorized role.";
+            errorMessage = "Invalid role.";
             return null;
         }
 
+        errorMessage = "";
         return redirectPage;
     }
 
