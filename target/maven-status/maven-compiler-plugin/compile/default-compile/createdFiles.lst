@@ -1,6 +1,9 @@
 com\uow\config\WebConfig.class
-com\uow\boundary\LoginPage.class
-com\uow\control\LoginController.class
+com\uow\control\UserAdminLoginController.class
+com\uow\entity\UserAdminLoginAccount.class
+com\uow\boundary\UserAdminLogoutPage.class
+com\uow\boundary\UserAdminLoginPage.class
 com\uow\util\DBUtils.class
 com\uow\DemoApplication.class
-com\uow\entity\UserAccount.class
+com\uow\control\UserAdminLogoutController.class
+com\uow\entity\UserSession.class

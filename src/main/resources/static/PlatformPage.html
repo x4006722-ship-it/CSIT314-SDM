@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform Management Page</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #222;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background-color: #ffffff;
+            border-right: 1px solid #e5e5e5;
+            padding: 30px 20px;
+        }
+
+        .sidebar h2 {
+            font-size: 24px;
+            margin-bottom: 30px;
+            color: #000;
+        }
+
+        .menu-section {
+            margin-bottom: 35px;
+        }
+
+        .menu-section h3 {
+            font-size: 13px;
+            color: #777;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .menu-section a {
+            display: block;
+            text-decoration: none;
+            color: #222;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: background-color 0.2s;
+            font-size: 14px;
+        }
+
+        .menu-section a:hover {
+            background-color: #f0f0f0;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e5e5e5;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .topbar .user-info {
+            font-size: 15px;
+            color: #444;
+        }
+
+        .logout-btn {
+            background-color: #000;
+            color: #fff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .logout-btn:hover {
+            background-color: #222;
+        }
+
+        .content-area {
+            padding: 35px 30px;
+        }
+
+        .welcome-card {
+            background-color: #ffffff;
+            border-radius: 14px;
+            padding: 30px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+            margin-bottom: 25px;
+        }
+
+        .welcome-card h1 {
+            font-size: 28px;
+            margin-bottom: 12px;
+            color: #000;
+        }
+
+        .welcome-card p {
+            font-size: 15px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+        }
+
+        .card h2 {
+            font-size: 20px;
+            margin-bottom: 14px;
+            color: #000;
+        }
+
+        .card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .card ul li {
+            padding: 9px 0;
+            color: #444;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .card ul li:last-child {
+            border-bottom: none;
+        }
+
+        .highlight-box {
+            margin-top: 25px;
+            background-color: #ffffff;
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+        }
+
+        .highlight-box h2 {
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+
+        .highlight-box p {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.7;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <aside class="sidebar">
+        <h2>Platform Management</h2>
+
+        <div class="menu-section">
+            <h3>Category Management</h3>
+            <a href="#">Create FSA Categories</a>
+            <a href="#">View FSA Categories</a>
+            <a href="#">Update FSA Categories</a>
+            <a href="#">Suspend FSA Categories</a>
+            <a href="#">Search FSA Categories</a>
+        </div>
+
+        <div class="menu-section">
+            <h3>System Reports</h3>
+            <a href="#">Get Daily Reports</a>
+            <a href="#">Get Weekly Reports</a>
+            <a href="#">Get Monthly Reports</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="topbar">
+            <div class="user-info">Logged in as: <strong>Platform Management</strong></div>
+            <button class="logout-btn" onclick="window.location.href='/logout'">Logout</button>
+        </div>
+
+        <div class="content-area">
+            <div class="welcome-card">
+                <h1>Welcome back, Platform Management</h1>
+                <p>
+                    This dashboard allows you to manage FSA categories and monitor platform performance through daily,
+                    weekly, and monthly reporting. You can organize activity types and review operational trends from the menu on the left.
+                </p>
+            </div>
+
+            <div class="cards">
+                <div class="card">
+                    <h2>FSA Category Functions</h2>
+                    <ul>
+                        <li>Create FSA categories to organize different types of activities</li>
+                        <li>View FSA categories to see the list of existing categories</li>
+                        <li>Update FSA categories to modify category names or details</li>
+                        <li>Suspend FSA categories to disable categories that are no longer needed</li>
+                        <li>Search FSA categories to find specific categories quickly</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h2>Reporting Functions</h2>
+                    <ul>
+                        <li>Get daily reports to monitor daily platform performance</li>
+                        <li>Get weekly reports to analyze weekly trends</li>
+                        <li>Get monthly reports to review long-term growth and data</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h2>Platform Management Responsibilities</h2>
+                <p>
+                    As platform management, you are responsible for maintaining the category structure of fundraising service activities
+                    and reviewing operational reports over different time periods. Use the left navigation to manage categories and access reporting tools.
+                </p>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>
