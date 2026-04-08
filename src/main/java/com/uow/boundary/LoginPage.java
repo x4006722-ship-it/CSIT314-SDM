@@ -8,15 +8,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.uow.control.UserAdminLoginController;
+import com.uow.control.LoginController;
 
 import jakarta.servlet.http.HttpSession;
 
 @Controller
-public class UserAdminLoginPage {
+public class LoginPage {
 
     @Autowired
-    private UserAdminLoginController userAdminLoginController;
+    private LoginController LoginController;
 
     public void displayPage() {
     }
@@ -29,17 +29,17 @@ public class UserAdminLoginPage {
                                @RequestParam("password") String password,
                                HttpSession session) {
 
-        String redirectPage = userAdminLoginController.processLogin(username, password);
+        String redirectPage = LoginController.processLogin(username, password);
 
         if (redirectPage != null) {
-            session.setAttribute("user_id", userAdminLoginController.getUserAdminLoginAccount().getUser_id());
-            session.setAttribute("username", userAdminLoginController.getUserAdminLoginAccount().getUsername());
-            session.setAttribute("role", userAdminLoginController.getUserAdminLoginAccount().getRole());
-            session.setAttribute("profile_id", userAdminLoginController.getUserAdminLoginAccount().getProfile_id());
+            session.setAttribute("user_id", LoginController.getLogin().getUser_id());
+            session.setAttribute("username", LoginController.getLogin().getUsername());
+            session.setAttribute("role", LoginController.getLogin().getRole());
+            session.setAttribute("profile_id", LoginController.getLogin().getProfile_id());
             return "redirect:" + redirectPage;
         }
 
-        String errorMessage = userAdminLoginController.getErrorMessage();
+        String errorMessage = LoginController.getErrorMessage();
         String encodedMessage = URLEncoder.encode(errorMessage, StandardCharsets.UTF_8);
         return "redirect:/LoginPage.html?error=" + encodedMessage;
     }

@@ -2,33 +2,33 @@ package com.uow.control;
 
 import org.springframework.stereotype.Controller;
 
-import com.uow.entity.UserAdminLoginAccount;
+import com.uow.entity.Login;
 
 @Controller
-public class UserAdminLoginController {
+public class LoginController {
 
-    private final UserAdminLoginAccount userAdminLoginAccount = new UserAdminLoginAccount();
+    private final Login login = new Login();
     private String errorMessage = "";
 
     public String processLogin(String username, String userPassword) {
-        boolean credentialsValid = userAdminLoginAccount.verifyCredentials(username, userPassword);
+        boolean credentialsValid = login.verifyCredentials(username, userPassword);
 
         if (!credentialsValid) {
             errorMessage = "Invalid username or password.";
             return null;
         }
 
-        if (!userAdminLoginAccount.checkAccountStatus()) {
+        if (!login.checkAccountStatus()) {
             errorMessage = "Account suspended.";
             return null;
         }
 
-        if (!userAdminLoginAccount.checkProfileStatus()) {
+        if (!login.checkProfileStatus()) {
             errorMessage = "Role suspended.";
             return null;
         }
 
-        String redirectPage = userAdminLoginAccount.getRedirectPageByRole();
+        String redirectPage = login.getRedirectPageByRole();
 
         if (redirectPage == null) {
             errorMessage = "Invalid role.";
@@ -43,7 +43,7 @@ public class UserAdminLoginController {
         return errorMessage;
     }
 
-    public UserAdminLoginAccount getUserAdminLoginAccount() {
-        return userAdminLoginAccount;
+    public Login getLogin() {
+        return login;
     }
 }
