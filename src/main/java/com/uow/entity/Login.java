@@ -7,7 +7,7 @@ import java.sql.SQLException;
 
 import com.uow.util.DBUtils;
 
-public class UserAdminLoginAccount {
+public class Login {
 
     private int user_id;
     private String username;

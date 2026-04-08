@@ -5,222 +5,183 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Admin Dashboard</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            background-color: #f5f5f5;
-            color: #222;
-        }
-
-        .container {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        .sidebar {
-            width: 260px;
-            background-color: #ffffff;
-            border-right: 1px solid #e5e5e5;
-            padding: 30px 20px;
-        }
-
-        .sidebar h2 {
-            font-size: 24px;
+        /* 保持你原来的配色风格 */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: #f8f9fa; color: #333; }
+        
+        .container { display: flex; min-height: 100vh; }
+        .sidebar { width: 240px; background: #fff; border-right: 1px solid #eee; padding: 20px; }
+        .main-content { flex: 1; padding: 30px; }
+        
+        /* 模块化卡片设计 */
+        .admin-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 25px;
             margin-bottom: 30px;
-            color: #000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid #eaeaea;
         }
 
-        .menu-section {
-            margin-bottom: 35px;
-        }
-
-        .menu-section h3 {
-            font-size: 13px;
-            color: #777;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 15px;
-        }
-
-        .menu-section a {
-            display: block;
-            text-decoration: none;
-            color: #222;
-            padding: 10px 12px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            transition: background-color 0.2s;
-            font-size: 14px;
-        }
-
-        .menu-section a:hover {
-            background-color: #f0f0f0;
-        }
-
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .topbar {
-            background-color: #ffffff;
-            border-bottom: 1px solid #e5e5e5;
-            padding: 20px 30px;
+        .section-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
         }
 
-        .topbar .user-info {
-            font-size: 15px;
-            color: #444;
-        }
+        h2 { font-size: 20px; color: #000; }
 
-        .logout-btn {
-            background-color: #000;
-            color: #fff;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.2s;
-        }
-
-        .logout-btn:hover {
-            background-color: #222;
-        }
-
-        .content-area {
-            padding: 35px 30px;
-        }
-
-        .welcome-card {
-            background-color: #ffffff;
-            border-radius: 14px;
-            padding: 30px;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
-            margin-bottom: 25px;
-        }
-
-        .welcome-card h1 {
-            font-size: 28px;
-            margin-bottom: 12px;
-            color: #000;
-        }
-
-        .welcome-card p {
-            font-size: 15px;
-            color: #555;
-            line-height: 1.6;
-        }
-
-        .cards {
+        /* 表单与搜索条平行布局 */
+        .action-bar {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
+            grid-template-columns: 1fr 1fr; /* 左边搜索，右边创建 */
+            gap: 40px;
         }
 
-        .card {
-            background-color: #ffffff;
-            border-radius: 14px;
-            padding: 24px;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
-        }
-
-        .card h2 {
-            font-size: 20px;
-            margin-bottom: 14px;
-            color: #000;
-        }
-
-        .card ul {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .card ul li {
-            padding: 8px 0;
-            color: #444;
-            border-bottom: 1px solid #f0f0f0;
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 13px; color: #666; margin-bottom: 5px; }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
             font-size: 14px;
         }
 
-        .card ul li:last-child {
-            border-bottom: none;
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        .btn-black { background: #000; color: #fff; }
+        .btn-outline { background: transparent; border: 1px solid #000; color: #000; }
+        .btn:hover { opacity: 0.8; }
+
+        /* 步骤提示 */
+        .step-badge {
+            background: #e1f5fe;
+            color: #01579b;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* 补充：顶部栏和 Logout 按钮样式 */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+            padding: 15px 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid #eaeaea;
+        }
+        .logout-btn {
+            border: 1px solid #ff4d4f;
+            color: #ff4d4f;
+            padding: 6px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        .logout-btn:hover {
+            background: #ff4d4f;
+            color: #fff;
         }
     </style>
 </head>
 <body>
+
 <div class="container">
     <aside class="sidebar">
-        <h2>User Admin</h2>
-
-        <div class="menu-section">
-            <h3>Account Management</h3>
-            <a href="#">Create User Account</a>
-            <a href="#">View User Account</a>
-            <a href="#">Update User Account</a>
-            <a href="#">Suspend User Account</a>
-            <a href="#">Search User Account</a>
-        </div>
-
-        <div class="menu-section">
-            <h3>Profile Management</h3>
-            <a href="UserAdminCreateProfilePage.html">Create User Profile</a>
-            <a href="#">View User Profile</a>
-            <a href="#">Update User Profile</a>
-            <a href="#">Suspend User Profile</a>
-            <a href="#">Search User Profile</a>
-        </div>
+        <h2>Admin Portal</h2>
+        <p style="font-size: 12px; color: #999;">Quick Navigation</p>
     </aside>
 
     <main class="main-content">
         <div class="topbar">
-            <div class="user-info">Logged in as: <strong>User Admin</strong></div>
-            <button class="logout-btn" onclick="window.location.href='/logout'">Logout</button>
+            <span style="font-size: 14px; color: #666;">Logged in as: <strong style="color: #000;">Admin</strong></span>
+            <a href="/LoginPage.html" class="logout-btn">Logout</a>
         </div>
 
-        <div class="content-area">
-            <div class="welcome-card">
-                <h1>Welcome back, Administrator</h1>
-                <p>
-                    This dashboard allows you to manage user accounts and user profiles in the fundraising system.
-                    You can create, view, update, suspend, and search both accounts and profiles from the navigation menu.
-                </p>
+        <section class="admin-section">
+            <div class="section-header">
+                <h2><span class="step-badge">STEP 1</span> Profile (Role) Management</h2>
             </div>
-
-            <div class="cards">
-                <div class="card">
-                    <h2>User Account Functions</h2>
-                    <ul>
-                        <li>Create user account to store new personal information</li>
-                        <li>View user account details</li>
-                        <li>Update user account information</li>
-                        <li>Suspend user account to stop access</li>
-                        <li>Search user account by personal information</li>
-                    </ul>
+            
+            <div class="action-bar">
+                <div>
+                    <h3>Search Existing Roles</h3>
+                    <div class="form-group" style="margin-top:10px;">
+                        <input type="text" placeholder="Enter Role Name (e.g. Admin)...">
+                        <button class="btn btn-outline" style="margin-top:10px;">Search Profile</button>
+                    </div>
                 </div>
 
-                <div class="card">
-                    <h2>User Profile Functions</h2>
-                    <ul>
-                        <li>Create user profile to define a new role</li>
-                        <li>View user profile and permissions</li>
-                        <li>Update role settings</li>
-                        <li>Suspend a specific user profile</li>
-                        <li>Search user profile by role</li>
-                    </ul>
-                </div>
+                <form action="/api/profiles/create" method="POST">
+                    <h3>Define New Role</h3>
+                    <div class="form-group" style="margin-top:10px;">
+                        <input type="text" name="roleName" placeholder="New Role Name..." required>
+                    </div>
+                    <div class="form-group">
+                        <select name="status">
+                            <option value="Active">Active</option>
+                            <option value="Suspended">Suspended</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-black">Create New Profile</button>
+                </form>
             </div>
-        </div>
+        </section>
+
+        <section class="admin-section">
+            <div class="section-header">
+                <h2><span class="step-badge">STEP 2</span> Account Management</h2>
+            </div>
+
+            <div class="action-bar">
+                <div>
+                    <h3>Find User Accounts</h3>
+                    <div class="form-group" style="margin-top:10px;">
+                        <input type="text" placeholder="Search by Username or ID...">
+                        <button class="btn btn-outline" style="margin-top:10px;">Search Account</button>
+                    </div>
+                </div>
+
+                <form action="/api/accounts/create" method="POST">
+                    <h3>Create New User Account</h3>
+                    <div class="form-group" style="margin-top:10px;">
+                        <input type="text" name="username" placeholder="Username" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" name="password" placeholder="Password" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Assign Profile (Role)</label>
+                        <select name="profileId">
+                            <option value="">-- Select a Profile (Must be created in Step 1) --</option>
+                            <option value="1">Admin</option>
+                            <option value="2">Fund Raiser</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-black">Create User Account</button>
+                </form>
+            </div>
+        </section>
     </main>
 </div>
+
 </body>
 </html>
