@@ -26,7 +26,7 @@ public class UserProfile {
     // ========================================================
     // Database Interaction: The object saves itself to the DB
     // ========================================================
-    public boolean saveToDatabase() {
+    public boolean saveToPFDatabase() {
         // [FIXED]: Updated column names to exactly match the MySQL table ('role' and 'p_status')
         String sql = "INSERT INTO user_profile (role, p_status) VALUES (?, ?)";
 

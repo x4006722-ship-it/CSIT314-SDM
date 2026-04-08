@@ -14,6 +14,6 @@ public class UserAdminCreateProfileController {
         UserProfile newProfile = new UserProfile(null, roleName, status);
         
         // 2. Command the Entity to save itself to the MySQL database
-        return newProfile.saveToDatabase();
+        return newProfile.saveToPFDatabase();
     }
 }
