@@ -4,32 +4,34 @@ import com.uow.control.UserAdminCreateProfileController;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@RestController // Tells Spring: This Boundary handles communication with the webpage (HTML)
+@RestController 
 @RequestMapping("/api/profiles")
-
 public class UserAdminCreateProfilePage {
 
     private final UserAdminCreateProfileController controller;
 
-    // Spring automatically injects the Controller here (Dependency Injection)
     @Autowired
     public UserAdminCreateProfilePage(UserAdminCreateProfileController controller) {
         this.controller = controller;
     }
 
-    // Receives the POST request sent from the HTML form
+    // ==========================================
+    // THE FIX IS HERE: Add ("roleName") and ("status") 
+    // ==========================================
     @PostMapping("/create")
-    public String submitForm(@RequestParam String roleName, @RequestParam String status) {
-        System.out.println("Boundary received web input: Role = " + roleName + ", Status = " + status);
+    public String submitForm(
+            @RequestParam("roleName") String roleName, 
+            @RequestParam("status") String status) {
+            
+        System.out.println("Boundary received request for: " + roleName);
         
-        // The Boundary makes no logical decisions; it passes data directly to the Control layer
+        // Pass the data to the Control layer
         boolean isSuccess = controller.createProfile(roleName, status);
         
-        // Based on the Control layer's result, the Boundary decides what text to display to the user
         if (isSuccess) {
-            return "Profile '" + roleName + "' created successfully! Returning to Admin Dashboard...";
+            return "Success: Profile '" + roleName + "' has been saved!";
         } else {
-            return "Error: Please try a different name or check the database connection.";
+            return "Error: Database failure. Check your SQL table or connection.";
         }
     }
 }

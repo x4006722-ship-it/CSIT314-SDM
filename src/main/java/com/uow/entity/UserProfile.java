@@ -27,10 +27,9 @@ public class UserProfile {
     // Database Interaction: The object saves itself to the DB
     // ========================================================
     public boolean saveToDatabase() {
-        // Note: Ensure the table name 'user_profile' and column names match your DB
-        String sql = "INSERT INTO user_profile (role_name, status) VALUES (?, ?)";
+        // [FIXED]: Updated column names to exactly match the MySQL table ('role' and 'p_status')
+        String sql = "INSERT INTO user_profile (role, p_status) VALUES (?, ?)";
 
-        // Use try-with-resources to ensure the connection closes automatically
         try (Connection conn = DBUtils.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
@@ -38,7 +37,6 @@ public class UserProfile {
             pstmt.setString(1, this.roleName);
             pstmt.setString(2, this.status);
             
-            // Execute the update
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
             
