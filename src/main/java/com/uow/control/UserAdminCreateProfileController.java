@@ -1,9 +1,10 @@
 package com.uow.control;
 
-import com.uow.entity.UserProfile; 
 import org.springframework.stereotype.Service;
 
-@Service // Only use @Service here!
+import com.uow.entity.UserProfile;
+
+@Service 
 public class UserAdminCreateProfileController {
 
     // A regular Java method called by the Boundary Layer
