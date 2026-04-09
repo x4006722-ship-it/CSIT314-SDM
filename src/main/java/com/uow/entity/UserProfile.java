@@ -3,7 +3,8 @@ package com.uow.entity;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import com.uow.util.DBUtils; // Importing your database utility
+
+import com.uow.util.DBUtils;
 
 public class UserProfile {
     private String profileId;
@@ -23,11 +24,7 @@ public class UserProfile {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
-    // ========================================================
-    // Database Interaction: The object saves itself to the DB
-    // ========================================================
     public boolean saveToPFDatabase() {
-        // [FIXED]: Updated column names to exactly match the MySQL table ('role' and 'p_status')
         String sql = "INSERT INTO user_profile (role, p_status) VALUES (?, ?)";
 
         try (Connection conn = DBUtils.getConnection();
