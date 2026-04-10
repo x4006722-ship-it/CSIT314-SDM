@@ -5,16 +5,14 @@ import org.springframework.stereotype.Service;
 import com.uow.entity.UserProfile;
 
 @Service 
+/**
+ * Control layer for creating a new role/profile.
+ */
 public class UserAdminCreateProfileController {
 
-    // A regular Java method called by the Boundary Layer
+    /** Creates a profile and saves it into the database. */
     public boolean createProfile(String roleName, String status) {
-        System.out.println("Control layer logic: Creating profile object...");
-        
-        // 1. Create the Entity object
         UserProfile newProfile = new UserProfile(null, roleName, status);
-        
-        // 2. Command the Entity to save itself to the MySQL database
         return newProfile.saveToPFDatabase();
     }
 }

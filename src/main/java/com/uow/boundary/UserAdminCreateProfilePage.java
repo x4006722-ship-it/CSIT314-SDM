@@ -1,15 +1,20 @@
 package com.uow.boundary;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.uow.control.UserAdminCreateProfileController;
+import com.uow.entity.UserProfile;
 
 @RestController 
 @RequestMapping("/api/profiles")
+/**
+ * Boundary (API) for listing and creating user profiles (roles).
+ */
 public class UserAdminCreateProfilePage {
 
     private final UserAdminCreateProfileController controller;
@@ -19,14 +24,15 @@ public class UserAdminCreateProfilePage {
         this.controller = controller;
     }
 
+    @GetMapping("/list")
+    public Object listProfiles() {
+        return UserProfile.fetchAllProfiles();
+    }
+
     @PostMapping("/create")
     public String submitForm(
             @RequestParam("roleName") String roleName, 
             @RequestParam("status") String status) {
-            
-        System.out.println("Boundary received request for: " + roleName);
-        
-        // Pass the data to the Control layer
         boolean isSuccess = controller.createProfile(roleName, status);
         
         if (isSuccess) {

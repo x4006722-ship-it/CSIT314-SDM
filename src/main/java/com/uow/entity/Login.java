@@ -9,6 +9,9 @@ import com.uow.util.DBUtils;
 
 public class Login {
 
+    /**
+     * Entity for authenticating a user and loading their profile/role info.
+     */
     private int user_id;
     private String username;
     private String userPassword;

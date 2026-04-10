@@ -70,8 +70,8 @@
 
         .action-bar {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
+            grid-template-columns: 1fr;
+            gap: 18px;
         }
 
         .form-group { margin-bottom: 15px; }
@@ -181,6 +181,23 @@
             border: 1px solid #e5e7eb;
         }
 
+        .btn-status {
+            min-width: 96px;
+            justify-content: center;
+        }
+
+        .btn-status-suspend {
+            background: #fff1f0;
+            border: 1px solid #ffccc7;
+            color: #a8071a;
+        }
+
+        .btn-status-active {
+            background: #ecfdf3;
+            border: 1px solid #b7ebc6;
+            color: #0f5132;
+        }
+
         .pill {
             display: inline-flex;
             align-items: center;
@@ -244,7 +261,10 @@
         .td-actions {
             display: inline-flex;
             gap: 8px;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
+            align-items: center;
+            justify-content: flex-end;
+            width: 100%;
         }
 
         .muted {
@@ -351,6 +371,67 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.18);
         }
 
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 1200;
+        }
+
+        .modal-backdrop.open { display: block; }
+
+        .modal {
+            position: fixed;
+            left: 50%;
+            top: 8%;
+            transform: translateX(-50%);
+            width: min(640px, 92vw);
+            max-height: 88vh;
+            background: #fff;
+            border: 1px solid #eaeaea;
+            border-radius: 14px;
+            box-shadow: 0 18px 60px rgba(0,0,0,0.25);
+            display: none;
+            z-index: 1210;
+            overflow: hidden;
+        }
+
+        .modal.open { display: block; }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            background: #fafafa;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-header strong {
+            font-size: 16px;
+            color: #111;
+        }
+
+        .modal-body {
+            padding: 16px;
+            font-size: 16px;
+            line-height: 1.5;
+            color: #111;
+            word-break: break-word;
+            overflow: auto;
+            max-height: calc(88vh - 56px - 64px);
+        }
+
+        .modal-footer {
+            padding: 14px 16px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            background: #fff;
+        }
+
         @media (max-width: 980px) {
             .action-bar { grid-template-columns: 1fr; }
             .grid-2, .grid-3 { grid-template-columns: 1fr; }
@@ -361,7 +442,7 @@
 <div class="container">
     <main class="main-content">
         <div class="topbar">
-            <span class="topbar-user">Logged in as: <strong>Admin</strong></span>
+            <span class="topbar-user">Logged in as: <strong> User Admin</strong></span>
             <a href="/logout" class="logout-btn">Logout</a>
         </div>
 
@@ -372,420 +453,801 @@
 
         <div class="admin-section">
             <div class="section-header">
-                <h2><span class="step-badge">STEP 2</span> Account Management</h2>
+                <h2> Account Management</h2>
             </div>
 
             <div class="action-bar">
-                <div class="subsection">
-                    <h3>Search / View / Update / Suspend</h3>
-                    <div class="grid-2" style="margin-top: 10px;">
-                        <div class="form-group">
-                            <label>Quick Search</label>
-                            <input id="ua-search" type="text" placeholder="Username, User ID, Email, Phone, Full name">
-                            <div class="muted" style="margin-top:6px;">Search is local UI filtering for now; plug into backend later.</div>
-                        </div>
-                        <div class="form-group">
-                            <label>Status</label>
-                            <select id="ua-status">
-                                <option value="all">All</option>
-                                <option value="active">Active</option>
-                                <option value="suspended">Suspended</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="field-row" style="margin-top: 10px;">
-                        <div class="grid-3">
-                            <div class="form-group">
-                                <label>Role (Profile)</label>
-                                <select id="ua-role">
-                                    <option value="all">All</option>
-                                    <option value="admin">Admin</option>
-                                    <option value="fund-raiser">Fund Raiser</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Sort</label>
-                                <select id="ua-sort">
-                                    <option value="recent">Most recent</option>
-                                    <option value="username">Username</option>
-                                    <option value="status">Status</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Per page</label>
-                                <select id="ua-page-size">
-                                    <option value="10">10</option>
-                                    <option value="25" selected>25</option>
-                                    <option value="50">50</option>
-                                    <option value="100">100</option>
-                                </select>
-                            </div>
-                        </div>
-                        <button id="ua-clear" type="button" class="btn btn-muted btn-sm">Clear</button>
-                    </div>
-
-                    <div class="table-wrap" style="margin-top: 14px;">
-                        <div class="table-scroll">
-                            <table id="ua-table" aria-label="User accounts">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 92px;">User ID</th>
-                                        <th style="width: 180px;">Username</th>
-                                        <th style="width: 220px;">Full name</th>
-                                        <th style="width: 250px;">Email</th>
-                                        <th style="width: 150px;">Phone</th>
-                                        <th style="width: 150px;">Role</th>
-                                        <th style="width: 140px;">Status</th>
-                                        <th style="width: 210px;">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="ua-tbody">
-                                    <tr data-status="active" data-role="admin">
-                                        <td>1001</td>
-                                        <td>admin01</td>
-                                        <td>Alex Tan</td>
-                                        <td>alex.tan@example.com</td>
-                                        <td>+65 8123 4567</td>
-                                        <td>Admin</td>
-                                        <td><span class="pill ok">Active</span></td>
-                                        <td>
-                                            <div class="td-actions">
-                                                <button type="button" class="btn btn-outline btn-sm" data-action="view">View</button>
-                                                <button type="button" class="btn btn-black btn-sm" data-action="edit">Update</button>
-                                                <button type="button" class="btn btn-danger btn-sm" data-action="toggle">Suspend</button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr data-status="suspended" data-role="fund-raiser">
-                                        <td>1002</td>
-                                        <td>fr_maya</td>
-                                        <td>Maya Lim</td>
-                                        <td>maya.lim@example.com</td>
-                                        <td>+65 8777 1200</td>
-                                        <td>Fund Raiser</td>
-                                        <td><span class="pill bad">Suspended</span></td>
-                                        <td>
-                                            <div class="td-actions">
-                                                <button type="button" class="btn btn-outline btn-sm" data-action="view">View</button>
-                                                <button type="button" class="btn btn-black btn-sm" data-action="edit">Update</button>
-                                                <button type="button" class="btn btn-muted btn-sm" data-action="toggle">Re-activate</button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr data-status="active" data-role="fund-raiser">
-                                        <td>1003</td>
-                                        <td>fr_ken</td>
-                                        <td>Ken Ong</td>
-                                        <td>ken.ong@example.com</td>
-                                        <td>+65 9000 1010</td>
-                                        <td>Fund Raiser</td>
-                                        <td><span class="pill ok">Active</span></td>
-                                        <td>
-                                            <div class="td-actions">
-                                                <button type="button" class="btn btn-outline btn-sm" data-action="view">View</button>
-                                                <button type="button" class="btn btn-black btn-sm" data-action="edit">Update</button>
-                                                <button type="button" class="btn btn-danger btn-sm" data-action="toggle">Suspend</button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="pagination">
-                            <div class="muted" id="ua-count">Showing 3 of 3</div>
-                            <div class="page-controls">
-                                <button id="ua-prev" type="button" class="btn btn-muted btn-sm">Prev</button>
-                                <span class="muted" id="ua-page">Page 1</span>
-                                <button id="ua-next" type="button" class="btn btn-muted btn-sm">Next</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <form class="subsection" action="/api/accounts/create" method="POST">
-                    <h3>Create New User Account</h3>
+                <form id="create-account-form" class="subsection" action="/api/accounts/create" method="POST" novalidate>
+                    <h3>Create User Account</h3>
                     <div class="grid-2" style="margin-top:10px;">
                         <div class="form-group">
                             <label>Username</label>
-                            <input type="text" name="username" placeholder="e.g. fr_john" required>
+                            <input type="text" name="username" required pattern=".*\\S.*" autocomplete="username">
                         </div>
                         <div class="form-group">
                             <label>Password</label>
-                            <input type="password" name="password" placeholder="Set initial password" required>
+                            <input type="password" name="password" required pattern=".*\\S.*" autocomplete="new-password">
                         </div>
                     </div>
                     <div class="grid-2">
                         <div class="form-group">
                             <label>Full name</label>
-                            <input type="text" name="fullName" placeholder="e.g. John Lim" required>
+                            <input type="text" name="fullName" required>
                         </div>
                         <div class="form-group">
                             <label>Email</label>
-                            <input type="email" name="email" placeholder="e.g. john.lim@example.com" required>
+                            <input type="text" name="email" required autocomplete="email">
                         </div>
                     </div>
                     <div class="grid-2">
                         <div class="form-group">
-                            <label>Phone</label>
-                            <input type="text" name="phone" placeholder="e.g. +65 8123 4567">
+                            <label>Phone number</label>
+                            <input type="text" name="phone" required inputmode="numeric" pattern="\\d+" autocomplete="tel">
                         </div>
                         <div class="form-group">
-                            <label>Assign Profile (Role)</label>
+                            <label>Assign profile</label>
                             <select name="profileId" required>
-                                <option value="">-- Select a Profile (Must be created in Step 1) --</option>
-                                <option value="1">Admin</option>
-                                <option value="2">Fund Raiser</option>
+                                <option value="">Select a Profile</option>
                             </select>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-black">Create User Account</button>
-                    <div class="muted" style="margin-top:10px;">After backend integration, newly created users can appear instantly in the table.</div>
+                    <button type="submit" class="btn btn-black">Create</button>
                 </form>
+            </div>
+        </div>
+
+        <div class="admin-section">
+            <div class="section-header">
+                <h2> Manage User Accounts</h2>
+            </div>
+
+            <div class="action-bar">
+                <div class="subsection">
+                    <div class="subsection" style="padding: 12px; margin-bottom: 12px;">
+                        <h3>Search and View User Accounts</h3>
+                        <div class="grid-3">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label>Keyword</label>
+                                <input id="ua-search-q" type="text" placeholder="Type to search…">
+                                <div class="muted" style="margin-top:6px;">Enters Username / Fullname / Email / Phone.</div>
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label>Account Status</label>
+                                <select id="ua-filter-status">
+                                    <option value="all" selected>All</option>
+                                    <option value="Active">Active</option>
+                                    <option value="Suspended">Suspended</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label>Role</label>
+                                <select id="ua-filter-role">
+                                    <option value="all" selected>All</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top: 12px;">
+                            <button id="ua-search-btn" type="button" class="btn btn-black">Search</button>
+                            <button id="ua-search-clear" type="button" class="btn btn-muted">Clear</button>
+                        </div>
+                    </div>
+
+                    <div class="table-wrap" style="margin-top: 10px;">
+                        <div class="table-scroll" style="max-height: 520px;">
+                            <table id="ua-list-table" aria-label="User accounts list" style="min-width: 0;">
+                                <thead>
+                                <tr>
+                                    <th style="width: 240px;">Username</th>
+                                    <th style="width: 190px;">Phone Number</th>
+                                    <th style="width: 220px;">Role</th>
+                                    <th style="width: 180px;">Account Status</th>
+                                    <th style="width: 220px; text-align:right;">Action</th>
+                                </tr>
+                                </thead>
+                                <tbody id="ua-list-tbody">
+                                <tr>
+                                    <td colspan="4" class="muted">Loading...</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="ua-list-pagination" style="margin-top: 12px;"></div>
+                </div>
             </div>
         </div>
     </main>
 </div>
 
-<div id="ua-backdrop" class="drawer-backdrop"></div>
-<aside id="ua-drawer" class="drawer" aria-label="Account details panel">
-    <div class="drawer-header">
-        <div class="drawer-title">
-            <strong id="ua-drawer-title">Account</strong>
-            <span class="muted" id="ua-drawer-subtitle">View / Update</span>
-        </div>
-        <button id="ua-close" type="button" class="btn btn-muted btn-sm">Close</button>
+<div id="ua-modal-backdrop" class="modal-backdrop"></div>
+<div id="ua-modal" class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+        <strong id="ua-modal-title">Notification</strong>
     </div>
-    <div class="drawer-body">
-        <div class="kv">
-            <div class="k">User ID</div>
-            <div class="v" id="ua-v-id">-</div>
-        </div>
-        <div class="kv">
-            <div class="k">Username</div>
-            <div class="v" id="ua-v-username">-</div>
-        </div>
-        <div class="kv">
-            <div class="k">Full name</div>
-            <div class="v" id="ua-v-fullname">-</div>
-        </div>
-        <div class="kv">
-            <div class="k">Email</div>
-            <div class="v" id="ua-v-email">-</div>
-        </div>
-        <div class="kv">
-            <div class="k">Phone</div>
-            <div class="v" id="ua-v-phone">-</div>
-        </div>
-        <div class="kv">
-            <div class="k">Role</div>
-            <div class="v" id="ua-v-role">-</div>
-        </div>
-        <div class="kv">
-            <div class="k">Status</div>
-            <div class="v" id="ua-v-status">-</div>
-        </div>
+    <div id="ua-modal-message" class="modal-body"></div>
+    <div class="modal-footer">
+        <button id="ua-modal-save" type="button" class="btn btn-outline" style="display:none;">Save changes</button>
+        <button id="ua-modal-ok" type="button" class="btn btn-black">OK</button>
+    </div>
+</div>
 
-        <div id="ua-edit-form" class="card" style="padding: 14px; border-radius: 10px; border: 1px solid #eee;">
-            <div class="muted" style="margin-bottom: 10px;">Update fields (UI only for now)</div>
-            <div class="grid-2">
-                <div class="form-group">
-                    <label>Full name</label>
-                    <input id="ua-e-fullname" type="text" placeholder="Full name">
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input id="ua-e-email" type="email" placeholder="Email">
-                </div>
-            </div>
-            <div class="grid-2">
-                <div class="form-group">
-                    <label>Phone</label>
-                    <input id="ua-e-phone" type="text" placeholder="Phone">
-                </div>
-                <div class="form-group">
-                    <label>Role</label>
-                    <select id="ua-e-role">
-                        <option value="Admin">Admin</option>
-                        <option value="Fund Raiser">Fund Raiser</option>
-                    </select>
-                </div>
-            </div>
-        </div>
+<div id="ua-note-backdrop" class="modal-backdrop" style="z-index: 1300;"></div>
+<div id="ua-note-modal" class="modal" role="dialog" aria-modal="true" style="z-index: 1310; top: 18%; width: min(560px, 92vw); max-height: 70vh;">
+    <div class="modal-header">
+        <strong id="ua-note-title">Notice</strong>
     </div>
-    <div class="drawer-footer">
-        <button id="ua-save" type="button" class="btn btn-black">Save Changes</button>
-        <button id="ua-toggle" type="button" class="btn btn-danger">Suspend</button>
+    <div id="ua-note-message" class="modal-body"></div>
+    <div class="modal-footer">
+        <button id="ua-note-ok" type="button" class="btn btn-black">OK</button>
     </div>
-</aside>
-
-<div id="ua-toast" class="toast">Saved</div>
+</div>
 
 <script>
-    const ua = {
-        page: 1,
-        pageSize: 25,
-        rows: [],
-        filtered: []
+    const uaState = {
+        profiles: [],
+        profilesLoaded: false,
+        listPage: 1,
+        listPageSize: 15,
+        listTotalPages: 1
     };
 
-    function uaToast(msg) {
-        const t = document.getElementById('ua-toast');
-        t.textContent = msg;
-        t.style.display = 'block';
-        window.clearTimeout(uaToast._t);
-        uaToast._t = window.setTimeout(() => { t.style.display = 'none'; }, 1400);
+    function uaModalOpen(message, title) {
+        const backdrop = document.getElementById('ua-modal-backdrop');
+        const modal = document.getElementById('ua-modal');
+        const msgEl = document.getElementById('ua-modal-message');
+        const titleEl = document.getElementById('ua-modal-title');
+        const saveBtn = document.getElementById('ua-modal-save');
+
+        if (titleEl) titleEl.textContent = title || 'Notification';
+        if (msgEl) msgEl.textContent = message || '';
+
+        // Default behavior: notification modal shouldn't show "Save changes"
+        if (saveBtn) {
+            saveBtn.style.display = 'none';
+            saveBtn.dataset.userId = '';
+            saveBtn.dataset.dirty = '0';
+            saveBtn.disabled = false;
+        }
+
+        backdrop?.classList.add('open');
+        modal?.classList.add('open');
     }
 
-    function uaOpenDrawer(mode, rowEl) {
-        const backdrop = document.getElementById('ua-backdrop');
-        const drawer = document.getElementById('ua-drawer');
-
-        const cells = rowEl.querySelectorAll('td');
-        const data = {
-            id: cells[0]?.textContent?.trim() ?? '-',
-            username: cells[1]?.textContent?.trim() ?? '-',
-            fullname: cells[2]?.textContent?.trim() ?? '-',
-            email: cells[3]?.textContent?.trim() ?? '-',
-            phone: cells[4]?.textContent?.trim() ?? '-',
-            role: cells[5]?.textContent?.trim() ?? '-',
-            status: rowEl.getAttribute('data-status') ?? '-'
-        };
-
-        document.getElementById('ua-drawer-title').textContent = mode === 'view' ? 'Account (View)' : 'Account (Update)';
-        document.getElementById('ua-v-id').textContent = data.id;
-        document.getElementById('ua-v-username').textContent = data.username;
-        document.getElementById('ua-v-fullname').textContent = data.fullname;
-        document.getElementById('ua-v-email').textContent = data.email;
-        document.getElementById('ua-v-phone').textContent = data.phone;
-        document.getElementById('ua-v-role').textContent = data.role;
-        document.getElementById('ua-v-status').textContent = data.status === 'suspended' ? 'Suspended' : 'Active';
-
-        document.getElementById('ua-e-fullname').value = data.fullname;
-        document.getElementById('ua-e-email').value = data.email;
-        document.getElementById('ua-e-phone').value = data.phone;
-        document.getElementById('ua-e-role').value = data.role;
-
-        document.getElementById('ua-edit-form').style.display = mode === 'edit' ? 'block' : 'none';
-
-        const toggleBtn = document.getElementById('ua-toggle');
-        const isSusp = data.status === 'suspended';
-        toggleBtn.textContent = isSusp ? 'Re-activate' : 'Suspend';
-        toggleBtn.className = isSusp ? 'btn btn-muted' : 'btn btn-danger';
-        toggleBtn.dataset.rowId = data.id;
-
-        const saveBtn = document.getElementById('ua-save');
-        saveBtn.style.display = mode === 'edit' ? 'inline-flex' : 'none';
-        saveBtn.dataset.rowId = data.id;
-
-        backdrop.classList.add('open');
-        drawer.classList.add('open');
+    function uaModalClose() {
+        document.getElementById('ua-modal-backdrop')?.classList.remove('open');
+        document.getElementById('ua-modal')?.classList.remove('open');
     }
 
-    function uaCloseDrawer() {
-        document.getElementById('ua-backdrop').classList.remove('open');
-        document.getElementById('ua-drawer').classList.remove('open');
+    function uaNoteOpen(message, title) {
+        const backdrop = document.getElementById('ua-note-backdrop');
+        const modal = document.getElementById('ua-note-modal');
+        const msgEl = document.getElementById('ua-note-message');
+        const titleEl = document.getElementById('ua-note-title');
+        if (titleEl) titleEl.textContent = title || 'Notice';
+        if (msgEl) msgEl.textContent = message || '';
+        backdrop?.classList.add('open');
+        modal?.classList.add('open');
     }
 
-    function uaMatches(rowEl, q, status, role) {
-        const text = rowEl.textContent.toLowerCase();
-        const okQ = !q || text.includes(q);
-        const rowStatus = rowEl.getAttribute('data-status') || '';
-        const okStatus = status === 'all' || rowStatus === status;
-        const rowRole = rowEl.getAttribute('data-role') || '';
-        const okRole = role === 'all' || rowRole === role;
-        return okQ && okStatus && okRole;
+    function uaNoteClose() {
+        document.getElementById('ua-note-backdrop')?.classList.remove('open');
+        document.getElementById('ua-note-modal')?.classList.remove('open');
     }
 
-    function uaApplyFilter() {
-        const q = (document.getElementById('ua-search')?.value || '').trim().toLowerCase();
-        const status = document.getElementById('ua-status')?.value || 'all';
-        const role = document.getElementById('ua-role')?.value || 'all';
-        ua.pageSize = parseInt(document.getElementById('ua-page-size')?.value || '25', 10);
-
-        ua.filtered = ua.rows.filter(r => uaMatches(r, q, status, role));
-
-        const total = ua.filtered.length;
-        const totalPages = Math.max(1, Math.ceil(total / ua.pageSize));
-        ua.page = Math.min(ua.page, totalPages);
-
-        const start = (ua.page - 1) * ua.pageSize;
-        const end = start + ua.pageSize;
-        ua.rows.forEach(r => r.style.display = 'none');
-        ua.filtered.slice(start, end).forEach(r => r.style.display = '');
-
-        document.getElementById('ua-count').textContent = `Showing ${Math.min(total, end) - start} of ${total}`;
-        document.getElementById('ua-page').textContent = `Page ${ua.page} / ${totalPages}`;
-        document.getElementById('ua-prev').disabled = ua.page <= 1;
-        document.getElementById('ua-next').disabled = ua.page >= totalPages;
+    function uaEscapeHtml(s) {
+        return String(s ?? '')
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#39;');
     }
 
-    function uaInit() {
-        const tbody = document.getElementById('ua-tbody');
+    async function loadAccountSummaries() {
+        const tbody = document.getElementById('ua-list-tbody');
         if (!tbody) return;
-        ua.rows = Array.from(tbody.querySelectorAll('tr'));
-        ua.filtered = ua.rows.slice();
 
-        document.getElementById('ua-search')?.addEventListener('input', () => { ua.page = 1; uaApplyFilter(); });
-        document.getElementById('ua-status')?.addEventListener('change', () => { ua.page = 1; uaApplyFilter(); });
-        document.getElementById('ua-role')?.addEventListener('change', () => { ua.page = 1; uaApplyFilter(); });
-        document.getElementById('ua-page-size')?.addEventListener('change', () => { ua.page = 1; uaApplyFilter(); });
-        document.getElementById('ua-sort')?.addEventListener('change', () => { ua.page = 1; uaApplyFilter(); });
+        tbody.innerHTML = `<tr><td colspan="4" class="muted">Loading...</td></tr>`;
 
-        document.getElementById('ua-clear')?.addEventListener('click', () => {
-            document.getElementById('ua-search').value = '';
-            document.getElementById('ua-status').value = 'all';
-            document.getElementById('ua-role').value = 'all';
-            document.getElementById('ua-sort').value = 'recent';
-            document.getElementById('ua-page-size').value = '25';
-            ua.page = 1;
-            uaApplyFilter();
+        try {
+            const q = (uaState.searchQuery || '').trim();
+            const status = uaState.searchStatus || 'all';
+            const role = uaState.searchRole || 'all';
+            const useSearch = !!q || (status && status !== 'all') || (role && role !== 'all');
+            const baseUrl = useSearch ? '/api/accounts/search' : '/api/accounts/list';
+            const url = useSearch
+                ? `${baseUrl}?query=${encodeURIComponent(q)}&status=${encodeURIComponent(status)}&role=${encodeURIComponent(role)}&page=${encodeURIComponent(uaState.listPage)}&pageSize=${encodeURIComponent(uaState.listPageSize)}`
+                : `${baseUrl}?page=${encodeURIComponent(uaState.listPage)}&pageSize=${encodeURIComponent(uaState.listPageSize)}`;
+
+            const r = await fetch(url, { credentials: 'same-origin' });
+            if (!r.ok) throw new Error('Failed to load accounts');
+            const payload = await r.json();
+
+            if (payload && typeof payload === 'object' && !Array.isArray(payload) && payload.error) {
+                throw new Error(payload.error);
+            }
+
+            // Backward compatible: support both new {items, page, totalPages...} and old [ ... ] response.
+            const safeRows = Array.isArray(payload)
+                ? payload
+                : (Array.isArray(payload?.items) ? payload.items : []);
+
+            uaState.listTotalPages = Number((payload && !Array.isArray(payload)) ? (payload?.totalPages || 1) : 1);
+            uaState.listPage = Number((payload && !Array.isArray(payload)) ? (payload?.page || uaState.listPage) : uaState.listPage);
+            if (!Number.isFinite(uaState.listTotalPages) || uaState.listTotalPages < 1) uaState.listTotalPages = 1;
+            if (!Number.isFinite(uaState.listPage) || uaState.listPage < 1) uaState.listPage = 1;
+            if (safeRows.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="muted">No accounts found.</td></tr>`;
+                uaRenderPagination();
+                return;
+            }
+
+            tbody.innerHTML = safeRows.map(a => {
+                const userId = a.userId ?? '';
+                const username = uaEscapeHtml(a.username ?? '');
+                const phoneNumber = uaEscapeHtml(a.phoneNumber ?? '');
+                const roleName = uaEscapeHtml(a.roleName ?? '');
+                const accountStatus = uaEscapeHtml(a.accountStatus ?? '');
+                const isSuspended = String(a.accountStatus ?? '').toLowerCase() === 'suspended';
+                const toggleLabel = isSuspended ? 'Active' : 'Suspend';
+                const toggleClass = isSuspended ? 'btn-status-active' : 'btn-status-suspend';
+
+                return `
+                    <tr>
+                        <td>${username}</td>
+                        <td>${phoneNumber}</td>
+                        <td>${roleName}</td>
+                        <td>${accountStatus}</td>
+                        <td style="text-align:right;">
+                            <div class="td-actions">
+                                <button type="button" class="btn btn-outline btn-sm" data-action="view" data-user-id="${uaEscapeHtml(userId)}">View</button>
+                                <button type="button" class="btn btn-sm btn-status ${toggleClass}" data-action="toggle-status" data-user-id="${uaEscapeHtml(userId)}">${uaEscapeHtml(toggleLabel)}</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            uaRenderPagination();
+        } catch (e) {
+            tbody.innerHTML = `<tr><td colspan="4" class="muted">Failed to load accounts.</td></tr>`;
+            uaModalOpen(`Failed to load accounts from database. ${e?.message ? '(' + e.message + ')' : ''}`, 'Notice');
+            uaRenderPagination();
+        }
+    }
+
+    function uaRenderPagination() {
+        const wrap = document.getElementById('ua-list-pagination');
+        if (!wrap) return;
+        const page = uaState.listPage;
+        const totalPages = uaState.listTotalPages;
+        wrap.innerHTML = `
+            <div class="pagination">
+                <div class="muted">Page ${page} / ${totalPages}</div>
+                <div class="page-controls">
+                    <button id="ua-page-prev" type="button" class="btn btn-muted btn-sm" ${page <= 1 ? 'disabled' : ''}>Prev</button>
+                    <button id="ua-page-next" type="button" class="btn btn-muted btn-sm" ${page >= totalPages ? 'disabled' : ''}>Next</button>
+                </div>
+            </div>
+        `;
+        document.getElementById('ua-page-prev')?.addEventListener('click', async () => {
+            uaState.listPage = Math.max(1, uaState.listPage - 1);
+            await loadAccountSummaries();
+        });
+        document.getElementById('ua-page-next')?.addEventListener('click', async () => {
+            uaState.listPage = Math.min(uaState.listTotalPages, uaState.listPage + 1);
+            await loadAccountSummaries();
+        });
+    }
+
+    async function viewAccountDetail(userId) {
+        if (!userId) return;
+        try {
+            const r = await fetch(`/api/accounts/view?userId=${encodeURIComponent(userId)}`, { credentials: 'same-origin' });
+            if (!r.ok) {
+                const err = await r.json().catch(() => ({}));
+                throw new Error(err?.error || 'Failed to load account');
+            }
+            const detail = await r.json();
+            const d = detail || {};
+
+            const fieldLabels = {
+                username: 'Username',
+                full_name: 'Full name',
+                email: 'Email',
+                phone_number: 'Phone Number',
+                password: 'Password',
+                a_status: 'Account Status',
+                profile_id: 'Role',
+                roleName: 'Role'
+            };
+
+            const getFirst = (obj, keys) => {
+                for (const k of keys) {
+                    if (obj && Object.prototype.hasOwnProperty.call(obj, k)) return obj[k];
+                }
+                return '';
+            };
+
+            const profileId = getFirst(d, ['profile_id', 'profileId']);
+            const roleName = getFirst(d, ['roleName', 'role']);
+
+            const ordered = [
+                ['username', getFirst(d, ['username'])],
+                ['full_name', getFirst(d, ['full_name', 'fullname', 'fullName', 'name'])],
+                ['email', getFirst(d, ['email', 'e_mail', 'user_email', 'email_address'])],
+                ['phone_number', getFirst(d, ['phone_number', 'phone', 'phoneNo', 'phone_no', 'contact_number'])],
+                ['password', getFirst(d, ['password'])],
+                ['a_status', getFirst(d, ['a_status'])],
+                ['profile_id', profileId],
+                ['roleName', roleName],
+            ];
+
+            const editableKeys = new Set(['username', 'full_name', 'email', 'phone_number', 'password', 'a_status', 'profile_id']);
+
+            const bodyHtml = `
+                <div class="muted" style="margin-bottom: 10px;">Tip: Double-click a value to edit, then click “Save changes”.</div>
+                <div class="table-wrap" style="border: 1px solid #eee;">
+                    <div class="table-scroll" style="max-height: none;">
+                        <table aria-label="Account detail" style="min-width: 0;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 220px;">Field</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${ordered.filter(([k]) => !['roleName'].includes(String(k))).map(([k, v]) => {
+                                    const label = fieldLabels[k] ?? k;
+                                    const isPassword = String(k) === 'password';
+                                    const safeVal = (v === null || v === undefined || String(v).trim() === '') ? '-' : String(v);
+                                    const valueHtml = isPassword
+                                        ? `<span class="ua-secret" role="button" tabindex="0" style="cursor:pointer; user-select:none;" data-secret="${uaEscapeHtml(safeVal)}">*****</span>`
+                                        : (String(k) === 'profile_id'
+                                            ? `<span class="ua-value" data-field="profile_id" data-value="${uaEscapeHtml(profileId)}">${uaEscapeHtml(roleName || '-')}</span>`
+                                            : `<span class="ua-value" data-field="${uaEscapeHtml(k)}">${uaEscapeHtml(safeVal)}</span>`);
+                                    return `
+                                    <tr data-field="${uaEscapeHtml(k)}" data-editable="${editableKeys.has(String(k)) ? '1' : '0'}">
+                                        <td class="muted" style="font-weight: 600;">${uaEscapeHtml(label)}</td>
+                                        <td>${valueHtml}</td>
+                                    </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            const msgEl = document.getElementById('ua-modal-message');
+            if (msgEl) msgEl.innerHTML = bodyHtml;
+            const titleEl = document.getElementById('ua-modal-title');
+            if (titleEl) titleEl.textContent = `Account Detail (User ID: ${userId})`;
+
+            const saveBtn = document.getElementById('ua-modal-save');
+            if (saveBtn) {
+                saveBtn.style.display = 'inline-flex';
+                saveBtn.dataset.userId = String(userId);
+                saveBtn.dataset.dirty = '0';
+                saveBtn.disabled = false;
+            }
+
+            document.getElementById('ua-modal-backdrop')?.classList.add('open');
+            document.getElementById('ua-modal')?.classList.add('open');
+        } catch (e) {
+            uaModalOpen('Failed to load account detail.', 'Notice');
+        }
+    }
+
+    async function loadProfilesIntoCreateSelect() {
+        const select = document.querySelector('select[name="profileId"]');
+        if (!select) return;
+
+        try {
+            const r = await fetch('/api/profiles/list', { credentials: 'same-origin' });
+            if (!r.ok) throw new Error('Failed to load profiles');
+            const profiles = await r.json();
+            uaState.profiles = (profiles || []).map(p => ({
+                profileId: String(p.profileId ?? p.profile_id ?? ''),
+                roleName: String(p.roleName ?? p.role ?? ''),
+                status: String(p.status ?? p.p_status ?? '')
+            })).filter(p => p.profileId && p.roleName);
+            uaState.profilesLoaded = true;
+
+            // Populate Role filter dropdown (search UI)
+            const roleSel = document.getElementById('ua-filter-role');
+            if (roleSel) {
+                const current = roleSel.value || 'all';
+                roleSel.innerHTML = `<option value="all" selected>All</option>` + uaState.profiles
+                    .filter(p => !p.status || p.status.toLowerCase() !== 'suspended')
+                    .map(p => `<option value="${uaEscapeHtml(p.roleName)}">${uaEscapeHtml(p.roleName)}</option>`)
+                    .join('');
+                // restore selection if still exists
+                const exists = Array.from(roleSel.options).some(o => o.value === current);
+                roleSel.value = exists ? current : 'all';
+            }
+
+            const first = select.querySelector('option[value=""]');
+            select.innerHTML = '';
+            if (first) select.appendChild(first);
+            else {
+                const opt = document.createElement('option');
+                opt.value = '';
+                opt.textContent = 'Select a Profile';
+                select.appendChild(opt);
+            }
+
+            (profiles || []).forEach(p => {
+                const id = p.profileId ?? p.profile_id;
+                const role = p.roleName ?? p.role;
+                const status = (p.status ?? p.p_status ?? '').toString();
+
+                if (!id || !role) return;
+                if (status && status.toLowerCase() === 'suspended') return;
+
+                const opt = document.createElement('option');
+                opt.value = String(id);
+                opt.textContent = String(role);
+                select.appendChild(opt);
+            });
+        } catch (e) {
+            uaModalOpen('Failed to load profiles from database.', 'Notice');
+        }
+    }
+
+    function showToastFromQuery() {
+        const params = new URLSearchParams(window.location.search);
+        const msg = params.get('toast');
+        if (!msg) return;
+        uaModalOpen(msg, msg.toLowerCase().startsWith('success') ? 'Success' : 'Notice');
+        params.delete('toast');
+        const next = params.toString();
+        const url = window.location.pathname + (next ? `?${next}` : '');
+        window.history.replaceState({}, '', url);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        showToastFromQuery();
+        loadProfilesIntoCreateSelect();
+        loadAccountSummaries();
+
+        // init search state
+        uaState.searchQuery = '';
+        uaState.searchStatus = 'all';
+        uaState.searchRole = 'all';
+
+        document.getElementById('ua-search-btn')?.addEventListener('click', async () => {
+            uaState.searchQuery = (document.getElementById('ua-search-q')?.value || '').trim();
+            uaState.searchStatus = document.getElementById('ua-filter-status')?.value || 'all';
+            uaState.searchRole = document.getElementById('ua-filter-role')?.value || 'all';
+            uaState.listPage = 1;
+            await loadAccountSummaries();
         });
 
-        document.getElementById('ua-prev')?.addEventListener('click', () => { ua.page = Math.max(1, ua.page - 1); uaApplyFilter(); });
-        document.getElementById('ua-next')?.addEventListener('click', () => { ua.page += 1; uaApplyFilter(); });
+        document.getElementById('ua-search-q')?.addEventListener('keydown', async (e) => {
+            if (e.key !== 'Enter') return;
+            e.preventDefault();
+            document.getElementById('ua-search-btn')?.click();
+        });
 
-        document.getElementById('ua-backdrop')?.addEventListener('click', uaCloseDrawer);
-        document.getElementById('ua-close')?.addEventListener('click', uaCloseDrawer);
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') uaCloseDrawer(); });
+        document.getElementById('ua-search-clear')?.addEventListener('click', async () => {
+            const input = document.getElementById('ua-search-q');
+            if (input) input.value = '';
+            uaState.searchQuery = '';
+            uaState.searchStatus = 'all';
+            uaState.searchRole = 'all';
+            const sSel = document.getElementById('ua-filter-status');
+            if (sSel) sSel.value = 'all';
+            const rSel = document.getElementById('ua-filter-role');
+            if (rSel) rSel.value = 'all';
+            uaState.listPage = 1;
+            await loadAccountSummaries();
+        });
 
-        tbody.addEventListener('click', (e) => {
-            const btn = e.target.closest('button[data-action]');
-            if (!btn) return;
-            const row = btn.closest('tr');
-            const action = btn.getAttribute('data-action');
-            if (!row) return;
+        document.getElementById('ua-list-tbody')?.addEventListener('click', async (e) => {
+            const viewBtn = e.target.closest('button[data-action="view"]');
+            if (viewBtn) {
+                const userId = viewBtn.getAttribute('data-user-id');
+                viewAccountDetail(userId);
+                return;
+            }
 
-            if (action === 'view') uaOpenDrawer('view', row);
-            if (action === 'edit') uaOpenDrawer('edit', row);
-            if (action === 'toggle') {
-                const isSusp = row.getAttribute('data-status') === 'suspended';
-                row.setAttribute('data-status', isSusp ? 'active' : 'suspended');
-                const pill = row.querySelector('.pill');
-                if (pill) {
-                    pill.className = isSusp ? 'pill ok' : 'pill bad';
-                    pill.textContent = isSusp ? 'Active' : 'Suspended';
+            const toggleBtn = e.target.closest('button[data-action="toggle-status"]');
+            if (!toggleBtn) return;
+            const userId = toggleBtn.getAttribute('data-user-id');
+            if (!userId) return;
+
+            try {
+                toggleBtn.disabled = true;
+                const row = toggleBtn.closest('tr');
+                const statusCell = row?.querySelector('td:nth-child(3)');
+                const currentStatus = (statusCell?.textContent ?? '').trim();
+                const nextStatus = currentStatus.toLowerCase() === 'suspended' ? 'Active' : 'Suspended';
+
+                // Prefer dedicated suspend endpoint; fallback to update endpoint if backend not restarted (404).
+                let r = await fetch('/api/accounts/suspend', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ userId: Number(userId) })
+                });
+
+                if (r.status === 404) {
+                    r = await fetch('/api/accounts/update', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'same-origin',
+                        body: JSON.stringify({ userId: Number(userId), fields: { a_status: nextStatus } })
+                    });
                 }
-                btn.className = isSusp ? 'btn btn-danger btn-sm' : 'btn btn-muted btn-sm';
-                btn.textContent = isSusp ? 'Suspend' : 'Re-activate';
-                uaToast(isSusp ? 'Account re-activated (UI)' : 'Account suspended (UI)');
-                uaApplyFilter();
+
+                const resp = await r.json().catch(() => ({}));
+                if (!r.ok || resp?.success === false) throw new Error(resp?.error || 'Update failed');
+
+                // Update row UI without full reload
+                const newStatus = resp?.accountStatus ?? nextStatus;
+                if (statusCell && newStatus) statusCell.textContent = newStatus;
+                const isSusp = String(newStatus ?? '').toLowerCase() === 'suspended';
+                toggleBtn.textContent = isSusp ? 'Active' : 'Suspend';
+                toggleBtn.classList.toggle('btn-status-active', isSusp);
+                toggleBtn.classList.toggle('btn-status-suspend', !isSusp);
+                const usernameCell = row?.querySelector('td:nth-child(1)');
+                const uname = (usernameCell?.textContent ?? '').trim() || 'User';
+                const nowText = isSusp ? 'suspended now' : 'active now';
+                uaNoteOpen(`${uname} has been ${nowText}.`, 'Success');
+            } catch (err) {
+                uaNoteOpen(`Error: ${err?.message || 'Update failed'}`, 'Notice');
+            } finally {
+                toggleBtn.disabled = false;
             }
         });
 
-        document.getElementById('ua-save')?.addEventListener('click', () => {
-            uaToast('Saved (UI)');
-            uaCloseDrawer();
+        const createForm = document.getElementById('create-account-form');
+        createForm?.addEventListener('submit', (e) => {
+            const username = createForm.querySelector('input[name="username"]');
+            const password = createForm.querySelector('input[name="password"]');
+            const email = createForm.querySelector('input[name="email"]');
+            const phone = createForm.querySelector('input[name="phone"]');
+            const profileId = createForm.querySelector('select[name="profileId"]');
+
+            if (username) username.value = username.value.trim();
+            if (password) password.value = password.value.trim();
+            if (email) email.value = email.value.trim();
+            if (phone) phone.value = phone.value.trim();
+
+            if (profileId && !profileId.value) {
+                e.preventDefault();
+                uaModalOpen('Please select a profile (role).', 'Notice');
+                profileId.focus();
+                return;
+            }
+
+            if (phone && phone.value && !/^\d+$/.test(phone.value)) {
+                e.preventDefault();
+                uaModalOpen('Phone number must contain digits only.', 'Notice');
+                phone.focus();
+                return;
+            }
+
+            if (username && !username.value) {
+                e.preventDefault();
+                uaModalOpen('Username is required.', 'Notice');
+                username.focus();
+                return;
+            }
+
+            if (password && !password.value) {
+                e.preventDefault();
+                uaModalOpen('Password is required.', 'Notice');
+                password.focus();
+                return;
+            }
+
+            if (email && !email.value) {
+                e.preventDefault();
+                uaModalOpen('Email is required.', 'Notice');
+                email.focus();
+                return;
+            }
+        });
+        document.getElementById('ua-modal-backdrop')?.addEventListener('click', uaModalClose);
+        document.getElementById('ua-modal-ok')?.addEventListener('click', uaModalClose);
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') uaModalClose(); });
+
+        document.getElementById('ua-modal-message')?.addEventListener('click', (e) => {
+            const secretEl = e.target.closest('.ua-secret');
+            if (!secretEl) return;
+            const isHidden = secretEl.textContent === '*****';
+            if (isHidden) {
+                secretEl.textContent = secretEl.getAttribute('data-secret') ?? '';
+            } else {
+                secretEl.textContent = '*****';
+            }
         });
 
-        document.getElementById('ua-toggle')?.addEventListener('click', () => {
-            uaToast('Status updated (UI)');
-            uaCloseDrawer();
+        document.getElementById('ua-modal-message')?.addEventListener('dblclick', (e) => {
+            const tr = e.target.closest('tr[data-editable="1"]');
+            if (!tr) return;
+            const field = tr.getAttribute('data-field');
+            if (!field) return;
+
+            const td = tr.querySelector('td:nth-child(2)');
+            if (!td) return;
+            if (td.querySelector('input, textarea')) return;
+
+            const saveBtn = document.getElementById('ua-modal-save');
+            const valueEl = td.querySelector('.ua-value');
+            const currentVal = field === 'password'
+                ? (td.querySelector('.ua-secret')?.getAttribute('data-secret') ?? '')
+                : (valueEl?.dataset?.value ?? valueEl?.textContent ?? '').trim();
+
+            if (field === 'a_status') {
+                td.innerHTML = `
+                    <select class="ua-edit-select" data-field="a_status" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                        <option value="Active">Active</option>
+                        <option value="Suspended">Suspended</option>
+                    </select>
+                `;
+                const sel = td.querySelector('select.ua-edit-select');
+                if (sel) sel.value = (currentVal && currentVal !== '-') ? currentVal : 'Active';
+                sel?.focus();
+                if (saveBtn) saveBtn.dataset.dirty = '1';
+                return;
+            }
+
+            if (field === 'profile_id') {
+                const profiles = uaState.profiles || [];
+                const opts = profiles.map(p => `<option value="${uaEscapeHtml(p.profileId)}">${uaEscapeHtml(p.roleName || p.role)}</option>`).join('');
+                td.innerHTML = `
+                    <select class="ua-edit-select" data-field="profile_id" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                        ${opts}
+                    </select>
+                `;
+                const sel = td.querySelector('select.ua-edit-select');
+                if (sel && currentVal && currentVal !== '-') sel.value = String(currentVal);
+                sel?.focus();
+                if (saveBtn) saveBtn.dataset.dirty = '1';
+                return;
+            }
+
+            const inputType = field === 'email' ? 'email'
+                : field === 'phone_number' ? 'text'
+                : field === 'password' ? 'text'
+                : 'text';
+
+            td.innerHTML = `
+                <input class="ua-edit" type="${uaEscapeHtml(inputType)}" data-field="${uaEscapeHtml(field)}" value="${uaEscapeHtml(currentVal)}" style="width:100%;" />
+            `;
+            const input = td.querySelector('input.ua-edit');
+            input?.focus();
+            input?.setSelectionRange?.(input.value.length, input.value.length);
+
+            if (saveBtn) saveBtn.dataset.dirty = '1';
         });
 
-        uaApplyFilter();
-    }
+        document.getElementById('ua-modal-message')?.addEventListener('keydown', (e) => {
+            const input = e.target.closest('input.ua-edit');
+            if (!input) return;
+            const field = input.getAttribute('data-field');
+            const td = input.closest('td');
+            const tr = input.closest('tr');
+            if (!field || !td || !tr) return;
 
-    window.addEventListener('DOMContentLoaded', uaInit);
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                // revert to non-edit view by reopening (simple + consistent)
+                const userId = document.getElementById('ua-modal-save')?.dataset.userId;
+                if (userId) viewAccountDetail(userId);
+                return;
+            }
+
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const v = (input.value ?? '').trim();
+                const displayVal = v ? v : '-';
+                if (field === 'password') {
+                    td.innerHTML = `<span class="ua-secret" role="button" tabindex="0" style="cursor:pointer; user-select:none;" data-secret="${uaEscapeHtml(v)}">*****</span>`;
+                } else {
+                    td.innerHTML = `<span class="ua-value" data-field="${uaEscapeHtml(field)}">${uaEscapeHtml(displayVal)}</span>`;
+                }
+                const saveBtn = document.getElementById('ua-modal-save');
+                if (saveBtn) saveBtn.dataset.dirty = '1';
+            }
+        });
+
+        document.getElementById('ua-modal-message')?.addEventListener('change', (e) => {
+            const sel = e.target.closest('select.ua-edit-select');
+            if (!sel) return;
+            const field = sel.getAttribute('data-field');
+            const td = sel.closest('td');
+            if (!field || !td) return;
+
+            if (field === 'profile_id') {
+                const pid = sel.value;
+                const label = sel.options[sel.selectedIndex]?.textContent ?? '-';
+                td.innerHTML = `<span class="ua-value" data-field="profile_id" data-value="${uaEscapeHtml(pid)}">${uaEscapeHtml(label)}</span>`;
+            } else if (field === 'a_status') {
+                td.innerHTML = `<span class="ua-value" data-field="a_status">${uaEscapeHtml(sel.value)}</span>`;
+            }
+            const saveBtn = document.getElementById('ua-modal-save');
+            if (saveBtn) saveBtn.dataset.dirty = '1';
+        });
+
+        document.getElementById('ua-modal-save')?.addEventListener('click', async () => {
+            const saveBtn = document.getElementById('ua-modal-save');
+            const userId = saveBtn?.dataset.userId;
+            if (!userId) return;
+
+            const msg = document.getElementById('ua-modal-message');
+            const fields = {};
+            const getVal = (key) => {
+                const el = msg?.querySelector(`.ua-value[data-field="${CSS.escape(key)}"]`);
+                if (!el) return '';
+                return (el.dataset?.value ?? el.textContent ?? '').trim();
+            };
+
+            // Also capture any currently-active inputs/selects (user might click Save without pressing Enter)
+            msg?.querySelectorAll('input.ua-edit').forEach(inp => {
+                const k = inp.getAttribute('data-field');
+                if (!k) return;
+                const v = (inp.value ?? '').trim();
+                if (k === 'password') fields.password = v;
+                else fields[k] = v;
+            });
+            msg?.querySelectorAll('select.ua-edit-select').forEach(sel => {
+                const k = sel.getAttribute('data-field');
+                if (!k) return;
+                const v = (sel.value ?? '').trim();
+                if (k === 'a_status') fields.a_status = v;
+                if (k === 'profile_id') fields.profile_id = v;
+            });
+
+            // Fill from current displayed spans if not already present
+            fields.username ??= getVal('username');
+            fields.full_name ??= getVal('full_name');
+            fields.email ??= getVal('email');
+            fields.phone_number ??= getVal('phone_number');
+            fields.a_status ??= getVal('a_status');
+            fields.profile_id ??= getVal('profile_id');
+
+            const passSecret = msg?.querySelector('.ua-secret')?.getAttribute('data-secret');
+            if ((fields.password === undefined || fields.password === '') && passSecret !== null && passSecret !== undefined) {
+                fields.password = passSecret;
+            }
+
+            // remove '-' placeholders
+            Object.keys(fields).forEach(k => {
+                if (fields[k] === '-' || fields[k] === '') delete fields[k];
+            });
+
+            try {
+                saveBtn.disabled = true;
+                const r = await fetch('/api/accounts/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ userId: Number(userId), fields })
+                });
+                const resp = await r.json().catch(() => ({}));
+                if (!r.ok || resp?.success === false) {
+                    throw new Error(resp?.error || 'Update failed');
+                }
+                // Close account detail first (avoid "flash"), then refresh list, then show success popup
+                uaModalClose();
+                saveBtn.dataset.dirty = '0';
+                await loadAccountSummaries();
+                uaNoteOpen('Success: Account updated.', 'Success');
+            } catch (err) {
+                uaNoteOpen(`Error: ${err?.message || 'Update failed'}`, 'Notice');
+            } finally {
+                const sb = document.getElementById('ua-modal-save');
+                if (sb) sb.disabled = false;
+            }
+        });
+
+        document.getElementById('ua-note-backdrop')?.addEventListener('click', uaNoteClose);
+        document.getElementById('ua-note-ok')?.addEventListener('click', uaNoteClose);
+    });
 </script>
 </body>
 </html>

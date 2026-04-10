@@ -5,6 +5,9 @@ import org.springframework.stereotype.Controller;
 import com.uow.entity.Login;
 
 @Controller
+/**
+ * Control layer for login flow: verify credentials, check statuses, and decide redirect page.
+ */
 public class LoginController {
 
     private final Login login = new Login();
