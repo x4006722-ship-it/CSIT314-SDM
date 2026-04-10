@@ -25,14 +25,23 @@ public class UserAdminCreateProfilePage {
             @RequestParam("status") String status) {
             
         System.out.println("Boundary received request for: " + roleName);
+        System.out.println("Received parameters - roleName: " + roleName + ", status: " + status);
         
-        // Pass the data to the Control layer
-        boolean isSuccess = controller.createProfile(roleName, status);
-        
-        if (isSuccess) {
-            return "Success: Profile '" + roleName + "' has been saved!";
-        } else {
-            return "Error: Database failure. Check your SQL table or connection.";
+        try {
+            // Pass the data to the Control layer
+            boolean isSuccess = controller.createProfile(roleName, status);
+            
+            if (isSuccess) {
+                System.out.println("Profile creation successful");
+                return "Success: Profile '" + roleName + "' has been saved!";
+            } else {
+                System.out.println("Profile creation failed - database operation returned false");
+                return "Error: Database failure. Check your SQL table or connection.";
+            }
+        } catch (Exception e) {
+            System.err.println("Exception during profile creation: " + e.getMessage());
+            e.printStackTrace();
+            return "Error: " + e.getMessage();
         }
     }
 }
