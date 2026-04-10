@@ -1,11 +1,8 @@
 package com.uow.control;
 
-import java.util.List;
-
 import org.springframework.stereotype.Service;
 
 import com.uow.entity.ViewUserProfile;
-import com.uow.entity.ViewUserProfile.ProfileDTO;
 
 @Service
 public class UserAdminViewController {
@@ -29,15 +26,5 @@ public class UserAdminViewController {
         } else {
             return "Profile not found";
         }
-    }
-
-    public List<ProfileDTO> getAllProfiles() {
-        System.out.println("Control layer logic: Fetching all profiles");
-
-        // Create Entity object and fetch all profiles
-        ViewUserProfile entity = new ViewUserProfile(null);
-        List<ProfileDTO> profiles = entity.getAllFromPFDatabase();
-
-        return profiles;
     }
 }

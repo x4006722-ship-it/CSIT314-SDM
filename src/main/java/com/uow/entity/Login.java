@@ -63,7 +63,7 @@ public class Login {
 
     public String getRedirectPageByRole() {
         if ("User Admin".equalsIgnoreCase(role)) {
-            return "/AdminPage.html";
+            return "/ManageProfile.html";
         } else if ("Fund Raiser".equalsIgnoreCase(role)) {
             return "/FundRaiserPage.html";
         } else if ("Donee".equalsIgnoreCase(role)) {
