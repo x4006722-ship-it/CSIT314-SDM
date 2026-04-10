@@ -17,6 +17,51 @@ import java.util.Set;
 public class UpdateAccount {
 
     private static final String USER_ACCOUNT_TABLE = "user_account";
+    private static final String USER_PROFILE_TABLE = "user_profile";
+
+    private static boolean isUserAdminRole(String role) {
+        return role != null && "User Admin".equalsIgnoreCase(role.trim());
+    }
+
+    private static boolean fieldMapRequestsAccountSuspend(Map<String, Object> fields) {
+        if (fields == null) return false;
+        for (Map.Entry<String, Object> e : fields.entrySet()) {
+            String key = e.getKey();
+            if (key == null) continue;
+            String k = key.trim();
+            if (k.isEmpty()) continue;
+            if (!"a_status".equalsIgnoreCase(k) && !"account_status".equalsIgnoreCase(k)) continue;
+            Object raw = e.getValue();
+            if (raw == null) continue;
+            String value = String.valueOf(raw).trim();
+            if (value.isEmpty()) continue;
+            if ("suspended".equalsIgnoreCase(value)) return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return error message if this user is User Admin and must not be suspended; null if allowed or not applicable
+     */
+    private String blockSuspendIfUserAdminAccount(int userId) throws SQLException {
+        String sql = """
+                SELECT up.role
+                FROM %s ua
+                INNER JOIN %s up ON ua.profile_id = up.profile_id
+                WHERE ua.user_id = ?
+                """.formatted(USER_ACCOUNT_TABLE, USER_PROFILE_TABLE);
+        try (Connection conn = DBUtils.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return null;
+                if (isUserAdminRole(rs.getString("role"))) {
+                    return SuspendAccount.MSG_CANNOT_SUSPEND_ACCOUNT;
+                }
+            }
+        }
+        return null;
+    }
 
     /**
      * Updates editable fields for a user_account row.
@@ -27,6 +72,17 @@ public class UpdateAccount {
     public String updateAccount(int userId, Map<String, Object> fields) {
         if (userId <= 0) return "Invalid userId.";
         if (fields == null || fields.isEmpty()) return "No fields to update.";
+
+        try {
+            if (fieldMapRequestsAccountSuspend(fields)) {
+                String block = blockSuspendIfUserAdminAccount(userId);
+                if (block != null) return block;
+            }
+        } catch (SQLException e) {
+            System.err.println("Suspend guard query failed: " + e.getMessage());
+            e.printStackTrace();
+            return e.getMessage() != null ? e.getMessage() : "Unknown database error";
+        }
 
         try (Connection conn = DBUtils.getConnection()) {
             Set<String> cols = getLowercaseColumns(conn, USER_ACCOUNT_TABLE);

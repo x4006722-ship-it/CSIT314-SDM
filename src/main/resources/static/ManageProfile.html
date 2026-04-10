@@ -371,6 +371,67 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.18);
         }
 
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 1300;
+        }
+
+        .modal-backdrop.open { display: block; }
+
+        .modal {
+            position: fixed;
+            left: 50%;
+            top: 8%;
+            transform: translateX(-50%);
+            width: min(640px, 92vw);
+            max-height: 88vh;
+            background: #fff;
+            border: 1px solid #eaeaea;
+            border-radius: 14px;
+            box-shadow: 0 18px 60px rgba(0,0,0,0.25);
+            display: none;
+            z-index: 1310;
+            overflow: hidden;
+        }
+
+        .modal.open { display: block; }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            background: #fafafa;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-header strong {
+            font-size: 16px;
+            color: #111;
+        }
+
+        .modal-body {
+            padding: 16px;
+            font-size: 16px;
+            line-height: 1.5;
+            color: #111;
+            word-break: break-word;
+            overflow: auto;
+            max-height: calc(88vh - 56px - 64px);
+        }
+
+        .modal-footer {
+            padding: 14px 16px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            background: #fff;
+        }
+
         #up-edit-form.card {
             padding: 14px;
             border-radius: 10px;
@@ -513,6 +574,17 @@
 
 <div id="up-toast" class="toast">Action Successful</div>
 
+<div id="up-note-backdrop" class="modal-backdrop"></div>
+<div id="up-note-modal" class="modal" role="dialog" aria-modal="true" style="top: 18%; width: min(560px, 92vw); max-height: 70vh;">
+    <div class="modal-header">
+        <strong id="up-note-title">Notice</strong>
+    </div>
+    <div id="up-note-message" class="modal-body"></div>
+    <div class="modal-footer">
+        <button id="up-note-ok" type="button" class="btn btn-black">OK</button>
+    </div>
+</div>
+
 <script>
     // ====== 所有函数定义 ======
     
@@ -522,6 +594,33 @@
         t.textContent = msg;
         t.style.display = 'block';
         setTimeout(() => { t.style.display = 'none'; }, 1500);
+    }
+
+    /** Same pattern as ManageAccount `uaNoteOpen` — modal notice for errors (e.g. cannot suspend User Admin). */
+    function upNoteOpen(message, title) {
+        const backdrop = document.getElementById('up-note-backdrop');
+        const modal = document.getElementById('up-note-modal');
+        const msgEl = document.getElementById('up-note-message');
+        const titleEl = document.getElementById('up-note-title');
+        if (titleEl) titleEl.textContent = title || 'Notice';
+        if (msgEl) msgEl.textContent = message || '';
+        backdrop?.classList.add('open');
+        modal?.classList.add('open');
+    }
+
+    function upNoteClose() {
+        document.getElementById('up-note-backdrop')?.classList.remove('open');
+        document.getElementById('up-note-modal')?.classList.remove('open');
+    }
+
+    /** Matches server {@code CreateUserProfile.normalizeRoleKey}: remove all whitespace, lowercase. */
+    function normalizeRoleKey(s) {
+        if (s == null || s === undefined) return '';
+        return String(s).replace(/\s+/g, '').toLowerCase();
+    }
+
+    function profileIsUserAdminRole(roleText) {
+        return normalizeRoleKey(roleText) === 'useradmin';
     }
 
     // 从数据库加载所有 profiles
@@ -709,17 +808,26 @@
                         'Content-Type': 'application/x-www-form-urlencoded'
                     }
                 })
-                .then(response => response.text())
-                .then(result => {
-                    showToast("Profile created successfully!");
-                    createForm.reset();
-                    setTimeout(() => {
-                        loadProfilesFromDatabase();
-                    }, 500);
+                .then(async (response) => {
+                    const text = await response.text();
+                    return { ok: response.ok, text: (text || '').trim() };
+                })
+                .then(({ ok, text }) => {
+                    if (text === 'Role already exists') {
+                        upNoteOpen('Role already exists', 'Notice');
+                        return;
+                    }
+                    if (text.startsWith('Success')) {
+                        showToast('Profile created successfully!');
+                        createForm.reset();
+                        setTimeout(() => loadProfilesFromDatabase(), 500);
+                        return;
+                    }
+                    upNoteOpen(ok ? text : ('Error: ' + (text || 'Failed to create profile')), 'Notice');
                 })
                 .catch(error => {
                     console.error("Error creating profile:", error);
-                    showToast("Failed to create profile");
+                    upNoteOpen('Error: ' + (error?.message || 'Failed to create profile'), 'Notice');
                 });
             });
         }
@@ -744,33 +852,41 @@
 
             if (action === 'edit') openDrawer('edit', row);
             if (action === 'toggle') {
+                const roleName = row.querySelector('td:nth-child(2)')?.textContent?.trim() ?? '';
                 const isSusp = row.getAttribute('data-status') === 'suspended';
+                if (!isSusp && profileIsUserAdminRole(roleName)) {
+                    upNoteOpen('Error: User Admin profiles cannot be suspended.', 'Notice');
+                    return;
+                }
                 const profileId = row.querySelector('td:first-child').textContent;
                 const newStatus = isSusp ? 'active' : 'suspended';
                 const apiEndpoint = isSusp ? `/api/profiles/reactivate/${profileId}` : `/api/profiles/suspend/${profileId}`;
-                
-                // 发送 API 请求到后端
-                fetch(apiEndpoint, { method: 'POST' })
-                    .then(response => response.text())
-                    .then(msg => {
-                        console.log("API Response:", msg);
-                        
-                        // 更新 DOM
+
+                (async () => {
+                    try {
+                        const response = await fetch(apiEndpoint, { method: 'POST' });
+                        const msg = await response.text();
+                        if (!response.ok) {
+                            const detail = response.status === 403
+                                ? (msg.trim() || 'User Admin profiles cannot be suspended.')
+                                : (msg.trim() || 'Failed to update profile status');
+                            upNoteOpen('Error: ' + detail, 'Notice');
+                            return;
+                        }
+                        console.log('API Response:', msg);
                         row.setAttribute('data-status', newStatus);
                         const pill = row.querySelector('.pill');
                         pill.className = isSusp ? 'pill ok' : 'pill bad';
                         pill.textContent = isSusp ? 'Active' : 'Suspended';
-                        
-                        const btn = e.target;
-                        btn.className = isSusp ? 'btn btn-danger btn-sm' : 'btn btn-muted btn-sm';
-                        btn.textContent = isSusp ? 'Suspend' : 'Re-activate';
-                        
+                        const toggleBtn = e.target;
+                        toggleBtn.className = isSusp ? 'btn btn-danger btn-sm' : 'btn btn-muted btn-sm';
+                        toggleBtn.textContent = isSusp ? 'Suspend' : 'Re-activate';
                         showToast(isSusp ? 'Profile reactivated' : 'Profile suspended');
-                    })
-                    .catch(error => {
-                        console.error("Error updating profile:", error);
-                        showToast("Failed to update profile status");
-                    });
+                    } catch (error) {
+                        console.error('Error updating profile:', error);
+                        upNoteOpen('Error: ' + (error?.message || 'Update failed'), 'Notice');
+                    }
+                })();
             }
         });
 
@@ -800,25 +916,28 @@
                 }
             })
             .then(async response => {
-                const message = await response.text();
+                const message = (await response.text() || '').trim();
                 if (!response.ok) {
-                    throw new Error(message || 'Failed to update role name');
+                    if (message === 'Role already exists') {
+                        upNoteOpen('Role already exists', 'Notice');
+                    } else {
+                        upNoteOpen('Error: ' + (message || 'Failed to update role name'), 'Notice');
+                    }
+                    return;
                 }
-                return message;
-            })
-            .then(() => {
                 showToast('Role name updated!');
                 closeDrawer();
                 loadProfilesFromDatabase();
             })
             .catch(error => {
                 console.error('Error updating role name:', error);
-                showToast(error.message || 'Failed to update role name');
+                upNoteOpen('Error: ' + (error?.message || 'Failed to update role name'), 'Notice');
             });
         });
 
         document.getElementById('up-toggle').addEventListener('click', () => {
             const profileId = document.getElementById('up-v-id').textContent.trim();
+            const roleName = document.getElementById('up-v-role').textContent.trim();
             const currentStatusText = document.getElementById('up-v-status').textContent.trim().toLowerCase();
             const isSuspended = currentStatusText === 'suspended';
             const apiEndpoint = isSuspended
@@ -830,11 +949,20 @@
                 return;
             }
 
+            if (!isSuspended && profileIsUserAdminRole(roleName)) {
+                upNoteOpen('Error: User Admin profiles cannot be suspended.', 'Notice');
+                return;
+            }
+
             fetch(apiEndpoint, { method: 'POST' })
                 .then(async response => {
                     const message = await response.text();
                     if (!response.ok) {
-                        throw new Error(message || 'Failed to update profile status');
+                        const detail = response.status === 403
+                            ? (message.trim() || 'User Admin profiles cannot be suspended.')
+                            : (message.trim() || 'Failed to update profile status');
+                        upNoteOpen('Error: ' + detail, 'Notice');
+                        throw new Error(detail);
                     }
                     return message;
                 })
@@ -845,9 +973,11 @@
                 })
                 .catch(error => {
                     console.error('Error updating profile status:', error);
-                    showToast(error.message || 'Failed to update profile status');
                 });
         });
+
+        document.getElementById('up-note-backdrop')?.addEventListener('click', upNoteClose);
+        document.getElementById('up-note-ok')?.addEventListener('click', upNoteClose);
     });
 </script>
 

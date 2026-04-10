@@ -1,7 +1,10 @@
 package com.uow.boundary;
 
 import com.uow.control.UserAdminSuspendProfileController;
+import com.uow.control.UserAdminSuspendProfileController.SuspendProfileOutcome;
+import com.uow.entity.SuspendUserProfile;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,14 +31,17 @@ public class UserAdminSuspendProfilePage {
     @PostMapping("/suspend/{profileId}")
     public ResponseEntity<String> suspendProfile(@PathVariable("profileId") String profileId) {
         System.out.println("[BOUNDARY] Received suspend request for profile: " + profileId);
-        
-        boolean success = controller.suspendProfile(profileId);
-        
-        if (success) {
+
+        SuspendProfileOutcome outcome = controller.suspendProfileWithOutcome(profileId);
+
+        if (outcome == SuspendProfileOutcome.SUCCESS) {
             return ResponseEntity.ok("Profile suspended successfully");
-        } else {
-            return ResponseEntity.badRequest().body("Failed to suspend profile");
         }
+        if (outcome == SuspendProfileOutcome.USER_ADMIN_FORBIDDEN) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(SuspendUserProfile.MSG_CANNOT_SUSPEND_PROFILE);
+        }
+        return ResponseEntity.badRequest().body("Failed to suspend profile");
     }
 
     /**

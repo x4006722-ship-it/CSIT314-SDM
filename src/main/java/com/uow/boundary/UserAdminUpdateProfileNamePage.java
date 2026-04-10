@@ -1,6 +1,7 @@
 package com.uow.boundary;
 
 import com.uow.control.UserAdminUpdateProfileNameController;
+import com.uow.entity.CreateUserProfile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,13 +34,15 @@ public class UserAdminUpdateProfileNamePage {
         try {
             System.out.println("[BOUNDARY] Received update role name request for profile: " + profileId + ", new name: " + newRoleName);
 
-            boolean success = controller.updateRoleName(profileId, newRoleName);
+            String err = controller.updateRoleName(profileId, newRoleName);
 
-            if (success) {
+            if (err == null) {
                 return ResponseEntity.ok("Role name updated successfully");
-            } else {
-                return ResponseEntity.badRequest().body("Failed to update role name");
             }
+            if (CreateUserProfile.MSG_ROLE_ALREADY_EXISTS.equals(err)) {
+                return ResponseEntity.badRequest().body(CreateUserProfile.MSG_ROLE_ALREADY_EXISTS);
+            }
+            return ResponseEntity.badRequest().body("Error: " + err);
         } catch (Throwable t) {
             System.err.println("[BOUNDARY] Unexpected error while updating role name: " + t.getMessage());
             t.printStackTrace();

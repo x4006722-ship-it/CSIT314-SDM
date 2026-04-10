@@ -1,6 +1,7 @@
 package com.uow.control;
 
 import com.uow.entity.SuspendUserProfile;
+import com.uow.entity.ViewUserProfile;
 import org.springframework.stereotype.Service;
 
 /**
@@ -10,13 +11,32 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserAdminSuspendProfileController {
 
+    public enum SuspendProfileOutcome {
+        SUCCESS,
+        NOT_FOUND,
+        USER_ADMIN_FORBIDDEN
+    }
+
+    private static boolean isUserAdminRole(String role) {
+        return role != null && "User Admin".equalsIgnoreCase(role.trim());
+    }
+
     /**
-     * 挂起（暂停）一个 profile
+     * 挂起（暂停）一个 profile（User Admin 不可挂起）
      * @param profileId 要挂起的 profile ID
-     * @return 操作是否成功
      */
-    public boolean suspendProfile(String profileId) {
+    public SuspendProfileOutcome suspendProfileWithOutcome(String profileId) {
         System.out.println("[CONTROL] Suspending profile: " + profileId);
+
+        ViewUserProfile view = new ViewUserProfile(profileId);
+        if (view.getFromPFDatabase() == null) {
+            System.err.println("[CONTROL] Failed to suspend profile: not found");
+            return SuspendProfileOutcome.NOT_FOUND;
+        }
+        if (isUserAdminRole(view.getRoleName())) {
+            System.err.println("[CONTROL] Cannot suspend User Admin profile");
+            return SuspendProfileOutcome.USER_ADMIN_FORBIDDEN;
+        }
 
         // 调用 Entity 层执行数据库更新
         SuspendUserProfile suspendEntity = new SuspendUserProfile(profileId, "suspended");
@@ -24,11 +44,10 @@ public class UserAdminSuspendProfileController {
 
         if (success) {
             System.out.println("[CONTROL] Profile suspended successfully");
-        } else {
-            System.err.println("[CONTROL] Failed to suspend profile");
+            return SuspendProfileOutcome.SUCCESS;
         }
-
-        return success;
+        System.err.println("[CONTROL] Failed to suspend profile");
+        return SuspendProfileOutcome.NOT_FOUND;
     }
 
     /**
