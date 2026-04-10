@@ -13,16 +13,14 @@ import com.uow.control.LoginController;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
+/**
+ * Boundary for login form submission.
+ * On success, stores basic user session attributes and redirects to the role page.
+ */
 public class LoginPage {
 
     @Autowired
     private LoginController LoginController;
-
-    public void displayPage() {
-    }
-
-    public void inputData() {
-    }
 
     @PostMapping("/login")
     public String onLoginClick(@RequestParam("username") String username,
@@ -42,11 +40,5 @@ public class LoginPage {
         String errorMessage = LoginController.getErrorMessage();
         String encodedMessage = URLEncoder.encode(errorMessage, StandardCharsets.UTF_8);
         return "redirect:/LoginPage.html?error=" + encodedMessage;
-    }
-
-    public void showSuccessMessage() {
-    }
-
-    public void showErrorMessage(String msg) {
     }
 }

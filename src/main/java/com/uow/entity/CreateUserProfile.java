@@ -29,14 +29,13 @@ public class CreateUserProfile {
 
         try (Connection conn = DBUtils.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            // Insert this object's variables (this.roleName, this.status) into the SQL query
+
             pstmt.setString(1, this.roleName);
             pstmt.setString(2, this.status);
-            
+
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
-            
+
         } catch (SQLException e) {
             System.err.println("Database save failed! Reason: " + e.getMessage());
             e.printStackTrace();

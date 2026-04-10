@@ -9,6 +9,9 @@ import com.uow.control.LogoutController;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
+/**
+ * Boundary for logging out the current session.
+ */
 public class LogoutPage {
 
     @Autowired
@@ -18,11 +21,5 @@ public class LogoutPage {
     public String onLogoutClick(HttpSession session) {
         logoutController.logout(session);
         return "redirect:/LoginPage.html";
-    }
-
-    public void clickLogout() {
-    }
-
-    public void redirectToLoginPage() {
     }
 }
