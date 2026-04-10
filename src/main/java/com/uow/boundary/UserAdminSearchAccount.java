@@ -34,7 +34,7 @@ public class UserAdminSearchAccount {
                                            @RequestParam(value = "page", defaultValue = "1") int page,
                                            @RequestParam(value = "pageSize", defaultValue = "15") int pageSize) {
         try {
-            int safePageSize = Math.min(100, Math.max(1, pageSize));
+            int safePageSize = Math.min(2000, Math.max(1, pageSize));
             int safePage = Math.max(1, page);
 
             List<Map<String, Object>> rows = controller.search(query, status, role, safePage, safePageSize);

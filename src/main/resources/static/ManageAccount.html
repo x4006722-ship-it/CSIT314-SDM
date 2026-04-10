@@ -9,7 +9,7 @@
         body { background-color: #f8f9fa; color: #333; }
 
         .container { min-height: 100vh; }
-        .main-content { padding: 30px; max-width: 1200px; margin: 0 auto; }
+        .main-content { padding: 30px; max-width: 1500px; margin: 0 auto; }
 
         .topbar {
             display: flex;
@@ -93,6 +93,16 @@
             transition: 0.2s;
         }
         .btn-black { background: #000; color: #fff; }
+        .btn-view {
+            background: #f2f4f7;
+            color: #111;
+            border: 1px solid #e5e7eb;
+            font-weight: 600;
+        }
+        .btn-view:hover {
+            background: #e8eaef;
+            border-color: #d0d5dd;
+        }
         .btn-outline { background: transparent; border: 1px solid #000; color: #000; }
         .logout-btn {
             border: 1px solid #ff4d4f;
@@ -222,8 +232,12 @@
         }
 
         .table-scroll {
-            max-height: 520px;
+            max-height: 800px;
             overflow: auto;
+        }
+
+        .ua-accounts-table-wrap {
+            margin-top: 10px;
         }
 
         table {
@@ -267,6 +281,47 @@
             width: 100%;
         }
 
+        /* Account Status column: center header + Active / Suspended pills */
+        #ua-list-table thead th:nth-child(4),
+        #ua-list-table tbody td:nth-child(4) {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        #ua-list-table thead th:last-child {
+            text-align: center;
+        }
+
+        #ua-list-table tbody td:last-child {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        #ua-list-table .td-actions {
+            justify-content: center;
+            gap: 6px;
+            align-items: center;
+        }
+
+        /* View + Suspend + Re-activate: same row height */
+        #ua-list-table .td-actions button.btn-sm {
+            box-sizing: border-box;
+            min-height: 28px;
+            height: 28px;
+            padding: 0 8px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        #ua-list-table .td-actions button[data-action="toggle-status"].btn-sm {
+            min-width: 104px;
+        }
+
         .muted {
             color: #667085;
             font-size: 12px;
@@ -274,18 +329,12 @@
 
         .pagination {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
             padding: 12px;
             gap: 12px;
             border-top: 1px solid #eee;
             background: #fff;
-        }
-
-        .page-controls {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
         }
 
         .drawer-backdrop {
@@ -447,7 +496,7 @@
         </div>
 
         <div class="tab-bar">
-            <button class="tab-btn" type="button" onclick="location.href='AdminPage.html'">Manage Profile</button>
+            <button class="tab-btn" type="button" onclick="location.href='ManageProfile.html'">Manage Profile</button>
             <button class="tab-btn active" type="button" onclick="location.href='ManageAccount.html'">Manage Account</button>
         </div>
 
@@ -533,8 +582,8 @@
                         </div>
                     </div>
 
-                    <div class="table-wrap" style="margin-top: 10px;">
-                        <div class="table-scroll" style="max-height: 520px;">
+                    <div class="table-wrap ua-accounts-table-wrap">
+                        <div class="table-scroll">
                             <table id="ua-list-table" aria-label="User accounts list" style="min-width: 0;">
                                 <thead>
                                 <tr>
@@ -542,18 +591,20 @@
                                     <th style="width: 190px;">Phone Number</th>
                                     <th style="width: 220px;">Role</th>
                                     <th style="width: 180px;">Account Status</th>
-                                    <th style="width: 220px; text-align:right;">Action</th>
+                                    <th style="width: 220px; text-align: center;">Action</th>
                                 </tr>
                                 </thead>
                                 <tbody id="ua-list-tbody">
                                 <tr>
-                                    <td colspan="4" class="muted">Loading...</td>
+                                    <td colspan="5" class="muted" style="text-align: center;">Loading…</td>
                                 </tr>
                                 </tbody>
                             </table>
                         </div>
+                        <div class="pagination">
+                            <div class="muted" id="ua-count">—</div>
+                        </div>
                     </div>
-                    <div id="ua-list-pagination" style="margin-top: 12px;"></div>
                 </div>
             </div>
         </div>
@@ -583,13 +634,16 @@
     </div>
 </div>
 
+<div id="ua-toast" class="toast"></div>
+
 <script>
+    /** Single request loads all rows (scroll in table); matches API max pageSize. */
+    const UA_LIST_PAGE_SIZE = 2000;
+
     const uaState = {
         profiles: [],
         profilesLoaded: false,
-        listPage: 1,
-        listPageSize: 15,
-        listTotalPages: 1
+        listTotal: 0
     };
 
     function uaModalOpen(message, title) {
@@ -635,6 +689,14 @@
         document.getElementById('ua-note-modal')?.classList.remove('open');
     }
 
+    function showUaToast(msg) {
+        const t = document.getElementById('ua-toast');
+        if (!t) return;
+        t.textContent = msg;
+        t.style.display = 'block';
+        setTimeout(() => { t.style.display = 'none'; }, 1500);
+    }
+
     function uaEscapeHtml(s) {
         return String(s ?? '')
             .replaceAll('&', '&amp;')
@@ -644,11 +706,26 @@
             .replaceAll("'", '&#39;');
     }
 
+    /** Same pattern as ManageProfile `#up-count`: "Showing N roles" → "Showing N accounts" (uses API `total` when present). */
+    function uaSetAccountListCount(rowsLen, payload) {
+        const el = document.getElementById('ua-count');
+        if (!el) return;
+
+        let n = rowsLen;
+        if (payload && typeof payload === 'object' && !Array.isArray(payload) && payload.total != null) {
+            const t = Number(payload.total);
+            if (Number.isFinite(t)) n = t;
+        }
+
+        uaState.listTotal = n;
+        el.textContent = `Showing ${n} accounts`;
+    }
+
     async function loadAccountSummaries() {
         const tbody = document.getElementById('ua-list-tbody');
         if (!tbody) return;
 
-        tbody.innerHTML = `<tr><td colspan="4" class="muted">Loading...</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="muted" style="text-align: center;">Loading…</td></tr>`;
 
         try {
             const q = (uaState.searchQuery || '').trim();
@@ -657,8 +734,8 @@
             const useSearch = !!q || (status && status !== 'all') || (role && role !== 'all');
             const baseUrl = useSearch ? '/api/accounts/search' : '/api/accounts/list';
             const url = useSearch
-                ? `${baseUrl}?query=${encodeURIComponent(q)}&status=${encodeURIComponent(status)}&role=${encodeURIComponent(role)}&page=${encodeURIComponent(uaState.listPage)}&pageSize=${encodeURIComponent(uaState.listPageSize)}`
-                : `${baseUrl}?page=${encodeURIComponent(uaState.listPage)}&pageSize=${encodeURIComponent(uaState.listPageSize)}`;
+                ? `${baseUrl}?query=${encodeURIComponent(q)}&status=${encodeURIComponent(status)}&role=${encodeURIComponent(role)}&page=1&pageSize=${encodeURIComponent(UA_LIST_PAGE_SIZE)}`
+                : `${baseUrl}?page=1&pageSize=${encodeURIComponent(UA_LIST_PAGE_SIZE)}`;
 
             const r = await fetch(url, { credentials: 'same-origin' });
             if (!r.ok) throw new Error('Failed to load accounts');
@@ -673,13 +750,9 @@
                 ? payload
                 : (Array.isArray(payload?.items) ? payload.items : []);
 
-            uaState.listTotalPages = Number((payload && !Array.isArray(payload)) ? (payload?.totalPages || 1) : 1);
-            uaState.listPage = Number((payload && !Array.isArray(payload)) ? (payload?.page || uaState.listPage) : uaState.listPage);
-            if (!Number.isFinite(uaState.listTotalPages) || uaState.listTotalPages < 1) uaState.listTotalPages = 1;
-            if (!Number.isFinite(uaState.listPage) || uaState.listPage < 1) uaState.listPage = 1;
             if (safeRows.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="muted">No accounts found.</td></tr>`;
-                uaRenderPagination();
+                tbody.innerHTML = `<tr><td colspan="5" class="muted" style="text-align: center;">No accounts found.</td></tr>`;
+                uaSetAccountListCount(0, payload);
                 return;
             }
 
@@ -688,56 +761,35 @@
                 const username = uaEscapeHtml(a.username ?? '');
                 const phoneNumber = uaEscapeHtml(a.phoneNumber ?? '');
                 const roleName = uaEscapeHtml(a.roleName ?? '');
-                const accountStatus = uaEscapeHtml(a.accountStatus ?? '');
-                const isSuspended = String(a.accountStatus ?? '').toLowerCase() === 'suspended';
-                const toggleLabel = isSuspended ? 'Active' : 'Suspend';
-                const toggleClass = isSuspended ? 'btn-status-active' : 'btn-status-suspend';
+                const rawStatus = String(a.accountStatus ?? '');
+                const accountStatus = uaEscapeHtml(rawStatus);
+                const isSuspended = rawStatus.toLowerCase() === 'suspended';
+                const statusPillClass = isSuspended ? 'pill bad' : 'pill ok';
+                const toggleLabel = isSuspended ? 'Re-activate' : 'Suspend';
+                const toggleClass = isSuspended ? 'btn-muted' : 'btn-danger';
 
                 return `
-                    <tr>
+                    <tr data-status="${isSuspended ? 'suspended' : 'active'}">
                         <td>${username}</td>
                         <td>${phoneNumber}</td>
                         <td>${roleName}</td>
-                        <td>${accountStatus}</td>
-                        <td style="text-align:right;">
+                        <td><span class="${statusPillClass}">${accountStatus || (isSuspended ? 'Suspended' : 'Active')}</span></td>
+                        <td>
                             <div class="td-actions">
-                                <button type="button" class="btn btn-outline btn-sm" data-action="view" data-user-id="${uaEscapeHtml(userId)}">View</button>
-                                <button type="button" class="btn btn-sm btn-status ${toggleClass}" data-action="toggle-status" data-user-id="${uaEscapeHtml(userId)}">${uaEscapeHtml(toggleLabel)}</button>
+                                <button type="button" class="btn btn-view btn-sm" data-action="view" data-user-id="${uaEscapeHtml(userId)}">View</button>
+                                <button type="button" class="btn btn-sm ${toggleClass}" data-action="toggle-status" data-user-id="${uaEscapeHtml(userId)}">${uaEscapeHtml(toggleLabel)}</button>
                             </div>
                         </td>
                     </tr>
                 `;
             }).join('');
-            uaRenderPagination();
+            uaSetAccountListCount(safeRows.length, payload);
         } catch (e) {
-            tbody.innerHTML = `<tr><td colspan="4" class="muted">Failed to load accounts.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" class="muted" style="text-align: center;">Failed to load accounts.</td></tr>`;
+            const c = document.getElementById('ua-count');
+            if (c) c.textContent = '—';
             uaModalOpen(`Failed to load accounts from database. ${e?.message ? '(' + e.message + ')' : ''}`, 'Notice');
-            uaRenderPagination();
         }
-    }
-
-    function uaRenderPagination() {
-        const wrap = document.getElementById('ua-list-pagination');
-        if (!wrap) return;
-        const page = uaState.listPage;
-        const totalPages = uaState.listTotalPages;
-        wrap.innerHTML = `
-            <div class="pagination">
-                <div class="muted">Page ${page} / ${totalPages}</div>
-                <div class="page-controls">
-                    <button id="ua-page-prev" type="button" class="btn btn-muted btn-sm" ${page <= 1 ? 'disabled' : ''}>Prev</button>
-                    <button id="ua-page-next" type="button" class="btn btn-muted btn-sm" ${page >= totalPages ? 'disabled' : ''}>Next</button>
-                </div>
-            </div>
-        `;
-        document.getElementById('ua-page-prev')?.addEventListener('click', async () => {
-            uaState.listPage = Math.max(1, uaState.listPage - 1);
-            await loadAccountSummaries();
-        });
-        document.getElementById('ua-page-next')?.addEventListener('click', async () => {
-            uaState.listPage = Math.min(uaState.listTotalPages, uaState.listPage + 1);
-            await loadAccountSummaries();
-        });
     }
 
     async function viewAccountDetail(userId) {
@@ -920,7 +972,6 @@
             uaState.searchQuery = (document.getElementById('ua-search-q')?.value || '').trim();
             uaState.searchStatus = document.getElementById('ua-filter-status')?.value || 'all';
             uaState.searchRole = document.getElementById('ua-filter-role')?.value || 'all';
-            uaState.listPage = 1;
             await loadAccountSummaries();
         });
 
@@ -940,7 +991,6 @@
             if (sSel) sSel.value = 'all';
             const rSel = document.getElementById('ua-filter-role');
             if (rSel) rSel.value = 'all';
-            uaState.listPage = 1;
             await loadAccountSummaries();
         });
 
@@ -960,8 +1010,8 @@
             try {
                 toggleBtn.disabled = true;
                 const row = toggleBtn.closest('tr');
-                const statusCell = row?.querySelector('td:nth-child(3)');
-                const currentStatus = (statusCell?.textContent ?? '').trim();
+                const statusCell = row?.querySelector('td:nth-child(4)');
+                const currentStatus = (statusCell?.querySelector('.pill')?.textContent ?? statusCell?.textContent ?? '').trim();
                 const nextStatus = currentStatus.toLowerCase() === 'suspended' ? 'Active' : 'Suspended';
 
                 // Prefer dedicated suspend endpoint; fallback to update endpoint if backend not restarted (404).
@@ -986,15 +1036,18 @@
 
                 // Update row UI without full reload
                 const newStatus = resp?.accountStatus ?? nextStatus;
-                if (statusCell && newStatus) statusCell.textContent = newStatus;
+                if (statusCell && newStatus) {
+                    const isS = String(newStatus).toLowerCase() === 'suspended';
+                    const label = uaEscapeHtml(String(newStatus));
+                    statusCell.innerHTML = `<span class="pill ${isS ? 'bad' : 'ok'}">${label || (isS ? 'Suspended' : 'Active')}</span>`;
+                }
                 const isSusp = String(newStatus ?? '').toLowerCase() === 'suspended';
-                toggleBtn.textContent = isSusp ? 'Active' : 'Suspend';
-                toggleBtn.classList.toggle('btn-status-active', isSusp);
-                toggleBtn.classList.toggle('btn-status-suspend', !isSusp);
+                toggleBtn.textContent = isSusp ? 'Re-activate' : 'Suspend';
+                toggleBtn.className = 'btn btn-sm ' + (isSusp ? 'btn-muted' : 'btn-danger');
+                if (row) row.setAttribute('data-status', isSusp ? 'suspended' : 'active');
                 const usernameCell = row?.querySelector('td:nth-child(1)');
                 const uname = (usernameCell?.textContent ?? '').trim() || 'User';
-                const nowText = isSusp ? 'suspended now' : 'active now';
-                uaNoteOpen(`${uname} has been ${nowText}.`, 'Success');
+                showUaToast(isSusp ? `${uname} has been suspended.` : `${uname} has been reactivated.`);
             } catch (err) {
                 uaNoteOpen(`Error: ${err?.message || 'Update failed'}`, 'Notice');
             } finally {
