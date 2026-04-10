@@ -27,45 +27,62 @@ public class UpdateUserProfileName {
     }
 
     /**
-     * 更新数据库中该 profile 的角色名称
-     * @return 更新是否成功
+     * 更新数据库中该 profile 的角色名称（与其它 profile 的规范化名不可重复，见 {@link CreateUserProfile#normalizeRoleKey}）。
+     * @return null 成功；否则为错误信息（含 {@link CreateUserProfile#MSG_ROLE_ALREADY_EXISTS}）
      */
-    public boolean updateRoleNameInDatabase() {
+    public String updateRoleNameInDatabase() {
         if (profileId == null || profileId.trim().isEmpty()
                 || newRoleName == null || newRoleName.trim().isEmpty()) {
             System.err.println("[ENTITY] Invalid input: profileId or newRoleName cannot be empty");
-            return false;
+            return "Invalid profile or role name.";
         }
 
+        final String trimmedPid = profileId.trim();
+        final String trimmedNew = newRoleName.trim();
+        final String newKey = CreateUserProfile.normalizeRoleKey(trimmedNew);
+
         String existsSql = "SELECT COUNT(*) FROM user_profile WHERE profile_id = ?";
+        String scanSql = "SELECT profile_id, role FROM user_profile";
         String updateSql = "UPDATE user_profile SET role = ? WHERE profile_id = ?";
 
         try (Connection conn = DBUtils.getConnection();
              PreparedStatement existsStmt = conn.prepareStatement(existsSql);
+             PreparedStatement scanStmt = conn.prepareStatement(scanSql);
              PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
 
-            existsStmt.setString(1, profileId);
+            existsStmt.setString(1, trimmedPid);
             try (ResultSet rs = existsStmt.executeQuery()) {
                 if (rs.next() && rs.getInt(1) == 0) {
                     System.err.println("[ENTITY] No profile found with ID: " + profileId);
-                    return false;
+                    return "Profile not found.";
                 }
             }
 
-            updateStmt.setString(1, newRoleName);
-            updateStmt.setString(2, profileId);
+            try (ResultSet rs = scanStmt.executeQuery()) {
+                while (rs.next()) {
+                    String otherId = String.valueOf(rs.getObject("profile_id"));
+                    if (otherId.equals(trimmedPid)) {
+                        continue;
+                    }
+                    if (newKey.equals(CreateUserProfile.normalizeRoleKey(rs.getString("role")))) {
+                        return CreateUserProfile.MSG_ROLE_ALREADY_EXISTS;
+                    }
+                }
+            }
+
+            updateStmt.setString(1, trimmedNew);
+            updateStmt.setString(2, trimmedPid);
             int rowsAffected = updateStmt.executeUpdate();
 
-            // MySQL may return 0 when value is unchanged.
             System.out.println("[ENTITY] Update executed for profile " + profileId
                     + ", rows affected: " + rowsAffected
-                    + ", target role: " + newRoleName);
-            return true;
+                    + ", target role: " + trimmedNew);
+            return null;
 
         } catch (SQLException e) {
             System.err.println("[ENTITY] Database update failed: " + e.getMessage());
             e.printStackTrace();
-            return false;
+            return e.getMessage() != null ? e.getMessage() : "Database error";
         }
     }
 }

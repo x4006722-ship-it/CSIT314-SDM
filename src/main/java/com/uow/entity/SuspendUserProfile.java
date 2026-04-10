@@ -2,6 +2,7 @@ package com.uow.entity;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import com.uow.util.DBUtils;
 
@@ -10,6 +11,8 @@ import com.uow.util.DBUtils;
  * 责任：直接执行数据库操作，修改 profile 的 p_status 字段
  */
 public class SuspendUserProfile {
+
+    public static final String MSG_CANNOT_SUSPEND_PROFILE = "User Admin profiles cannot be suspended.";
 
     private String profileId;
     private String newStatus;
@@ -35,6 +38,20 @@ public class SuspendUserProfile {
             return false;
         }
 
+        if ("suspended".equalsIgnoreCase(newStatus.trim())) {
+            try (Connection conn = DBUtils.getConnection()) {
+                String role = fetchRoleForProfile(conn, profileId);
+                if (isUserAdminRole(role)) {
+                    System.err.println("[ENTITY] Cannot suspend User Admin profile: " + profileId);
+                    return false;
+                }
+            } catch (SQLException e) {
+                System.err.println("[ENTITY] Database read failed: " + e.getMessage());
+                e.printStackTrace();
+                return false;
+            }
+        }
+
         String sql = "UPDATE user_profile SET p_status = ? WHERE profile_id = ?";
 
         try (Connection conn = DBUtils.getConnection();
@@ -57,6 +74,21 @@ public class SuspendUserProfile {
             System.err.println("[ENTITY] Database update failed: " + e.getMessage());
             e.printStackTrace();
             return false;
+        }
+    }
+
+    private static boolean isUserAdminRole(String role) {
+        return role != null && "User Admin".equalsIgnoreCase(role.trim());
+    }
+
+    private static String fetchRoleForProfile(Connection conn, String profileId) throws SQLException {
+        String sql = "SELECT role FROM user_profile WHERE profile_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, profileId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getString("role");
+                return null;
+            }
         }
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.uow.control.UserAdminCreateProfileController;
+import com.uow.entity.CreateUserProfile;
 import com.uow.entity.ViewUserProfile;
 import com.uow.entity.ViewUserProfile.ProfileDTO;
 
@@ -41,15 +42,17 @@ public class UserAdminCreateProfilePage {
         System.out.println("Received parameters - roleName: " + roleName + ", status: " + status);
 
         try {
-            boolean isSuccess = controller.createProfile(roleName, status);
+            String err = controller.createProfile(roleName, status);
 
-            if (isSuccess) {
+            if (err == null) {
                 System.out.println("Profile creation successful");
                 return "Success: Profile '" + roleName + "' has been saved!";
-            } else {
-                System.out.println("Profile creation failed - database operation returned false");
-                return "Error: Database failure. Check your SQL table or connection.";
             }
+            if (CreateUserProfile.MSG_ROLE_ALREADY_EXISTS.equals(err)) {
+                return CreateUserProfile.MSG_ROLE_ALREADY_EXISTS;
+            }
+            System.out.println("Profile creation failed: " + err);
+            return "Error: " + err;
         } catch (Exception e) {
             System.err.println("Exception during profile creation: " + e.getMessage());
             e.printStackTrace();

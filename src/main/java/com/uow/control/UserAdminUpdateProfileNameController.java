@@ -1,5 +1,6 @@
 package com.uow.control;
 
+import com.uow.entity.CreateUserProfile;
 import com.uow.entity.UpdateUserProfileName;
 import org.springframework.stereotype.Service;
 
@@ -14,32 +15,30 @@ public class UserAdminUpdateProfileNameController {
      * 更新 profile 的 role 名称
      * @param profileId 要更新的 profile ID
      * @param newRoleName 新的 role name
-     * @return 操作是否成功
+     * @return null 成功；否则为错误信息（含 {@link CreateUserProfile#MSG_ROLE_ALREADY_EXISTS}）
      */
-    public boolean updateRoleName(String profileId, String newRoleName) {
+    public String updateRoleName(String profileId, String newRoleName) {
         System.out.println("[CONTROL] Updating profile " + profileId + " role name to: " + newRoleName);
 
-        // 验证输入
         if (profileId == null || profileId.trim().isEmpty()) {
             System.err.println("[CONTROL] Invalid profileId");
-            return false;
+            return "Invalid profile id.";
         }
 
         if (newRoleName == null || newRoleName.trim().isEmpty()) {
             System.err.println("[CONTROL] Invalid newRoleName");
-            return false;
+            return "Role name is required.";
         }
 
-        // 调用 Entity 层执行数据库更新
         UpdateUserProfileName updateEntity = new UpdateUserProfileName(profileId, newRoleName);
-        boolean success = updateEntity.updateRoleNameInDatabase();
+        String err = updateEntity.updateRoleNameInDatabase();
 
-        if (success) {
+        if (err == null) {
             System.out.println("[CONTROL] Role name updated successfully");
         } else {
-            System.err.println("[CONTROL] Failed to update role name");
+            System.err.println("[CONTROL] Failed to update role name: " + err);
         }
 
-        return success;
+        return err;
     }
 }

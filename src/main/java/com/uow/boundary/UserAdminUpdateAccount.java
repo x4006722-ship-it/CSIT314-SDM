@@ -1,6 +1,7 @@
 package com.uow.boundary;
 
 import com.uow.control.UserAdminUpdateAccountController;
+import com.uow.entity.SuspendAccount;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +40,10 @@ public class UserAdminUpdateAccount {
 
             String error = controller.updateAccount(userId, fields);
             if (error == null) return ResponseEntity.ok(Map.of("success", true));
+            if (SuspendAccount.MSG_CANNOT_SUSPEND_ACCOUNT.equals(error)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("success", false, "error", error));
+            }
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("success", false, "error", error));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
