@@ -6,13 +6,13 @@ import java.sql.SQLException;
 
 import com.uow.util.DBUtils;
 
-public class UserProfile {
+public class CreateUserProfile {
     private String profileId;
     private String roleName;
     private String status;
 
     // Constructor
-    public UserProfile(String profileId, String roleName, String status) {
+    public CreateUserProfile(String profileId, String roleName, String status) {
         this.profileId = profileId;
         this.roleName = roleName;
         this.status = status;
