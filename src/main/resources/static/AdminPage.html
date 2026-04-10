@@ -5,13 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Admin Dashboard</title>
     <style>
-        /* 保持你的配色和基础风格 */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
         body { background-color: #f8f9fa; color: #333; }
         
-        .container { display: flex; min-height: 100vh; }
-        .sidebar { width: 240px; background: #fff; border-right: 1px solid #eee; padding: 20px; }
-        .main-content { flex: 1; padding: 30px; }
+        .container { min-height: 100vh; }
+        .main-content { padding: 30px; max-width: 1200px; margin: 0 auto; }
         
         /* 顶栏样式 */
         .topbar {
@@ -26,7 +24,6 @@
             border: 1px solid #eaeaea;
         }
 
-        /* 切换控制栏 */
         .tab-bar {
             display: flex;
             gap: 15px;
@@ -44,7 +41,6 @@
             color: #555;
         }
 
-        /* 激活状态按钮样式 */
         .tab-btn.active {
             background: #000;
             color: #fff;
@@ -55,7 +51,6 @@
             background: #f0f0f0;
         }
 
-        /* 模块化卡片 */
         .admin-section {
             background: #fff;
             border-radius: 12px;
@@ -106,13 +101,23 @@
         .logout-btn {
             border: 1px solid #ff4d4f;
             color: #ff4d4f;
-            padding: 6px 16px;
-            border-radius: 6px;
+            padding: 10px 18px;
+            border-radius: 10px;
             text-decoration: none;
-            font-size: 13px;
+            font-size: 15px;
             font-weight: 600;
         }
         .logout-btn:hover { background: #ff4d4f; color: #fff; }
+
+        .topbar-user {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .topbar-user strong {
+            color: #000;
+            font-size: 17px;
+        }
 
         .step-badge {
             background: #e1f5fe;
@@ -124,27 +129,252 @@
             margin-right: 10px;
         }
 
-        /* 隐藏不活跃的部分 */
         .hidden { display: none; }
+
+        .card {
+            background: #fff;
+            border: 1px solid #eaeaea;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .subsection {
+            padding: 18px;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            background: #fafafa;
+        }
+
+        .subsection h3 {
+            font-size: 15px;
+            margin-bottom: 10px;
+            color: #111;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+        }
+
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .btn-sm {
+            padding: 8px 12px;
+            font-size: 13px;
+            border-radius: 8px;
+        }
+
+        .btn-danger {
+            background: #ff4d4f;
+            color: #fff;
+        }
+
+        .btn-muted {
+            background: #f2f4f7;
+            color: #111;
+            border: 1px solid #e5e7eb;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            color: #111;
+            font-weight: 600;
+        }
+
+        .pill.ok { background: #ecfdf3; border-color: #b7ebc6; color: #0f5132; }
+        .pill.bad { background: #fff1f0; border-color: #ffccc7; color: #a8071a; }
+
+        .table-wrap {
+            border: 1px solid #eee;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .table-scroll {
+            max-height: 420px;
+            overflow: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 980px;
+        }
+
+        thead th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background: #fafafa;
+            border-bottom: 1px solid #eee;
+            font-size: 12px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #667085;
+            padding: 12px 12px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        tbody td {
+            padding: 12px 12px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            color: #111;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover td { background: #fcfcfd; }
+
+        .td-actions {
+            display: inline-flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .muted {
+            color: #667085;
+            font-size: 12px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            gap: 12px;
+            border-top: 1px solid #eee;
+            background: #fff;
+        }
+
+        .page-controls {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .drawer-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            display: none;
+            z-index: 999;
+        }
+
+        .drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            height: 100vh;
+            width: min(520px, 92vw);
+            background: #fff;
+            box-shadow: -12px 0 30px rgba(0,0,0,0.18);
+            transform: translateX(100%);
+            transition: transform 0.18s ease;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .drawer.open { transform: translateX(0); }
+        .drawer-backdrop.open { display: block; }
+
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 18px;
+            border-bottom: 1px solid #eee;
+            background: #fafafa;
+        }
+
+        .drawer-title {
+            display: grid;
+            gap: 2px;
+        }
+
+        .drawer-title strong { font-size: 14px; color: #111; }
+
+        .drawer-body {
+            padding: 18px;
+            overflow: auto;
+            display: grid;
+            gap: 14px;
+        }
+
+        .drawer-footer {
+            padding: 14px 18px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            background: #fff;
+        }
+
+        .kv {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .kv .k { color: #667085; font-size: 12px; }
+        .kv .v { color: #111; font-size: 14px; }
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 18px;
+            transform: translateX(-50%);
+            background: #111;
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            display: none;
+            z-index: 1100;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.18);
+        }
+
+        @media (max-width: 980px) {
+            .action-bar { grid-template-columns: 1fr; }
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <aside class="sidebar">
-        <h2>Admin Portal</h2>
-        <p style="font-size: 12px; color: #999; margin-top: 10px;">Quick Navigation</p>
-    </aside>
-
     <main class="main-content">
         <div class="topbar">
-            <span style="font-size: 14px; color: #666;">Logged in as: <strong style="color: #000;">Admin</strong></span>
+            <span class="topbar-user">Logged in as: <strong>Admin</strong></span>
             <a href="/logout" class="logout-btn">Logout</a>
         </div>
 
         <div class="tab-bar">
-            <button class="tab-btn active" onclick="switchTab('profile')">Manage Profile</button>
-            <button class="tab-btn" onclick="switchTab('account')">Manage Account</button>
+            <button class="tab-btn active" type="button" onclick="location.href='AdminPage.html'">Manage Profile</button>
+            <button class="tab-btn" type="button" onclick="location.href='ManageAccount.html'">Manage Account</button>
         </div>
 
         <div id="profile-section" class="admin-section">
@@ -177,63 +407,10 @@
             </div>
         </div>
 
-        <div id="account-section" class="admin-section hidden">
-            <div class="section-header">
-                <h2><span class="step-badge">STEP 2</span> Account Management</h2>
-            </div>
-
-            <div class="action-bar">
-                <div>
-                    <h3>Find User Accounts</h3>
-                    <div class="form-group" style="margin-top:10px;">
-                        <input type="text" placeholder="Search by Username or ID...">
-                        <button class="btn btn-outline" style="margin-top:10px;">Search Account</button>
-                    </div>
-                </div>
-
-                <form action="/api/accounts/create" method="POST">
-                    <h3>Create New User Account</h3>
-                    <div class="form-group" style="margin-top:10px;">
-                        <input type="text" name="username" placeholder="Username" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="password" name="password" placeholder="Password" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Assign Profile (Role)</label>
-                        <select name="profileId">
-                            <option value="">-- Select a Profile (Must be created in Step 1) --</option>
-                            <option value="1">Admin</option>
-                            <option value="2">Fund Raiser</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-black">Create User Account</button>
-                </form>
-            </div>
-        </div>
     </main>
 </div>
 
 <script>
-    function switchTab(tabName) {
-        // 获取所有按钮和区块
-        const profileSec = document.getElementById('profile-section');
-        const accountSec = document.getElementById('account-section');
-        const btns = document.querySelectorAll('.tab-btn');
-
-        // 切换区块显示状态
-        if (tabName === 'profile') {
-            profileSec.classList.remove('hidden');
-            accountSec.classList.add('hidden');
-            btns[0].classList.add('active');
-            btns[1].classList.remove('active');
-        } else {
-            profileSec.classList.add('hidden');
-            accountSec.classList.remove('hidden');
-            btns[1].classList.add('active');
-            btns[0].classList.remove('active');
-        }
-    }
 </script>
 
 </body>
