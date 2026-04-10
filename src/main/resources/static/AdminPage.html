@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Admin Dashboard</title>
     <style>
-        /* 保持你原来的配色风格 */
+        /* 保持你的配色和基础风格 */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
         body { background-color: #f8f9fa; color: #333; }
         
@@ -13,7 +13,49 @@
         .sidebar { width: 240px; background: #fff; border-right: 1px solid #eee; padding: 20px; }
         .main-content { flex: 1; padding: 30px; }
         
-        /* 模块化卡片设计 */
+        /* 顶栏样式 */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+            padding: 15px 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid #eaeaea;
+        }
+
+        /* 切换控制栏 */
+        .tab-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            background: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+            color: #555;
+        }
+
+        /* 激活状态按钮样式 */
+        .tab-btn.active {
+            background: #000;
+            color: #fff;
+            border-color: #000;
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: #f0f0f0;
+        }
+
+        /* 模块化卡片 */
         .admin-section {
             background: #fff;
             border-radius: 12px;
@@ -21,6 +63,7 @@
             margin-bottom: 30px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             border: 1px solid #eaeaea;
+            /* 默认显示，后面通过 JS 控制 */
         }
 
         .section-header {
@@ -34,10 +77,9 @@
 
         h2 { font-size: 20px; color: #000; }
 
-        /* 表单与搜索条平行布局 */
         .action-bar {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* 左边搜索，右边创建 */
+            grid-template-columns: 1fr 1fr;
             gap: 40px;
         }
 
@@ -61,9 +103,17 @@
         }
         .btn-black { background: #000; color: #fff; }
         .btn-outline { background: transparent; border: 1px solid #000; color: #000; }
-        .btn:hover { opacity: 0.8; }
+        .logout-btn {
+            border: 1px solid #ff4d4f;
+            color: #ff4d4f;
+            padding: 6px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .logout-btn:hover { background: #ff4d4f; color: #fff; }
 
-        /* 步骤提示 */
         .step-badge {
             background: #e1f5fe;
             color: #01579b;
@@ -74,32 +124,8 @@
             margin-right: 10px;
         }
 
-        /* 补充：顶部栏和 Logout 按钮样式 */
-        .topbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #fff;
-            padding: 15px 25px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 1px solid #eaeaea;
-        }
-        .logout-btn {
-            border: 1px solid #ff4d4f;
-            color: #ff4d4f;
-            padding: 6px 16px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-            transition: 0.2s;
-        }
-        .logout-btn:hover {
-            background: #ff4d4f;
-            color: #fff;
-        }
+        /* 隐藏不活跃的部分 */
+        .hidden { display: none; }
     </style>
 </head>
 <body>
@@ -107,7 +133,7 @@
 <div class="container">
     <aside class="sidebar">
         <h2>Admin Portal</h2>
-        <p style="font-size: 12px; color: #999;">Quick Navigation</p>
+        <p style="font-size: 12px; color: #999; margin-top: 10px;">Quick Navigation</p>
     </aside>
 
     <main class="main-content">
@@ -116,7 +142,12 @@
             <a href="/LoginPage.html" class="logout-btn">Logout</a>
         </div>
 
-        <section class="admin-section">
+        <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('profile')">Manage Profile</button>
+            <button class="tab-btn" onclick="switchTab('account')">Manage Account</button>
+        </div>
+
+        <div id="profile-section" class="admin-section">
             <div class="section-header">
                 <h2><span class="step-badge">STEP 1</span> Profile (Role) Management</h2>
             </div>
@@ -144,9 +175,9 @@
                     <button type="submit" class="btn btn-black">Create New Profile</button>
                 </form>
             </div>
-        </section>
+        </div>
 
-        <section class="admin-section">
+        <div id="account-section" class="admin-section hidden">
             <div class="section-header">
                 <h2><span class="step-badge">STEP 2</span> Account Management</h2>
             </div>
@@ -179,9 +210,31 @@
                     <button type="submit" class="btn btn-black">Create User Account</button>
                 </form>
             </div>
-        </section>
+        </div>
     </main>
 </div>
+
+<script>
+    function switchTab(tabName) {
+        // 获取所有按钮和区块
+        const profileSec = document.getElementById('profile-section');
+        const accountSec = document.getElementById('account-section');
+        const btns = document.querySelectorAll('.tab-btn');
+
+        // 切换区块显示状态
+        if (tabName === 'profile') {
+            profileSec.classList.remove('hidden');
+            accountSec.classList.add('hidden');
+            btns[0].classList.add('active');
+            btns[1].classList.remove('active');
+        } else {
+            profileSec.classList.add('hidden');
+            accountSec.classList.remove('hidden');
+            btns[1].classList.add('active');
+            btns[0].classList.remove('active');
+        }
+    }
+</script>
 
 </body>
 </html>
