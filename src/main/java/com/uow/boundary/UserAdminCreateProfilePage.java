@@ -1,5 +1,7 @@
 package com.uow.boundary;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -8,9 +10,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.uow.control.UserAdminCreateProfileController;
-import com.uow.entity.UserProfile;
+import com.uow.entity.ViewUserProfile;
+import com.uow.entity.ViewUserProfile.ProfileDTO;
 
-@RestController 
+@RestController
 @RequestMapping("/api/profiles")
 /**
  * Boundary (API) for listing and creating user profiles (roles).
@@ -25,20 +28,32 @@ public class UserAdminCreateProfilePage {
     }
 
     @GetMapping("/list")
-    public Object listProfiles() {
-        return UserProfile.fetchAllProfiles();
+    public List<ProfileDTO> listProfiles() {
+        return new ViewUserProfile(null).getAllFromPFDatabase();
     }
 
     @PostMapping("/create")
     public String submitForm(
-            @RequestParam("roleName") String roleName, 
+            @RequestParam("roleName") String roleName,
             @RequestParam("status") String status) {
-        boolean isSuccess = controller.createProfile(roleName, status);
-        
-        if (isSuccess) {
-            return "Success: Profile '" + roleName + "' has been saved!";
-        } else {
-            return "Error: Database failure. Check your SQL table or connection.";
+
+        System.out.println("Boundary received request for: " + roleName);
+        System.out.println("Received parameters - roleName: " + roleName + ", status: " + status);
+
+        try {
+            boolean isSuccess = controller.createProfile(roleName, status);
+
+            if (isSuccess) {
+                System.out.println("Profile creation successful");
+                return "Success: Profile '" + roleName + "' has been saved!";
+            } else {
+                System.out.println("Profile creation failed - database operation returned false");
+                return "Error: Database failure. Check your SQL table or connection.";
+            }
+        } catch (Exception e) {
+            System.err.println("Exception during profile creation: " + e.getMessage());
+            e.printStackTrace();
+            return "Error: " + e.getMessage();
         }
     }
 }
