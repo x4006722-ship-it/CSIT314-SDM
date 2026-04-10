@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Admin - Manage Account</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: #f8f9fa; color: #333; }
+
+        .container { min-height: 100vh; }
+        .main-content { padding: 30px; max-width: 1200px; margin: 0 auto; }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+            padding: 15px 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid #eaeaea;
+        }
+
+        .tab-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            background: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+            color: #555;
+        }
+
+        .tab-btn.active {
+            background: #000;
+            color: #fff;
+            border-color: #000;
+        }
+
+        .tab-btn:hover:not(.active) { background: #f0f0f0; }
+
+        .admin-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid #eaeaea;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+
+        h2 { font-size: 20px; color: #000; }
+
+        .action-bar {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 13px; color: #666; margin-bottom: 5px; }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        .btn-black { background: #000; color: #fff; }
+        .btn-outline { background: transparent; border: 1px solid #000; color: #000; }
+        .logout-btn {
+            border: 1px solid #ff4d4f;
+            color: #ff4d4f;
+            padding: 10px 18px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .logout-btn:hover { background: #ff4d4f; color: #fff; }
+
+        .topbar-user {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .topbar-user strong {
+            color: #000;
+            font-size: 17px;
+        }
+
+        .step-badge {
+            background: #e1f5fe;
+            color: #01579b;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #eaeaea;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .subsection {
+            padding: 18px;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            background: #fafafa;
+        }
+
+        .subsection h3 {
+            font-size: 15px;
+            margin-bottom: 10px;
+            color: #111;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+        }
+
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .btn-sm {
+            padding: 8px 12px;
+            font-size: 13px;
+            border-radius: 8px;
+        }
+
+        .btn-danger {
+            background: #ff4d4f;
+            color: #fff;
+        }
+
+        .btn-muted {
+            background: #f2f4f7;
+            color: #111;
+            border: 1px solid #e5e7eb;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            color: #111;
+            font-weight: 600;
+        }
+
+        .pill.ok { background: #ecfdf3; border-color: #b7ebc6; color: #0f5132; }
+        .pill.bad { background: #fff1f0; border-color: #ffccc7; color: #a8071a; }
+
+        .table-wrap {
+            border: 1px solid #eee;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .table-scroll {
+            max-height: 520px;
+            overflow: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 980px;
+        }
+
+        thead th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background: #fafafa;
+            border-bottom: 1px solid #eee;
+            font-size: 12px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #667085;
+            padding: 12px 12px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        tbody td {
+            padding: 12px 12px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            color: #111;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover td { background: #fcfcfd; }
+
+        .td-actions {
+            display: inline-flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .muted {
+            color: #667085;
+            font-size: 12px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            gap: 12px;
+            border-top: 1px solid #eee;
+            background: #fff;
+        }
+
+        .page-controls {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .drawer-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            display: none;
+            z-index: 999;
+        }
+
+        .drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            height: 100vh;
+            width: min(520px, 92vw);
+            background: #fff;
+            box-shadow: -12px 0 30px rgba(0,0,0,0.18);
+            transform: translateX(100%);
+            transition: transform 0.18s ease;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .drawer.open { transform: translateX(0); }
+        .drawer-backdrop.open { display: block; }
+
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 18px;
+            border-bottom: 1px solid #eee;
+            background: #fafafa;
+        }
+
+        .drawer-title {
+            display: grid;
+            gap: 2px;
+        }
+
+        .drawer-title strong { font-size: 14px; color: #111; }
+
+        .drawer-body {
+            padding: 18px;
+            overflow: auto;
+            display: grid;
+            gap: 14px;
+        }
+
+        .drawer-footer {
+            padding: 14px 18px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            background: #fff;
+        }
+
+        .kv {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .kv .k { color: #667085; font-size: 12px; }
+        .kv .v { color: #111; font-size: 14px; }
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 18px;
+            transform: translateX(-50%);
+            background: #111;
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            display: none;
+            z-index: 1100;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.18);
+        }
+
+        @media (max-width: 980px) {
+            .action-bar { grid-template-columns: 1fr; }
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <main class="main-content">
+        <div class="topbar">
+            <span class="topbar-user">Logged in as: <strong>Admin</strong></span>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+
+        <div class="tab-bar">
+            <button class="tab-btn" type="button" onclick="location.href='AdminPage.html'">Manage Profile</button>
+            <button class="tab-btn active" type="button" onclick="location.href='ManageAccount.html'">Manage Account</button>
+        </div>
+
+        <div class="admin-section">
+            <div class="section-header">
+                <h2><span class="step-badge">STEP 2</span> Account Management</h2>
+            </div>
+
+            <div class="action-bar">
+                <div class="subsection">
+                    <h3>Search / View / Update / Suspend</h3>
+                    <div class="grid-2" style="margin-top: 10px;">
+                        <div class="form-group">
+                            <label>Quick Search</label>
+                            <input id="ua-search" type="text" placeholder="Username, User ID, Email, Phone, Full name">
+                            <div class="muted" style="margin-top:6px;">Search is local UI filtering for now; plug into backend later.</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select id="ua-status">
+                                <option value="all">All</option>
+                                <option value="active">Active</option>
+                                <option value="suspended">Suspended</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="field-row" style="margin-top: 10px;">
+                        <div class="grid-3">
+                            <div class="form-group">
+                                <label>Role (Profile)</label>
+                                <select id="ua-role">
+                                    <option value="all">All</option>
+                                    <option value="admin">Admin</option>
+                                    <option value="fund-raiser">Fund Raiser</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Sort</label>
+                                <select id="ua-sort">
+                                    <option value="recent">Most recent</option>
+                                    <option value="username">Username</option>
+                                    <option value="status">Status</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Per page</label>
+                                <select id="ua-page-size">
+                                    <option value="10">10</option>
+                                    <option value="25" selected>25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button id="ua-clear" type="button" class="btn btn-muted btn-sm">Clear</button>
+                    </div>
+
+                    <div class="table-wrap" style="margin-top: 14px;">
+                        <div class="table-scroll">
+                            <table id="ua-table" aria-label="User accounts">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 92px;">User ID</th>
+                                        <th style="width: 180px;">Username</th>
+                                        <th style="width: 220px;">Full name</th>
+                                        <th style="width: 250px;">Email</th>
+                                        <th style="width: 150px;">Phone</th>
+                                        <th style="width: 150px;">Role</th>
+                                        <th style="width: 140px;">Status</th>
+                                        <th style="width: 210px;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ua-tbody">
+                                    <tr data-status="active" data-role="admin">
+                                        <td>1001</td>
+                                        <td>admin01</td>
+                                        <td>Alex Tan</td>
+                                        <td>alex.tan@example.com</td>
+                                        <td>+65 8123 4567</td>
+                                        <td>Admin</td>
+                                        <td><span class="pill ok">Active</span></td>
+                                        <td>
+                                            <div class="td-actions">
+                                                <button type="button" class="btn btn-outline btn-sm" data-action="view">View</button>
+                                                <button type="button" class="btn btn-black btn-sm" data-action="edit">Update</button>
+                                                <button type="button" class="btn btn-danger btn-sm" data-action="toggle">Suspend</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr data-status="suspended" data-role="fund-raiser">
+                                        <td>1002</td>
+                                        <td>fr_maya</td>
+                                        <td>Maya Lim</td>
+                                        <td>maya.lim@example.com</td>
+                                        <td>+65 8777 1200</td>
+                                        <td>Fund Raiser</td>
+                                        <td><span class="pill bad">Suspended</span></td>
+                                        <td>
+                                            <div class="td-actions">
+                                                <button type="button" class="btn btn-outline btn-sm" data-action="view">View</button>
+                                                <button type="button" class="btn btn-black btn-sm" data-action="edit">Update</button>
+                                                <button type="button" class="btn btn-muted btn-sm" data-action="toggle">Re-activate</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr data-status="active" data-role="fund-raiser">
+                                        <td>1003</td>
+                                        <td>fr_ken</td>
+                                        <td>Ken Ong</td>
+                                        <td>ken.ong@example.com</td>
+                                        <td>+65 9000 1010</td>
+                                        <td>Fund Raiser</td>
+                                        <td><span class="pill ok">Active</span></td>
+                                        <td>
+                                            <div class="td-actions">
+                                                <button type="button" class="btn btn-outline btn-sm" data-action="view">View</button>
+                                                <button type="button" class="btn btn-black btn-sm" data-action="edit">Update</button>
+                                                <button type="button" class="btn btn-danger btn-sm" data-action="toggle">Suspend</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="pagination">
+                            <div class="muted" id="ua-count">Showing 3 of 3</div>
+                            <div class="page-controls">
+                                <button id="ua-prev" type="button" class="btn btn-muted btn-sm">Prev</button>
+                                <span class="muted" id="ua-page">Page 1</span>
+                                <button id="ua-next" type="button" class="btn btn-muted btn-sm">Next</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <form class="subsection" action="/api/accounts/create" method="POST">
+                    <h3>Create New User Account</h3>
+                    <div class="grid-2" style="margin-top:10px;">
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" name="username" placeholder="e.g. fr_john" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" name="password" placeholder="Set initial password" required>
+                        </div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Full name</label>
+                            <input type="text" name="fullName" placeholder="e.g. John Lim" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="email" placeholder="e.g. john.lim@example.com" required>
+                        </div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Phone</label>
+                            <input type="text" name="phone" placeholder="e.g. +65 8123 4567">
+                        </div>
+                        <div class="form-group">
+                            <label>Assign Profile (Role)</label>
+                            <select name="profileId" required>
+                                <option value="">-- Select a Profile (Must be created in Step 1) --</option>
+                                <option value="1">Admin</option>
+                                <option value="2">Fund Raiser</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-black">Create User Account</button>
+                    <div class="muted" style="margin-top:10px;">After backend integration, newly created users can appear instantly in the table.</div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div id="ua-backdrop" class="drawer-backdrop"></div>
+<aside id="ua-drawer" class="drawer" aria-label="Account details panel">
+    <div class="drawer-header">
+        <div class="drawer-title">
+            <strong id="ua-drawer-title">Account</strong>
+            <span class="muted" id="ua-drawer-subtitle">View / Update</span>
+        </div>
+        <button id="ua-close" type="button" class="btn btn-muted btn-sm">Close</button>
+    </div>
+    <div class="drawer-body">
+        <div class="kv">
+            <div class="k">User ID</div>
+            <div class="v" id="ua-v-id">-</div>
+        </div>
+        <div class="kv">
+            <div class="k">Username</div>
+            <div class="v" id="ua-v-username">-</div>
+        </div>
+        <div class="kv">
+            <div class="k">Full name</div>
+            <div class="v" id="ua-v-fullname">-</div>
+        </div>
+        <div class="kv">
+            <div class="k">Email</div>
+            <div class="v" id="ua-v-email">-</div>
+        </div>
+        <div class="kv">
+            <div class="k">Phone</div>
+            <div class="v" id="ua-v-phone">-</div>
+        </div>
+        <div class="kv">
+            <div class="k">Role</div>
+            <div class="v" id="ua-v-role">-</div>
+        </div>
+        <div class="kv">
+            <div class="k">Status</div>
+            <div class="v" id="ua-v-status">-</div>
+        </div>
+
+        <div id="ua-edit-form" class="card" style="padding: 14px; border-radius: 10px; border: 1px solid #eee;">
+            <div class="muted" style="margin-bottom: 10px;">Update fields (UI only for now)</div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Full name</label>
+                    <input id="ua-e-fullname" type="text" placeholder="Full name">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input id="ua-e-email" type="email" placeholder="Email">
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input id="ua-e-phone" type="text" placeholder="Phone">
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <select id="ua-e-role">
+                        <option value="Admin">Admin</option>
+                        <option value="Fund Raiser">Fund Raiser</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="drawer-footer">
+        <button id="ua-save" type="button" class="btn btn-black">Save Changes</button>
+        <button id="ua-toggle" type="button" class="btn btn-danger">Suspend</button>
+    </div>
+</aside>
+
+<div id="ua-toast" class="toast">Saved</div>
+
+<script>
+    const ua = {
+        page: 1,
+        pageSize: 25,
+        rows: [],
+        filtered: []
+    };
+
+    function uaToast(msg) {
+        const t = document.getElementById('ua-toast');
+        t.textContent = msg;
+        t.style.display = 'block';
+        window.clearTimeout(uaToast._t);
+        uaToast._t = window.setTimeout(() => { t.style.display = 'none'; }, 1400);
+    }
+
+    function uaOpenDrawer(mode, rowEl) {
+        const backdrop = document.getElementById('ua-backdrop');
+        const drawer = document.getElementById('ua-drawer');
+
+        const cells = rowEl.querySelectorAll('td');
+        const data = {
+            id: cells[0]?.textContent?.trim() ?? '-',
+            username: cells[1]?.textContent?.trim() ?? '-',
+            fullname: cells[2]?.textContent?.trim() ?? '-',
+            email: cells[3]?.textContent?.trim() ?? '-',
+            phone: cells[4]?.textContent?.trim() ?? '-',
+            role: cells[5]?.textContent?.trim() ?? '-',
+            status: rowEl.getAttribute('data-status') ?? '-'
+        };
+
+        document.getElementById('ua-drawer-title').textContent = mode === 'view' ? 'Account (View)' : 'Account (Update)';
+        document.getElementById('ua-v-id').textContent = data.id;
+        document.getElementById('ua-v-username').textContent = data.username;
+        document.getElementById('ua-v-fullname').textContent = data.fullname;
+        document.getElementById('ua-v-email').textContent = data.email;
+        document.getElementById('ua-v-phone').textContent = data.phone;
+        document.getElementById('ua-v-role').textContent = data.role;
+        document.getElementById('ua-v-status').textContent = data.status === 'suspended' ? 'Suspended' : 'Active';
+
+        document.getElementById('ua-e-fullname').value = data.fullname;
+        document.getElementById('ua-e-email').value = data.email;
+        document.getElementById('ua-e-phone').value = data.phone;
+        document.getElementById('ua-e-role').value = data.role;
+
+        document.getElementById('ua-edit-form').style.display = mode === 'edit' ? 'block' : 'none';
+
+        const toggleBtn = document.getElementById('ua-toggle');
+        const isSusp = data.status === 'suspended';
+        toggleBtn.textContent = isSusp ? 'Re-activate' : 'Suspend';
+        toggleBtn.className = isSusp ? 'btn btn-muted' : 'btn btn-danger';
+        toggleBtn.dataset.rowId = data.id;
+
+        const saveBtn = document.getElementById('ua-save');
+        saveBtn.style.display = mode === 'edit' ? 'inline-flex' : 'none';
+        saveBtn.dataset.rowId = data.id;
+
+        backdrop.classList.add('open');
+        drawer.classList.add('open');
+    }
+
+    function uaCloseDrawer() {
+        document.getElementById('ua-backdrop').classList.remove('open');
+        document.getElementById('ua-drawer').classList.remove('open');
+    }
+
+    function uaMatches(rowEl, q, status, role) {
+        const text = rowEl.textContent.toLowerCase();
+        const okQ = !q || text.includes(q);
+        const rowStatus = rowEl.getAttribute('data-status') || '';
+        const okStatus = status === 'all' || rowStatus === status;
+        const rowRole = rowEl.getAttribute('data-role') || '';
+        const okRole = role === 'all' || rowRole === role;
+        return okQ && okStatus && okRole;
+    }
+
+    function uaApplyFilter() {
+        const q = (document.getElementById('ua-search')?.value || '').trim().toLowerCase();
+        const status = document.getElementById('ua-status')?.value || 'all';
+        const role = document.getElementById('ua-role')?.value || 'all';
+        ua.pageSize = parseInt(document.getElementById('ua-page-size')?.value || '25', 10);
+
+        ua.filtered = ua.rows.filter(r => uaMatches(r, q, status, role));
+
+        const total = ua.filtered.length;
+        const totalPages = Math.max(1, Math.ceil(total / ua.pageSize));
+        ua.page = Math.min(ua.page, totalPages);
+
+        const start = (ua.page - 1) * ua.pageSize;
+        const end = start + ua.pageSize;
+        ua.rows.forEach(r => r.style.display = 'none');
+        ua.filtered.slice(start, end).forEach(r => r.style.display = '');
+
+        document.getElementById('ua-count').textContent = `Showing ${Math.min(total, end) - start} of ${total}`;
+        document.getElementById('ua-page').textContent = `Page ${ua.page} / ${totalPages}`;
+        document.getElementById('ua-prev').disabled = ua.page <= 1;
+        document.getElementById('ua-next').disabled = ua.page >= totalPages;
+    }
+
+    function uaInit() {
+        const tbody = document.getElementById('ua-tbody');
+        if (!tbody) return;
+        ua.rows = Array.from(tbody.querySelectorAll('tr'));
+        ua.filtered = ua.rows.slice();
+
+        document.getElementById('ua-search')?.addEventListener('input', () => { ua.page = 1; uaApplyFilter(); });
+        document.getElementById('ua-status')?.addEventListener('change', () => { ua.page = 1; uaApplyFilter(); });
+        document.getElementById('ua-role')?.addEventListener('change', () => { ua.page = 1; uaApplyFilter(); });
+        document.getElementById('ua-page-size')?.addEventListener('change', () => { ua.page = 1; uaApplyFilter(); });
+        document.getElementById('ua-sort')?.addEventListener('change', () => { ua.page = 1; uaApplyFilter(); });
+
+        document.getElementById('ua-clear')?.addEventListener('click', () => {
+            document.getElementById('ua-search').value = '';
+            document.getElementById('ua-status').value = 'all';
+            document.getElementById('ua-role').value = 'all';
+            document.getElementById('ua-sort').value = 'recent';
+            document.getElementById('ua-page-size').value = '25';
+            ua.page = 1;
+            uaApplyFilter();
+        });
+
+        document.getElementById('ua-prev')?.addEventListener('click', () => { ua.page = Math.max(1, ua.page - 1); uaApplyFilter(); });
+        document.getElementById('ua-next')?.addEventListener('click', () => { ua.page += 1; uaApplyFilter(); });
+
+        document.getElementById('ua-backdrop')?.addEventListener('click', uaCloseDrawer);
+        document.getElementById('ua-close')?.addEventListener('click', uaCloseDrawer);
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') uaCloseDrawer(); });
+
+        tbody.addEventListener('click', (e) => {
+            const btn = e.target.closest('button[data-action]');
+            if (!btn) return;
+            const row = btn.closest('tr');
+            const action = btn.getAttribute('data-action');
+            if (!row) return;
+
+            if (action === 'view') uaOpenDrawer('view', row);
+            if (action === 'edit') uaOpenDrawer('edit', row);
+            if (action === 'toggle') {
+                const isSusp = row.getAttribute('data-status') === 'suspended';
+                row.setAttribute('data-status', isSusp ? 'active' : 'suspended');
+                const pill = row.querySelector('.pill');
+                if (pill) {
+                    pill.className = isSusp ? 'pill ok' : 'pill bad';
+                    pill.textContent = isSusp ? 'Active' : 'Suspended';
+                }
+                btn.className = isSusp ? 'btn btn-danger btn-sm' : 'btn btn-muted btn-sm';
+                btn.textContent = isSusp ? 'Suspend' : 'Re-activate';
+                uaToast(isSusp ? 'Account re-activated (UI)' : 'Account suspended (UI)');
+                uaApplyFilter();
+            }
+        });
+
+        document.getElementById('ua-save')?.addEventListener('click', () => {
+            uaToast('Saved (UI)');
+            uaCloseDrawer();
+        });
+
+        document.getElementById('ua-toggle')?.addEventListener('click', () => {
+            uaToast('Status updated (UI)');
+            uaCloseDrawer();
+        });
+
+        uaApplyFilter();
+    }
+
+    window.addEventListener('DOMContentLoaded', uaInit);
+</script>
+</body>
+</html>
