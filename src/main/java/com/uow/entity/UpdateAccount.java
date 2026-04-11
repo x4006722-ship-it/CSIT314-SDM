@@ -124,7 +124,13 @@ public class UpdateAccount {
                 String value = String.valueOf(raw).trim();
                 if (value.isEmpty()) continue;
 
-                if ("profile_id".equals(column)) {
+                if ("username".equalsIgnoreCase(column)) {
+                    if (usernameExistsIgnoreCase(conn, value, userId)) {
+                        return "Username already exists.";
+                    }
+                    setClauses.add(column + " = ?");
+                    params.add(value);
+                } else if ("profile_id".equals(column)) {
                     int pid;
                     try {
                         pid = Integer.parseInt(value);
@@ -166,6 +172,17 @@ public class UpdateAccount {
             System.err.println("Database update failed! Reason: " + e.getMessage());
             e.printStackTrace();
             return e.getMessage() != null ? e.getMessage() : "Unknown database error";
+        }
+    }
+
+    private static boolean usernameExistsIgnoreCase(Connection conn, String username, int excludeUserId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM " + USER_ACCOUNT_TABLE + " WHERE LOWER(username) = LOWER(?) AND user_id <> ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
+            ps.setInt(2, excludeUserId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() && rs.getInt(1) > 0;
+            }
         }
     }
 
