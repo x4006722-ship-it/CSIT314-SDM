@@ -646,6 +646,18 @@
         listTotal: 0
     };
 
+    /** For role assignment and Role filter: exclude suspended profiles and any role named "Suspended". */
+    function uaAssignableProfile(p) {
+        if (!p) return false;
+        const id = p.profileId ?? p.profile_id;
+        const role = p.roleName ?? p.role;
+        if (!id || !role) return false;
+        const st = String(p.status ?? p.p_status ?? '').toLowerCase();
+        if (st === 'suspended') return false;
+        if (String(role).toLowerCase() === 'suspended') return false;
+        return true;
+    }
+
     function uaModalOpen(message, title) {
         const backdrop = document.getElementById('ua-modal-backdrop');
         const modal = document.getElementById('ua-modal');
@@ -911,7 +923,7 @@
             if (roleSel) {
                 const current = roleSel.value || 'all';
                 roleSel.innerHTML = `<option value="all" selected>All</option>` + uaState.profiles
-                    .filter(p => !p.status || p.status.toLowerCase() !== 'suspended')
+                    .filter(uaAssignableProfile)
                     .map(p => `<option value="${uaEscapeHtml(p.roleName)}">${uaEscapeHtml(p.roleName)}</option>`)
                     .join('');
                 // restore selection if still exists
@@ -930,12 +942,9 @@
             }
 
             (profiles || []).forEach(p => {
+                if (!uaAssignableProfile(p)) return;
                 const id = p.profileId ?? p.profile_id;
                 const role = p.roleName ?? p.role;
-                const status = (p.status ?? p.p_status ?? '').toString();
-
-                if (!id || !role) return;
-                if (status && status.toLowerCase() === 'suspended') return;
 
                 const opt = document.createElement('option');
                 opt.value = String(id);
@@ -1149,7 +1158,7 @@
             }
 
             if (field === 'profile_id') {
-                const profiles = uaState.profiles || [];
+                const profiles = (uaState.profiles || []).filter(uaAssignableProfile);
                 const opts = profiles.map(p => `<option value="${uaEscapeHtml(p.profileId)}">${uaEscapeHtml(p.roleName || p.role)}</option>`).join('');
                 td.innerHTML = `
                     <select class="ua-edit-select" data-field="profile_id" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
