@@ -29,14 +29,14 @@ public class UserAdminSearchProfilePage {
      * @return ProfileDTO 列表（JSON 格式）
      */
     @GetMapping("/search")
-    public ResponseEntity<List<ViewUserProfile.ProfileDTO>> searchProfiles(
+    public ResponseEntity<List<ViewUserProfile>> searchProfiles(
             @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "status", required = false) String status) {
             
         System.out.println("[BOUNDARY] Received search request - Keyword: " + keyword + ", Status: " + status);
         
         // 调用 Controller 执行搜索
-        List<ViewUserProfile.ProfileDTO> results = controller.executeSearch(keyword, status);
+        List<ViewUserProfile> results = controller.executeSearch(keyword, status);
         
         System.out.println("[BOUNDARY] Returning " + results.size() + " profiles to client");
         return ResponseEntity.ok(results);

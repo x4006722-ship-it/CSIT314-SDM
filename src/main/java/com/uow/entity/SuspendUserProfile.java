@@ -2,54 +2,28 @@ package com.uow.entity;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import com.uow.util.DBUtils;
 
 /**
- * 挂起用户资料的 Entity 类
- * 责任：直接执行数据库操作，修改 profile 的 p_status 字段
+ * 更改用户资料状态的 Entity 类
+ * 责任：纯粹的数据访问层，负责执行 UPDATE 语句，不包含任何业务判断
  */
 public class SuspendUserProfile {
 
-    public static final String MSG_CANNOT_SUSPEND_PROFILE = "User Admin profiles cannot be suspended.";
-
-    private String profileId;
-    private String newStatus;
-
     /**
-     * 构造函数
+     * 更新数据库中该 profile 的状态 (被 Control 层调用)
      * @param profileId 要修改的 profile ID
      * @param newStatus 新的状态值（"active" 或 "suspended"）
-     */
-    public SuspendUserProfile(String profileId, String newStatus) {
-        this.profileId = profileId;
-        this.newStatus = newStatus;
-    }
-
-    /**
-     * 更新数据库中该 profile 的状态
      * @return 更新是否成功
      */
-    public boolean updateStatusInDatabase() {
+    public static boolean updateStatusInDatabase(String profileId, String newStatus) {
+        
+        // 仅做最基础的数据格式校验
         if (profileId == null || profileId.trim().isEmpty() || 
             newStatus == null || newStatus.trim().isEmpty()) {
             System.err.println("[ENTITY] Invalid input: profileId or newStatus cannot be empty");
             return false;
-        }
-
-        if ("suspended".equalsIgnoreCase(newStatus.trim())) {
-            try (Connection conn = DBUtils.getConnection()) {
-                String role = fetchRoleForProfile(conn, profileId);
-                if (isUserAdminRole(role)) {
-                    System.err.println("[ENTITY] Cannot suspend User Admin profile: " + profileId);
-                    return false;
-                }
-            } catch (SQLException e) {
-                System.err.println("[ENTITY] Database read failed: " + e.getMessage());
-                e.printStackTrace();
-                return false;
-            }
         }
 
         String sql = "UPDATE user_profile SET p_status = ? WHERE profile_id = ?";
@@ -74,21 +48,6 @@ public class SuspendUserProfile {
             System.err.println("[ENTITY] Database update failed: " + e.getMessage());
             e.printStackTrace();
             return false;
-        }
-    }
-
-    private static boolean isUserAdminRole(String role) {
-        return role != null && "User Admin".equalsIgnoreCase(role.trim());
-    }
-
-    private static String fetchRoleForProfile(Connection conn, String profileId) throws SQLException {
-        String sql = "SELECT role FROM user_profile WHERE profile_id = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, profileId);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getString("role");
-                return null;
-            }
         }
     }
 }
