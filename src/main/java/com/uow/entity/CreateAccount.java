@@ -45,13 +45,21 @@ public class CreateAccount {
         String table = "user_account";
 
         try (Connection conn = DBUtils.getConnection()) {
+            String normalizedUsername = username == null ? "" : username.trim();
+            if (normalizedUsername.isEmpty()) {
+                return "Username is required.";
+            }
+            if (usernameExistsIgnoreCase(conn, normalizedUsername)) {
+                return "Username already exists.";
+            }
+
             Set<String> cols = getLowercaseColumns(conn, table);
 
             List<String> insertCols = new ArrayList<>();
             List<Object> values = new ArrayList<>();
 
             insertCols.add("username");
-            values.add(username);
+            values.add(normalizedUsername);
 
             insertCols.add("password");
             values.add(password);
@@ -89,6 +97,16 @@ public class CreateAccount {
             System.err.println("Database save failed! Reason: " + e.getMessage());
             e.printStackTrace();
             return e.getMessage() != null ? e.getMessage() : "Unknown database error";
+        }
+    }
+
+    private static boolean usernameExistsIgnoreCase(Connection conn, String targetUsername) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM user_account WHERE LOWER(username) = LOWER(?)";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, targetUsername);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                return rs.next() && rs.getInt(1) > 0;
+            }
         }
     }
 

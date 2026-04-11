@@ -54,11 +54,15 @@ public class Login {
     }
 
     public boolean checkAccountStatus() {
-        return "Active".equalsIgnoreCase(a_status);
+        return isActiveStatus(a_status);
     }
 
     public boolean checkProfileStatus() {
-        return "Active".equalsIgnoreCase(p_status);
+        return isActiveStatus(p_status);
+    }
+
+    private static boolean isActiveStatus(String status) {
+        return status != null && "Active".equalsIgnoreCase(status.trim());
     }
 
     public String getRedirectPageByRole() {
