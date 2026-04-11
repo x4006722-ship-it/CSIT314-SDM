@@ -2,92 +2,41 @@ package com.uow.entity;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Locale;
 
 import com.uow.util.DBUtils;
 
+/**
+ * 负责执行创建用户资料数据库插入操作的 Entity 层。
+ * 已剥离状态和业务校验逻辑，变为纯粹的 DAO 方法。
+ */
 public class CreateUserProfile {
 
     public static final String MSG_ROLE_ALREADY_EXISTS = "Role already exists";
 
     /**
-     * Duplicate detection: strip all Unicode whitespace, then lowercase.
-     * "User Admin", "useradmin", " user  Admin " → same key.
+     * 将新的角色资料插入数据库。
+     * 此方法不包含任何业务校验，直接执行。校验应在 Control 层完成。
+     *
+     * @param roleName 角色名称
+     * @param status 初始状态
+     * @return 插入是否成功
      */
-    public static String normalizeRoleKey(String roleName) {
-        if (roleName == null) {
-            return "";
-        }
-        StringBuilder sb = new StringBuilder(roleName.length());
-        for (int i = 0; i < roleName.length(); i++) {
-            char c = roleName.charAt(i);
-            if (!Character.isWhitespace(c)) {
-                sb.append(c);
-            }
-        }
-        return sb.toString().toLowerCase(Locale.ROOT);
-    }
-
-    private String profileId;
-    private String roleName;
-    private String status;
-
-    // Constructor
-    public CreateUserProfile(String profileId, String roleName, String status) {
-        this.profileId = profileId;
-        this.roleName = roleName == null ? null : roleName.trim();
-        this.status = status;
-    }
-
-    // Getters and Setters
-    public String getProfileId() { return profileId; }
-    public String getRoleName() { return roleName; }
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-
-    /**
-     * True if any row has the same {@link #normalizeRoleKey(String)} as this role name.
-     */
-    public boolean existsRoleNameIgnoreCase() {
-        if (this.roleName == null || this.roleName.isEmpty()) {
-            return false;
-        }
-        String target = normalizeRoleKey(this.roleName);
-        if (target.isEmpty()) {
-            return false;
-        }
-        String sql = "SELECT role FROM user_profile";
-        try (Connection conn = DBUtils.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-            while (rs.next()) {
-                if (target.equals(normalizeRoleKey(rs.getString("role")))) {
-                    return true;
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("Duplicate role check failed: " + e.getMessage());
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    public boolean saveToPFDatabase() {
+    public static boolean saveToPFDatabase(String roleName, String status) {
         String sql = "INSERT INTO user_profile (role, p_status) VALUES (?, ?)";
 
         try (Connection conn = DBUtils.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, this.roleName);
-            pstmt.setString(2, this.status);
+            // 存入数据库时去除前后空格
+            pstmt.setString(1, roleName != null ? roleName.trim() : null);
+            pstmt.setString(2, status);
 
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
 
         } catch (SQLException e) {
-            System.err.println("Database save failed! Reason: " + e.getMessage());
+            System.err.println("[ENTITY] Database insert failed! Reason: " + e.getMessage());
             e.printStackTrace();
             return false;
         }

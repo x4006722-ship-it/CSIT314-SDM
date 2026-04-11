@@ -19,11 +19,11 @@ public class UserAdminSearchProfileController {
      * @param status 状态过滤
      * @return ProfileDTO 列表
      */
-    public List<ViewUserProfile.ProfileDTO> executeSearch(String keyword, String status) {
+    public List<ViewUserProfile> executeSearch(String keyword, String status) {
         System.out.println("[CONTROL] Searching profiles - Keyword: " + keyword + ", Status: " + status);
 
         // 调用 Entity 执行数据库查询
-        List<ViewUserProfile.ProfileDTO> results = SearchUserProfile.searchDatabase(keyword, status);
+        List<ViewUserProfile> results = SearchUserProfile.searchDatabase(keyword, status);
 
         System.out.println("[CONTROL] Search returned " + results.size() + " results");
         return results;

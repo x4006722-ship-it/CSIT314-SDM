@@ -2,7 +2,6 @@ package com.uow.boundary;
 
 import com.uow.control.UserAdminSuspendProfileController;
 import com.uow.control.UserAdminSuspendProfileController.SuspendProfileOutcome;
-import com.uow.entity.SuspendUserProfile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +38,7 @@ public class UserAdminSuspendProfilePage {
         }
         if (outcome == SuspendProfileOutcome.USER_ADMIN_FORBIDDEN) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(SuspendUserProfile.MSG_CANNOT_SUSPEND_PROFILE);
+                    .body("User Admin profiles cannot be suspended.");
         }
         return ResponseEntity.badRequest().body("Failed to suspend profile");
     }

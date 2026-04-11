@@ -20,8 +20,8 @@ public class SearchUserProfile {
      * @param status 状态过滤（"active", "suspended", "all"）
      * @return ProfileDTO 列表
      */
-    public static List<ViewUserProfile.ProfileDTO> searchDatabase(String keyword, String status) {
-        List<ViewUserProfile.ProfileDTO> results = new ArrayList<>();
+    public static List<ViewUserProfile> searchDatabase(String keyword, String status) {
+        List<ViewUserProfile> results = new ArrayList<>();
         
         // 动态拼装 SQL：1=1 是为了方便后面拼装 AND 条件
         StringBuilder sql = new StringBuilder("SELECT profile_id, role, p_status FROM user_profile WHERE 1=1 ");
@@ -51,7 +51,7 @@ public class SearchUserProfile {
             // 执行查询并收集结果
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    results.add(new ViewUserProfile.ProfileDTO(
+                    results.add(new ViewUserProfile(
                         rs.getString("profile_id"),
                         rs.getString("role"),
                         rs.getString("p_status")
