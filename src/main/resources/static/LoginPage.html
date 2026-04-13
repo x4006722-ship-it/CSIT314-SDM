@@ -11,8 +11,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
+            min-height: 100dvh;
             margin: 0;
+            padding: 16px;
         }
 
         .login-card {
@@ -83,6 +85,35 @@
 
         .login-button:hover {
             background-color: #222222;
+        }
+
+        @media (max-width: 768px) {
+            .login-card {
+                padding: 28px 20px;
+                border-radius: 10px;
+                max-width: 100%;
+            }
+
+            h1 {
+                font-size: 26px;
+                margin-bottom: 28px;
+            }
+
+            .form-group {
+                margin-bottom: 18px;
+            }
+
+            input[type="text"],
+            input[type="password"] {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            .login-button {
+                padding: 14px;
+                font-size: 15px;
+                margin-top: 10px;
+            }
         }
     </style>
 </head>

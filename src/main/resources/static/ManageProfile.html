@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Admin - Manage Profile</title>
     <style>
+        /* --- Reset & layout --- */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
         body { background-color: #f8f9fa; color: #333; }
 
@@ -93,7 +94,6 @@
             transition: 0.2s;
         }
         .btn-black { background: #000; color: #fff; }
-        .btn-outline { background: transparent; border: 1px solid #000; color: #000; }
         .logout-btn {
             border: 1px solid #ff4d4f;
             color: #ff4d4f;
@@ -141,19 +141,6 @@
             gap: 12px;
         }
 
-        .grid-3 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 12px;
-        }
-
-        .field-row {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 10px;
-            align-items: end;
-        }
-
         .btn-sm {
             padding: 8px 12px;
             font-size: 13px;
@@ -187,6 +174,7 @@
         .pill.ok { background: #ecfdf3; border-color: #b7ebc6; color: #0f5132; }
         .pill.bad { background: #fff1f0; border-color: #ffccc7; color: #a8071a; }
 
+        /* --- Data table (desktop) --- */
         .table-wrap {
             border: 1px solid #eee;
             border-radius: 10px;
@@ -205,6 +193,15 @@
             border-spacing: 0;
             min-width: 980px;
         }
+
+        #up-table {
+            min-width: 0;
+        }
+
+        #up-table thead th:nth-child(1) { width: 80px; }
+        #up-table thead th:nth-child(2) { width: 200px; }
+        #up-table thead th:nth-child(3) { width: 120px; }
+        #up-table thead th:nth-child(4) { width: 220px; text-align: center; }
 
         thead th {
             position: sticky;
@@ -288,6 +285,7 @@
             background: #fff;
         }
 
+        /* --- Profile drawer --- */
         .drawer-backdrop {
             position: fixed;
             inset: 0;
@@ -423,6 +421,13 @@
             max-height: calc(88vh - 56px - 64px);
         }
 
+        /* Notice modal: compact placement (shares z-index with .modal) */
+        #up-note-modal.modal {
+            top: 18%;
+            width: min(560px, 92vw);
+            max-height: 70vh;
+        }
+
         .modal-footer {
             padding: 14px 16px;
             border-top: 1px solid #eee;
@@ -439,13 +444,178 @@
         }
 
         @media (max-width: 980px) {
-            .action-bar { grid-template-columns: 1fr; }
-            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 16px;
+            }
+
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+                padding: 14px 16px;
+            }
+
+            .logout-btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .tab-bar {
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+
+            .tab-btn {
+                flex: 1 1 160px;
+                width: 100%;
+            }
+
+            .admin-section {
+                padding: 16px;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .table-wrap,
+            .table-scroll {
+                overflow-x: visible;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .table-scroll {
+                max-height: none;
+            }
+
+            #up-table {
+                min-width: 0;
+                width: 100%;
+                table-layout: fixed;
+            }
+
+            #up-table thead {
+                display: none;
+            }
+
+            #up-table,
+            #up-table tbody,
+            #up-table tr,
+            #up-table td {
+                display: block;
+                width: 100%;
+            }
+
+            #up-table tbody tr {
+                background: #fff;
+                border: 1px solid #e9eaeb;
+                border-radius: 10px;
+                padding: 8px 10px;
+                margin-bottom: 10px;
+            }
+
+            #up-table tbody td {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 10px;
+                padding: 8px 0;
+                border-bottom: 1px solid #f1f2f4;
+                font-size: 14px;
+                white-space: normal;
+                word-break: break-word;
+                text-align: right;
+            }
+
+            #up-table tbody td:last-child {
+                border-bottom: none;
+            }
+
+            #up-table tbody td::before {
+                color: #667085;
+                font-weight: 600;
+                text-align: left;
+                padding-right: 8px;
+                flex: 0 0 42%;
+            }
+
+            #up-table tbody td:nth-child(1)::before { content: "ID"; }
+            #up-table tbody td:nth-child(2)::before { content: "Role Name"; }
+            #up-table tbody td:nth-child(3)::before { content: "Status"; }
+            #up-table tbody td:nth-child(4)::before { content: "Actions"; }
+
+            #up-table tbody td[colspan] {
+                display: block;
+                text-align: center !important;
+            }
+
+            #up-table tbody td[colspan]::before {
+                content: none;
+            }
+
+            #up-table .pill {
+                font-size: 13px;
+                padding: 6px 10px;
+                white-space: nowrap;
+            }
+
+            #up-table .td-actions {
+                width: auto;
+                justify-content: flex-end;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            #up-table .td-actions button.btn-sm,
+            #up-table .td-actions button[data-action="toggle"].btn-sm {
+                min-width: 92px;
+                width: auto;
+                white-space: nowrap;
+                font-size: 12px;
+                padding: 0 8px;
+            }
+
+            .pagination {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .drawer {
+                width: 100vw;
+            }
+
+            .drawer-footer,
+            .modal-footer {
+                flex-wrap: wrap;
+            }
+
+            .drawer-footer .btn,
+            .modal-footer .btn {
+                flex: 1 1 120px;
+            }
+
+            .kv {
+                grid-template-columns: 1fr;
+                gap: 4px;
+            }
+
+            .modal {
+                top: 5%;
+                width: 94vw;
+                max-height: 90vh;
+            }
         }
     </style>
 </head>
 <body>
 <div class="container">
+    <!-- Page: create profile + list + drawer -->
     <main class="main-content">
         <div class="topbar">
             <span class="topbar-user">Logged in as: <strong> User Admin</strong></span>
@@ -512,10 +682,10 @@
                             <table id="up-table">
                                 <thead>
                                     <tr>
-                                        <th style="width: 80px;">ID</th>
-                                        <th style="width: 200px;">Role Name</th>
-                                        <th style="width: 120px;">Status</th>
-                                        <th style="width: 220px; text-align: center;">Actions</th>
+                                        <th>ID</th>
+                                        <th>Role Name</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="up-tbody">
@@ -536,6 +706,7 @@
     </main>
 </div>
 
+    <!-- Profile drawer & notice modal -->
 <div id="up-backdrop" class="drawer-backdrop"></div>
 <aside id="up-drawer" class="drawer">
     <div class="drawer-header">
@@ -574,8 +745,9 @@
 
 <div id="up-toast" class="toast">Action Successful</div>
 
+    <!-- Notice modal -->
 <div id="up-note-backdrop" class="modal-backdrop"></div>
-<div id="up-note-modal" class="modal" role="dialog" aria-modal="true" style="top: 18%; width: min(560px, 92vw); max-height: 70vh;">
+<div id="up-note-modal" class="modal" role="dialog" aria-modal="true">
     <div class="modal-header">
         <strong id="up-note-title">Notice</strong>
     </div>
@@ -585,10 +757,7 @@
     </div>
 </div>
 
-<script>
-    // ====== 所有函数定义 ======
-    
-    // 基础 JS 逻辑控制
+<script> /* Manage Profile: API + drawer */
     function showToast(msg) {
         const t = document.getElementById('up-toast');
         t.textContent = msg;
@@ -623,34 +792,27 @@
         return normalizeRoleKey(roleText) === 'useradmin';
     }
 
-    // 从数据库加载所有 profiles
     function loadProfilesFromDatabase() {
-        console.log("Loading profiles from database...");
         fetch('/api/profiles/list')
             .then(response => {
-                console.log("Response status:", response.status);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 return response.json();
             })
             .then(profiles => {
-                console.log("Received profiles:", profiles);
                 if (profiles && profiles.length > 0) {
                     displayProfiles(profiles);
                 } else {
-                    console.log("No profiles returned from server");
                     displayDefaultProfiles();
                 }
             })
             .catch(error => {
                 console.error("Error loading profiles:", error);
-                console.log("Using default profiles for display");
                 displayDefaultProfiles();
             });
     }
 
-    // API 不可用或返回空时：不注入假数据，只提示
     function displayDefaultProfiles() {
         const tbody = document.getElementById('up-tbody');
         const countDisplay = document.getElementById('up-count');
@@ -660,7 +822,6 @@
         if (countDisplay) countDisplay.textContent = 'Showing 0 roles';
     }
 
-    // 搜索过滤函数
     function filterTable() {
         const keyword = document.getElementById('up-search').value.trim();
         const status = document.getElementById('up-status').value;
@@ -673,7 +834,6 @@
             }
             
             const url = `/api/profiles/search?${params.toString()}`;
-            console.log("Sending search request to:", url);
             
             fetch(url)
                 .then(response => {
@@ -692,7 +852,6 @@
         }
     }
 
-    // 显示 profiles 到表格
     function displayProfiles(profiles) {
         const tbody = document.getElementById('up-tbody');
         const countDisplay = document.getElementById('up-count');
@@ -746,7 +905,6 @@
         countDisplay.textContent = `Showing ${filteredProfiles.length} roles`;
     }
 
-    // Drawer 开启/关闭函数
     function openDrawer(mode, row) {
         const cells = row.querySelectorAll('td');
         const data = {
@@ -778,12 +936,9 @@
         document.getElementById('up-drawer').classList.remove('open');
     }
 
-
-    // 页面加载时获取数据库中的 profiles
     document.addEventListener('DOMContentLoaded', function() {
         loadProfilesFromDatabase();
         
-        // 处理表单提交
         const createForm = document.getElementById('up-create-form');
         if (createForm) {
             createForm.addEventListener('submit', function(e) {
@@ -826,24 +981,20 @@
                     upNoteOpen(ok ? text : ('Error: ' + (text || 'Failed to create profile')), 'Notice');
                 })
                 .catch(error => {
-                    console.error("Error creating profile:", error);
                     upNoteOpen('Error: ' + (error?.message || 'Failed to create profile'), 'Notice');
                 });
             });
         }
         
-        // 绑定搜索事件
         document.getElementById('up-search').addEventListener('input', () => {
             clearTimeout(window.searchTimeout);
             window.searchTimeout = setTimeout(filterTable, 300); 
         });
         document.getElementById('up-status').addEventListener('change', filterTable);
 
-        // Drawer 事件
         document.getElementById('up-close').addEventListener('click', closeDrawer);
         document.getElementById('up-backdrop').addEventListener('click', closeDrawer);
 
-        // 表格操作按钮
         document.getElementById('up-tbody').addEventListener('click', (e) => {
             const btn = e.target.closest('button');
             if (!btn) return;
@@ -873,7 +1024,6 @@
                             upNoteOpen('Error: ' + detail, 'Notice');
                             return;
                         }
-                        console.log('API Response:', msg);
                         row.setAttribute('data-status', newStatus);
                         const pill = row.querySelector('.pill');
                         pill.className = isSusp ? 'pill ok' : 'pill bad';
@@ -883,14 +1033,12 @@
                         toggleBtn.textContent = isSusp ? 'Suspend' : 'Re-activate';
                         showToast(isSusp ? 'Profile reactivated' : 'Profile suspended');
                     } catch (error) {
-                        console.error('Error updating profile:', error);
                         upNoteOpen('Error: ' + (error?.message || 'Update failed'), 'Notice');
                     }
                 })();
             }
         });
 
-        // Drawer 内部按钮
         document.getElementById('up-save').addEventListener('click', () => {
             const profileId = document.getElementById('up-v-id').textContent.trim();
             const newRoleName = document.getElementById('up-e-role').value.trim();
@@ -930,7 +1078,6 @@
                 loadProfilesFromDatabase();
             })
             .catch(error => {
-                console.error('Error updating role name:', error);
                 upNoteOpen('Error: ' + (error?.message || 'Failed to update role name'), 'Notice');
             });
         });
@@ -971,9 +1118,7 @@
                     closeDrawer();
                     loadProfilesFromDatabase();
                 })
-                .catch(error => {
-                    console.error('Error updating profile status:', error);
-                });
+                .catch(err => console.error(err));
         });
 
         document.getElementById('up-note-backdrop')?.addEventListener('click', upNoteClose);

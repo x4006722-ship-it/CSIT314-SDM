@@ -1,16 +1,17 @@
 package com.uow.control;
 
-import com.uow.entity.ViewAccount;
-import org.springframework.stereotype.Service;
-
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-@Service
+import org.springframework.stereotype.Service;
+
+import com.uow.entity.ViewAccount;
+
 /**
  * Control layer for reading user accounts.
  */
+@Service
 public class UserAdminViewAccountController {
 
     private final ViewAccount viewAccount = new ViewAccount();
