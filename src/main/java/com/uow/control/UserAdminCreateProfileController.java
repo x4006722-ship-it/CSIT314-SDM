@@ -4,17 +4,19 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import org.springframework.stereotype.Service;
 
 import com.uow.entity.CreateUserProfile;
+import com.uow.entity.ViewUserProfile;
 import com.uow.util.DBUtils;
 
 @Service
 public class UserAdminCreateProfileController {
-
-    // ... (保留你现有的 getAllProfiles 方法) ...
 
     /**
      * 创建用户资料的核心业务逻辑。
@@ -94,31 +96,29 @@ public class UserAdminCreateProfileController {
     /**
      * 获取所有的用户资料列表 (收拢了原先写在 Entity 里的逻辑)
      */
-    public java.util.List<com.uow.entity.ViewUserProfile> getAllProfiles() {
-        java.util.List<com.uow.entity.ViewUserProfile> profiles = new java.util.ArrayList<>();
-        
-        // 查询数据库的 SQL 语句
+    public List<ViewUserProfile> getAllProfiles() {
+        List<ViewUserProfile> profiles = new ArrayList<>();
+
         String sql = "SELECT profile_id, role, p_status FROM user_profile";
-        
-        try (java.sql.Connection conn = com.uow.util.DBUtils.getConnection();
-             java.sql.Statement stmt = conn.createStatement();
-             java.sql.ResultSet rs = stmt.executeQuery(sql)) {
-            
-            // 遍历结果，将每一行数据打包成 ViewUserProfile 对象
+
+        try (Connection conn = DBUtils.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
             while (rs.next()) {
-                profiles.add(new com.uow.entity.ViewUserProfile(
+                profiles.add(new ViewUserProfile(
                     rs.getString("profile_id"),
                     rs.getString("role"),
                     rs.getString("p_status")
                 ));
             }
             System.out.println("[CONTROL] 成功从数据库获取了 " + profiles.size() + " 个 profile");
-            
-        } catch (java.sql.SQLException e) {
+
+        } catch (SQLException e) {
             System.err.println("[CONTROL] 获取 Profile 列表失败! 原因: " + e.getMessage());
             e.printStackTrace();
         }
-        
+
         return profiles;
     }
 }

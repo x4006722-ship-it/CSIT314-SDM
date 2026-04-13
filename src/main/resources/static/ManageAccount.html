@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Admin - Manage Account</title>
     <style>
+        /* --- Reset & layout --- */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
         body { background-color: #f8f9fa; color: #333; }
 
@@ -125,23 +126,6 @@
             font-size: 17px;
         }
 
-        .step-badge {
-            background: #e1f5fe;
-            color: #01579b;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-right: 10px;
-        }
-
-        .card {
-            background: #fff;
-            border: 1px solid #eaeaea;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
-
         .subsection {
             padding: 18px;
             border: 1px solid #eee;
@@ -167,13 +151,6 @@
             gap: 12px;
         }
 
-        .field-row {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 10px;
-            align-items: end;
-        }
-
         .btn-sm {
             padding: 8px 12px;
             font-size: 13px;
@@ -189,23 +166,6 @@
             background: #f2f4f7;
             color: #111;
             border: 1px solid #e5e7eb;
-        }
-
-        .btn-status {
-            min-width: 96px;
-            justify-content: center;
-        }
-
-        .btn-status-suspend {
-            background: #fff1f0;
-            border: 1px solid #ffccc7;
-            color: #a8071a;
-        }
-
-        .btn-status-active {
-            background: #ecfdf3;
-            border: 1px solid #b7ebc6;
-            color: #0f5132;
         }
 
         .pill {
@@ -224,6 +184,7 @@
         .pill.ok { background: #ecfdf3; border-color: #b7ebc6; color: #0f5132; }
         .pill.bad { background: #fff1f0; border-color: #ffccc7; color: #a8071a; }
 
+        /* --- Data table (desktop: wide scrollable table) --- */
         .table-wrap {
             border: 1px solid #eee;
             border-radius: 10px;
@@ -236,7 +197,7 @@
             overflow: auto;
         }
 
-        .ua-accounts-table-wrap {
+        .subsection .table-wrap {
             margin-top: 10px;
         }
 
@@ -245,6 +206,10 @@
             border-collapse: separate;
             border-spacing: 0;
             min-width: 980px;
+        }
+
+        #ua-list-table {
+            min-width: 0;
         }
 
         thead th {
@@ -337,74 +302,7 @@
             background: #fff;
         }
 
-        .drawer-backdrop {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.45);
-            display: none;
-            z-index: 999;
-        }
-
-        .drawer {
-            position: fixed;
-            top: 0;
-            right: 0;
-            height: 100vh;
-            width: min(520px, 92vw);
-            background: #fff;
-            box-shadow: -12px 0 30px rgba(0,0,0,0.18);
-            transform: translateX(100%);
-            transition: transform 0.18s ease;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .drawer.open { transform: translateX(0); }
-        .drawer-backdrop.open { display: block; }
-
-        .drawer-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 18px;
-            border-bottom: 1px solid #eee;
-            background: #fafafa;
-        }
-
-        .drawer-title {
-            display: grid;
-            gap: 2px;
-        }
-
-        .drawer-title strong { font-size: 14px; color: #111; }
-
-        .drawer-body {
-            padding: 18px;
-            overflow: auto;
-            display: grid;
-            gap: 14px;
-        }
-
-        .drawer-footer {
-            padding: 14px 18px;
-            border-top: 1px solid #eee;
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            background: #fff;
-        }
-
-        .kv {
-            display: grid;
-            grid-template-columns: 140px 1fr;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .kv .k { color: #667085; font-size: 12px; }
-        .kv .v { color: #111; font-size: 14px; }
-
+        /* --- Toast & modals --- */
         .toast {
             position: fixed;
             left: 50%;
@@ -481,14 +379,180 @@
             background: #fff;
         }
 
+        #ua-note-backdrop.modal-backdrop {
+            z-index: 1300;
+        }
+
+        #ua-note-modal.modal {
+            z-index: 1310;
+            top: 18%;
+            width: min(560px, 92vw);
+            max-height: 70vh;
+        }
+
         @media (max-width: 980px) {
-            .action-bar { grid-template-columns: 1fr; }
             .grid-2, .grid-3 { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 16px;
+            }
+
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+                padding: 14px 16px;
+            }
+
+            .logout-btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .tab-bar {
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+
+            .tab-btn {
+                flex: 1 1 160px;
+                width: 100%;
+            }
+
+            .admin-section {
+                padding: 16px;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .table-wrap,
+            .table-scroll {
+                overflow-x: visible;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .table-scroll {
+                max-height: none;
+            }
+
+            #ua-list-table {
+                min-width: 0;
+                width: 100%;
+                table-layout: fixed;
+            }
+
+            #ua-list-table thead {
+                display: none;
+            }
+
+            #ua-list-table,
+            #ua-list-table tbody,
+            #ua-list-table tr,
+            #ua-list-table td {
+                display: block;
+                width: 100%;
+            }
+
+            #ua-list-table tbody tr {
+                background: #fff;
+                border: 1px solid #e9eaeb;
+                border-radius: 10px;
+                padding: 8px 10px;
+                margin-bottom: 10px;
+            }
+
+            #ua-list-table tbody td {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 10px;
+                padding: 8px 0;
+                border-bottom: 1px solid #f1f2f4;
+                font-size: 14px;
+                white-space: normal;
+                word-break: break-word;
+                text-align: right;
+            }
+
+            #ua-list-table tbody td:last-child {
+                border-bottom: none;
+            }
+
+            #ua-list-table tbody td::before {
+                color: #667085;
+                font-weight: 600;
+                text-align: left;
+                padding-right: 8px;
+                flex: 0 0 44%;
+            }
+
+            #ua-list-table tbody td:nth-child(1)::before { content: "Username"; }
+            #ua-list-table tbody td:nth-child(2)::before { content: "Phone Number"; }
+            #ua-list-table tbody td:nth-child(3)::before { content: "Role"; }
+            #ua-list-table tbody td:nth-child(4)::before { content: "Account Status"; }
+            #ua-list-table tbody td:nth-child(5)::before { content: "Action"; }
+
+            #ua-list-table tbody td[colspan] {
+                display: block;
+                text-align: center !important;
+            }
+
+            #ua-list-table tbody td[colspan]::before {
+                content: none;
+            }
+
+            #ua-list-table .pill {
+                font-size: 13px;
+                padding: 6px 10px;
+                white-space: nowrap;
+            }
+
+            #ua-list-table .td-actions {
+                width: auto;
+                justify-content: flex-end;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            #ua-list-table .td-actions button.btn-sm,
+            #ua-list-table .td-actions button[data-action="toggle-status"].btn-sm {
+                min-width: 92px;
+                width: auto;
+                white-space: nowrap;
+                font-size: 12px;
+                padding: 0 8px;
+            }
+
+            .pagination {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .modal-footer {
+                flex-wrap: wrap;
+            }
+
+            .modal-footer .btn {
+                flex: 1 1 120px;
+            }
+
+            .modal {
+                top: 5%;
+                width: 94vw;
+                max-height: 90vh;
+            }
         }
     </style>
 </head>
 <body>
 <div class="container">
+    <!-- Page: account list + create form + modals -->
     <main class="main-content">
         <div class="topbar">
             <span class="topbar-user">Logged in as: <strong> User Admin</strong></span>
@@ -582,9 +646,9 @@
                         </div>
                     </div>
 
-                    <div class="table-wrap ua-accounts-table-wrap">
+                    <div class="table-wrap">
                         <div class="table-scroll">
-                            <table id="ua-list-table" aria-label="User accounts list" style="min-width: 0;">
+                            <table id="ua-list-table" aria-label="User accounts list">
                                 <thead>
                                 <tr>
                                     <th style="width: 240px;">Username</th>
@@ -611,6 +675,7 @@
     </main>
 </div>
 
+    <!-- Modals & toast -->
 <div id="ua-modal-backdrop" class="modal-backdrop"></div>
 <div id="ua-modal" class="modal" role="dialog" aria-modal="true">
     <div class="modal-header">
@@ -623,8 +688,8 @@
     </div>
 </div>
 
-<div id="ua-note-backdrop" class="modal-backdrop" style="z-index: 1300;"></div>
-<div id="ua-note-modal" class="modal" role="dialog" aria-modal="true" style="z-index: 1310; top: 18%; width: min(560px, 92vw); max-height: 70vh;">
+<div id="ua-note-backdrop" class="modal-backdrop"></div>
+<div id="ua-note-modal" class="modal" role="dialog" aria-modal="true">
     <div class="modal-header">
         <strong id="ua-note-title">Notice</strong>
     </div>
@@ -636,13 +701,11 @@
 
 <div id="ua-toast" class="toast"></div>
 
-<script>
-    /** Single request loads all rows (scroll in table); matches API max pageSize. */
+<script> /* Manage Account: API bindings */
     const UA_LIST_PAGE_SIZE = 2000;
 
     const uaState = {
         profiles: [],
-        profilesLoaded: false,
         listTotal: 0
     };
 
@@ -916,7 +979,6 @@
                 roleName: String(p.roleName ?? p.role ?? ''),
                 status: String(p.status ?? p.p_status ?? '')
             })).filter(p => p.profileId && p.roleName);
-            uaState.profilesLoaded = true;
 
             // Populate Role filter dropdown (search UI)
             const roleSel = document.getElementById('ua-filter-role');
