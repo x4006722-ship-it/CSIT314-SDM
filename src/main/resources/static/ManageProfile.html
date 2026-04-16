@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Admin - Manage Profile</title>
     <style>
-        /* --- Reset & layout --- */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
         body { background-color: #f8f9fa; color: #333; }
 
@@ -174,7 +173,6 @@
         .pill.ok { background: #ecfdf3; border-color: #b7ebc6; color: #0f5132; }
         .pill.bad { background: #fff1f0; border-color: #ffccc7; color: #a8071a; }
 
-        /* --- Data table (desktop) --- */
         .table-wrap {
             border: 1px solid #eee;
             border-radius: 10px;
@@ -251,7 +249,6 @@
             align-items: center;
         }
 
-        /* Update + Suspend + Re-activate: same row height */
         #up-table .td-actions button.btn-sm {
             box-sizing: border-box;
             min-height: 28px;
@@ -285,7 +282,6 @@
             background: #fff;
         }
 
-        /* --- Profile drawer --- */
         .drawer-backdrop {
             position: fixed;
             inset: 0;
@@ -421,7 +417,6 @@
             max-height: calc(88vh - 56px - 64px);
         }
 
-        /* Notice modal: compact placement (shares z-index with .modal) */
         #up-note-modal.modal {
             top: 18%;
             width: min(560px, 92vw);
@@ -615,7 +610,6 @@
 </head>
 <body>
 <div class="container">
-    <!-- Page: create profile + list + drawer -->
     <main class="main-content">
         <div class="topbar">
             <span class="topbar-user">Logged in as: <strong> User Admin</strong></span>
@@ -661,7 +655,7 @@
 
             <div class="action-bar">
                 <div class="subsection">
-                    <h3>Search and View User Profiles</h3>
+                    <h3>Search User Profiles</h3>
                     <div class="grid-2" style="margin-bottom: 12px;">
                         <div class="form-group">
                             <label>Search Role Name</label>
@@ -706,7 +700,6 @@
     </main>
 </div>
 
-    <!-- Profile drawer & notice modal -->
 <div id="up-backdrop" class="drawer-backdrop"></div>
 <aside id="up-drawer" class="drawer">
     <div class="drawer-header">
@@ -745,7 +738,6 @@
 
 <div id="up-toast" class="toast">Action Successful</div>
 
-    <!-- Notice modal -->
 <div id="up-note-backdrop" class="modal-backdrop"></div>
 <div id="up-note-modal" class="modal" role="dialog" aria-modal="true">
     <div class="modal-header">
@@ -757,7 +749,7 @@
     </div>
 </div>
 
-<script> /* Manage Profile: API + drawer */
+<script>
     function showToast(msg) {
         const t = document.getElementById('up-toast');
         t.textContent = msg;
@@ -765,24 +757,30 @@
         setTimeout(() => { t.style.display = 'none'; }, 1500);
     }
 
-    /** Same pattern as ManageAccount `uaNoteOpen` — modal notice for errors (e.g. cannot suspend User Admin). */
-    function upNoteOpen(message, title) {
-        const backdrop = document.getElementById('up-note-backdrop');
-        const modal = document.getElementById('up-note-modal');
-        const msgEl = document.getElementById('up-note-message');
-        const titleEl = document.getElementById('up-note-title');
+    function upOpenModal(backdropId, modalId, titleId, messageId, title, message) {
+        const backdrop = document.getElementById(backdropId);
+        const modal = document.getElementById(modalId);
+        const msgEl = document.getElementById(messageId);
+        const titleEl = document.getElementById(titleId);
         if (titleEl) titleEl.textContent = title || 'Notice';
         if (msgEl) msgEl.textContent = message || '';
         backdrop?.classList.add('open');
         modal?.classList.add('open');
     }
 
-    function upNoteClose() {
-        document.getElementById('up-note-backdrop')?.classList.remove('open');
-        document.getElementById('up-note-modal')?.classList.remove('open');
+    function upCloseModal(backdropId, modalId) {
+        document.getElementById(backdropId)?.classList.remove('open');
+        document.getElementById(modalId)?.classList.remove('open');
     }
 
-    /** Matches server {@code CreateUserProfile.normalizeRoleKey}: remove all whitespace, lowercase. */
+    function upNoteOpen(message, title) {
+        upOpenModal('up-note-backdrop', 'up-note-modal', 'up-note-title', 'up-note-message', title, message);
+    }
+
+    function upNoteClose() {
+        upCloseModal('up-note-backdrop', 'up-note-modal');
+    }
+
     function normalizeRoleKey(s) {
         if (s == null || s === undefined) return '';
         return String(s).replace(/\s+/g, '').toLowerCase();
