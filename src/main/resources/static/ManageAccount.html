@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Admin - Manage Account</title>
     <style>
-        /* --- Reset & layout --- */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
         body { background-color: #f8f9fa; color: #333; }
 
@@ -184,7 +183,6 @@
         .pill.ok { background: #ecfdf3; border-color: #b7ebc6; color: #0f5132; }
         .pill.bad { background: #fff1f0; border-color: #ffccc7; color: #a8071a; }
 
-        /* --- Data table (desktop: wide scrollable table) --- */
         .table-wrap {
             border: 1px solid #eee;
             border-radius: 10px;
@@ -246,7 +244,6 @@
             width: 100%;
         }
 
-        /* Account Status column: center header + Active / Suspended pills */
         #ua-list-table thead th:nth-child(4),
         #ua-list-table tbody td:nth-child(4) {
             text-align: center;
@@ -268,7 +265,6 @@
             align-items: center;
         }
 
-        /* View + Suspend + Re-activate: same row height */
         #ua-list-table .td-actions button.btn-sm {
             box-sizing: border-box;
             min-height: 28px;
@@ -302,7 +298,6 @@
             background: #fff;
         }
 
-        /* --- Toast & modals --- */
         .toast {
             position: fixed;
             left: 50%;
@@ -552,7 +547,6 @@
 </head>
 <body>
 <div class="container">
-    <!-- Page: account list + create form + modals -->
     <main class="main-content">
         <div class="topbar">
             <span class="topbar-user">Logged in as: <strong> User Admin</strong></span>
@@ -617,7 +611,7 @@
             <div class="action-bar">
                 <div class="subsection">
                     <div class="subsection" style="padding: 12px; margin-bottom: 12px;">
-                        <h3>Search and View User Accounts</h3>
+                        <h3>Search User Accounts</h3>
                         <div class="grid-3">
                             <div class="form-group" style="margin-bottom:0;">
                                 <label>Keyword</label>
@@ -675,7 +669,6 @@
     </main>
 </div>
 
-    <!-- Modals & toast -->
 <div id="ua-modal-backdrop" class="modal-backdrop"></div>
 <div id="ua-modal" class="modal" role="dialog" aria-modal="true">
     <div class="modal-header">
@@ -701,7 +694,7 @@
 
 <div id="ua-toast" class="toast"></div>
 
-<script> /* Manage Account: API bindings */
+<script>
     const UA_LIST_PAGE_SIZE = 2000;
 
     const uaState = {
@@ -709,7 +702,6 @@
         listTotal: 0
     };
 
-    /** For role assignment and Role filter: exclude suspended profiles and any role named "Suspended". */
     function uaAssignableProfile(p) {
         if (!p) return false;
         const id = p.profileId ?? p.profile_id;
@@ -721,47 +713,43 @@
         return true;
     }
 
-    function uaModalOpen(message, title) {
-        const backdrop = document.getElementById('ua-modal-backdrop');
-        const modal = document.getElementById('ua-modal');
-        const msgEl = document.getElementById('ua-modal-message');
-        const titleEl = document.getElementById('ua-modal-title');
-        const saveBtn = document.getElementById('ua-modal-save');
-
-        if (titleEl) titleEl.textContent = title || 'Notification';
-        if (msgEl) msgEl.textContent = message || '';
-
-        // Default behavior: notification modal shouldn't show "Save changes"
-        if (saveBtn) {
-            saveBtn.style.display = 'none';
-            saveBtn.dataset.userId = '';
-            saveBtn.dataset.dirty = '0';
-            saveBtn.disabled = false;
-        }
-
-        backdrop?.classList.add('open');
-        modal?.classList.add('open');
-    }
-
-    function uaModalClose() {
-        document.getElementById('ua-modal-backdrop')?.classList.remove('open');
-        document.getElementById('ua-modal')?.classList.remove('open');
-    }
-
-    function uaNoteOpen(message, title) {
-        const backdrop = document.getElementById('ua-note-backdrop');
-        const modal = document.getElementById('ua-note-modal');
-        const msgEl = document.getElementById('ua-note-message');
-        const titleEl = document.getElementById('ua-note-title');
+    function uaOpenModal(backdropId, modalId, titleId, messageId, title, message) {
+        const backdrop = document.getElementById(backdropId);
+        const modal = document.getElementById(modalId);
+        const titleEl = document.getElementById(titleId);
+        const msgEl = document.getElementById(messageId);
         if (titleEl) titleEl.textContent = title || 'Notice';
         if (msgEl) msgEl.textContent = message || '';
         backdrop?.classList.add('open');
         modal?.classList.add('open');
     }
 
+    function uaCloseModal(backdropId, modalId) {
+        document.getElementById(backdropId)?.classList.remove('open');
+        document.getElementById(modalId)?.classList.remove('open');
+    }
+
+    function uaModalOpen(message, title) {
+        const saveBtn = document.getElementById('ua-modal-save');
+        if (saveBtn) {
+            saveBtn.style.display = 'none';
+            saveBtn.dataset.userId = '';
+            saveBtn.dataset.dirty = '0';
+            saveBtn.disabled = false;
+        }
+        uaOpenModal('ua-modal-backdrop', 'ua-modal', 'ua-modal-title', 'ua-modal-message', title || 'Notification', message);
+    }
+
+    function uaModalClose() {
+        uaCloseModal('ua-modal-backdrop', 'ua-modal');
+    }
+
+    function uaNoteOpen(message, title) {
+        uaOpenModal('ua-note-backdrop', 'ua-note-modal', 'ua-note-title', 'ua-note-message', title || 'Notice', message);
+    }
+
     function uaNoteClose() {
-        document.getElementById('ua-note-backdrop')?.classList.remove('open');
-        document.getElementById('ua-note-modal')?.classList.remove('open');
+        uaCloseModal('ua-note-backdrop', 'ua-note-modal');
     }
 
     function showUaToast(msg) {
@@ -781,7 +769,6 @@
             .replaceAll("'", '&#39;');
     }
 
-    /** Same pattern as ManageProfile `#up-count`: "Showing N roles" → "Showing N accounts" (uses API `total` when present). */
     function uaSetAccountListCount(rowsLen, payload) {
         const el = document.getElementById('ua-count');
         if (!el) return;
@@ -808,9 +795,23 @@
             const role = uaState.searchRole || 'all';
             const useSearch = !!q || (status && status !== 'all') || (role && role !== 'all');
             const baseUrl = useSearch ? '/api/accounts/search' : '/api/accounts/list';
+
+            const profileIdByRole = (() => {
+                if (!role || role === 'all') return '0';
+                const hit = (uaState.profiles || []).find(p => String(p.roleName ?? p.role) === String(role));
+                return hit ? String(hit.profileId ?? hit.profile_id ?? '0') : '0';
+            })();
+
+            let u = '', fn = '', em = '', pn = '0';
+            if (q) {
+                if (/^\d+$/.test(q)) pn = q;
+                else if (q.includes('@')) em = q;
+                else u = q;
+            }
+
             const url = useSearch
-                ? `${baseUrl}?query=${encodeURIComponent(q)}&status=${encodeURIComponent(status)}&role=${encodeURIComponent(role)}&page=1&pageSize=${encodeURIComponent(UA_LIST_PAGE_SIZE)}`
-                : `${baseUrl}?page=1&pageSize=${encodeURIComponent(UA_LIST_PAGE_SIZE)}`;
+                ? `${baseUrl}?username=${encodeURIComponent(u)}&fullName=${encodeURIComponent(fn)}&email=${encodeURIComponent(em)}&phoneNumber=${encodeURIComponent(pn)}&status=${encodeURIComponent(status === 'all' ? '' : status)}&profileID=${encodeURIComponent(profileIdByRole)}`
+                : `${baseUrl}?username=&fullName=&email=&phoneNumber=0&status=&profileID=0`;
 
             const r = await fetch(url, { credentials: 'same-origin' });
             if (!r.ok) throw new Error('Failed to load accounts');
@@ -820,7 +821,6 @@
                 throw new Error(payload.error);
             }
 
-            // Backward compatible: support both new {items, page, totalPages...} and old [ ... ] response.
             const safeRows = Array.isArray(payload)
                 ? payload
                 : (Array.isArray(payload?.items) ? payload.items : []);
@@ -974,13 +974,13 @@
             const r = await fetch('/api/profiles/list', { credentials: 'same-origin' });
             if (!r.ok) throw new Error('Failed to load profiles');
             const profiles = await r.json();
+
             uaState.profiles = (profiles || []).map(p => ({
                 profileId: String(p.profileId ?? p.profile_id ?? ''),
                 roleName: String(p.roleName ?? p.role ?? ''),
                 status: String(p.status ?? p.p_status ?? '')
             })).filter(p => p.profileId && p.roleName);
 
-            // Populate Role filter dropdown (search UI)
             const roleSel = document.getElementById('ua-filter-role');
             if (roleSel) {
                 const current = roleSel.value || 'all';
@@ -988,7 +988,6 @@
                     .filter(uaAssignableProfile)
                     .map(p => `<option value="${uaEscapeHtml(p.roleName)}">${uaEscapeHtml(p.roleName)}</option>`)
                     .join('');
-                // restore selection if still exists
                 const exists = Array.from(roleSel.options).some(o => o.value === current);
                 roleSel.value = exists ? current : 'all';
             }
@@ -1003,14 +1002,11 @@
                 select.appendChild(opt);
             }
 
-            (profiles || []).forEach(p => {
+            uaState.profiles.forEach(p => {
                 if (!uaAssignableProfile(p)) return;
-                const id = p.profileId ?? p.profile_id;
-                const role = p.roleName ?? p.role;
-
                 const opt = document.createElement('option');
-                opt.value = String(id);
-                opt.textContent = String(role);
+                opt.value = String(p.profileId);
+                opt.textContent = String(p.roleName);
                 select.appendChild(opt);
             });
         } catch (e) {
@@ -1034,7 +1030,6 @@
         loadProfilesIntoCreateSelect();
         loadAccountSummaries();
 
-        // init search state
         uaState.searchQuery = '';
         uaState.searchStatus = 'all';
         uaState.searchRole = 'all';
@@ -1085,27 +1080,14 @@
                 const currentStatus = (statusCell?.querySelector('.pill')?.textContent ?? statusCell?.textContent ?? '').trim();
                 const nextStatus = currentStatus.toLowerCase() === 'suspended' ? 'Active' : 'Suspended';
 
-                // Prefer dedicated suspend endpoint; fallback to update endpoint if backend not restarted (404).
-                let r = await fetch('/api/accounts/suspend', {
+                const r = await fetch(`/api/accounts/suspend?userID=${encodeURIComponent(userId)}`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'same-origin',
-                    body: JSON.stringify({ userId: Number(userId) })
+                    credentials: 'same-origin'
                 });
-
-                if (r.status === 404) {
-                    r = await fetch('/api/accounts/update', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        credentials: 'same-origin',
-                        body: JSON.stringify({ userId: Number(userId), fields: { a_status: nextStatus } })
-                    });
-                }
 
                 const resp = await r.json().catch(() => ({}));
                 if (!r.ok || resp?.success === false) throw new Error(resp?.error || 'Update failed');
 
-                // Update row UI without full reload
                 const newStatus = resp?.accountStatus ?? nextStatus;
                 if (statusCell && newStatus) {
                     const isS = String(newStatus).toLowerCase() === 'suspended';
@@ -1259,7 +1241,6 @@
 
             if (e.key === 'Escape') {
                 e.preventDefault();
-                // revert to non-edit view by reopening (simple + consistent)
                 const userId = document.getElementById('ua-modal-save')?.dataset.userId;
                 if (userId) viewAccountDetail(userId);
                 return;
@@ -1310,7 +1291,6 @@
                 return (el.dataset?.value ?? el.textContent ?? '').trim();
             };
 
-            // Also capture any currently-active inputs/selects (user might click Save without pressing Enter)
             msg?.querySelectorAll('input.ua-edit').forEach(inp => {
                 const k = inp.getAttribute('data-field');
                 if (!k) return;
@@ -1326,7 +1306,6 @@
                 if (k === 'profile_id') fields.profile_id = v;
             });
 
-            // Fill from current displayed spans if not already present
             fields.username ??= getVal('username');
             fields.full_name ??= getVal('full_name');
             fields.email ??= getVal('email');
@@ -1339,7 +1318,6 @@
                 fields.password = passSecret;
             }
 
-            // remove '-' placeholders
             Object.keys(fields).forEach(k => {
                 if (fields[k] === '-' || fields[k] === '') delete fields[k];
             });
@@ -1356,7 +1334,6 @@
                 if (!r.ok || resp?.success === false) {
                     throw new Error(resp?.error || 'Update failed');
                 }
-                // Close account detail first (avoid "flash"), then refresh list, then show success popup
                 uaModalClose();
                 saveBtn.dataset.dirty = '0';
                 await loadAccountSummaries();
