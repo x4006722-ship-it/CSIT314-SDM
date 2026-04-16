@@ -62,6 +62,7 @@ public class UserProfileController {
         return "Success";
     }
 
+    // Handled for frontend completeness (paired with suspend)
     public String reactivateProfile(String profileID) {
         UserProfile profile = UserProfile.findByID(profileID);
         if (profile != null) {
