@@ -10,28 +10,28 @@ import java.util.List;
 import com.uow.util.DBUtils;
 
 public class UserProfile {
-    private String profileId;
+    private String profileID;
     private String roleName;
     private String status;
 
-    // Default constructor required by frameworks
+    // Default constructor required by Spring framework
     public UserProfile() {}
 
-    // Constructor for creating new profiles before generating ID
+    // Constructor for creating a new profile (before generating ID)
     public UserProfile(String roleName, String status) {
         this.roleName = roleName;
         this.status = status;
     }
 
-    // Full constructor for wrapping database results
-    public UserProfile(String profileId, String roleName, String status) {
-        this.profileId = profileId;
+    // Full constructor used when retrieving data from the database
+    public UserProfile(String profileID, String roleName, String status) {
+        this.profileID = profileID;
         this.roleName = roleName;
         this.status = status;
     }
 
-    // Getters are mandatory for Spring Boot JSON serialization
-    public String getProfileId() { return profileId; } 
+    // Getters are mandatory for JSON serialization to the frontend
+    public String getProfileId() { return profileID; } 
     public String getRoleName() { return roleName; }
     public String getStatus() { return status; }
 
@@ -72,6 +72,7 @@ public class UserProfile {
         List<UserProfile> list = new ArrayList<>();
         String sql = "SELECT profile_id, role, p_status FROM user_profile WHERE 1=1";
         
+        // Append search conditions dynamically
         if (keyword != null && !keyword.trim().isEmpty()) {
             sql += " AND role LIKE '%" + keyword.trim() + "%'";
         }
@@ -86,7 +87,7 @@ public class UserProfile {
                 list.add(new UserProfile(rs.getString("profile_id"), rs.getString("role"), rs.getString("p_status")));
             }
         } catch (SQLException e) { 
-            System.err.println("[ENTITY] Database list retrieval failed: " + e.getMessage());
+            System.err.println("[ENTITY] Failed to retrieve profiles: " + e.getMessage());
         }
         return list;
     }
@@ -96,7 +97,7 @@ public class UserProfile {
         try (Connection conn = DBUtils.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, newRoleName);
-            pstmt.setString(2, this.profileId);
+            pstmt.setString(2, this.profileID);
             pstmt.executeUpdate();
         } catch (SQLException e) { 
             System.err.println("[ENTITY] Failed to update role name: " + e.getMessage());
@@ -108,7 +109,7 @@ public class UserProfile {
         try (Connection conn = DBUtils.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, newStatus);
-            pstmt.setString(2, this.profileId);
+            pstmt.setString(2, this.profileID);
             pstmt.executeUpdate();
         } catch (SQLException e) { 
             System.err.println("[ENTITY] Failed to update status: " + e.getMessage());

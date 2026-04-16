@@ -9,7 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/profiles")
-@CrossOrigin(origins = "*") // Mandatory to prevent CORS issues from frontend clients
+@CrossOrigin(origins = "*") // Mandatory to prevent CORS policy blocking from frontend
 public class UserProfileUI {
 
     private final UserProfileController controller;
@@ -27,10 +27,10 @@ public class UserProfileUI {
             
         String result = controller.createProfile(roleName, status);
         if (result.equals("Success")) {
-            showSuccessMessage("Profile '" + roleName + "' created successfully!");
+            showProfileSuccessMessage("Profile created successfully!"); 
             return ResponseEntity.ok("Success: Profile created");
         } else {
-            showErrorMessage(result);
+            showProfileErrorMessage(result); 
             return ResponseEntity.badRequest().body(result);
         }
     }
@@ -40,10 +40,10 @@ public class UserProfileUI {
     public ResponseEntity<UserProfile> onViewProfileClick(@PathVariable("profileID") String profileID) {
         UserProfile profile = controller.getProfileDetails(profileID);
         if (profile != null) {
-            openProfileDrawer(profile.getRoleName(), profile.getStatus());
+            displayProfileDetails(profile.getRoleName(), profile.getStatus());
             return ResponseEntity.ok(profile);
         }
-        showErrorMessage("Profile ID " + profileID + " not found!");
+        showProfileErrorMessage("Profile not found!");
         return ResponseEntity.notFound().build();
     }
 
@@ -66,10 +66,10 @@ public class UserProfileUI {
         
         String result = controller.updateProfile(profileID, newRoleName);
         if (result.equals("Success")) {
-            showSuccessMessage("Role updated to '" + newRoleName + "'!");
+            showProfileSuccessMessage("Update successful!");
             return ResponseEntity.ok("Success");
         }
-        showErrorMessage(result);
+        showProfileErrorMessage(result);
         return ResponseEntity.badRequest().body(result);
     }
 
@@ -78,10 +78,10 @@ public class UserProfileUI {
     public ResponseEntity<String> onSuspendProfileClick(@PathVariable("profileID") String profileID) {
         String result = controller.suspendProfile(profileID);
         if (result.equals("Success")) {
-            showSuccessMessage("Profile suspended successfully!");
+            showProfileSuccessMessage("Suspend successful!");
             return ResponseEntity.ok("Success");
         }
-        showErrorMessage(result);
+        showProfileErrorMessage(result);
         return ResponseEntity.badRequest().body(result);
     }
 
@@ -89,27 +89,27 @@ public class UserProfileUI {
     @PostMapping("/reactivate/{profileID}")
     public ResponseEntity<String> onReactivateProfileClick(@PathVariable("profileID") String profileID) {
         controller.reactivateProfile(profileID);
-        showSuccessMessage("Profile reactivated successfully!");
+        showProfileSuccessMessage("Reactivate successful!");
         return ResponseEntity.ok("Success");
     }
 
     // ==========================================
-    // Unified UI Rendering and Feedback Methods (Adhering to DRY Principle)
+    // Unified UI Feedback Methods (Reused from existing UML design)
     // ==========================================
     
-    public void showSuccessMessage(String msg) { 
+    public void showProfileSuccessMessage(String msg) { 
         System.out.println("[UI RENDER - SUCCESS] " + msg); 
     }
     
-    public void showErrorMessage(String msg) { 
+    public void showProfileErrorMessage(String msg) { 
         System.out.println("[UI RENDER - ERROR] " + msg); 
     }
     
+    public void displayProfileDetails(String roleName, String status) { 
+        System.out.println("[UI RENDER - DRAWER] Opening side drawer -> Role: " + roleName + ", Status: " + status); 
+    }
+
     public void renderTable(List<UserProfile> profiles) { 
         System.out.println("[UI RENDER - TABLE] Refreshing data table with " + profiles.size() + " records..."); 
-    }
-    
-    public void openProfileDrawer(String roleName, String status) { 
-        System.out.println("[UI RENDER - DRAWER] Opening side drawer -> Role: " + roleName + ", Status: " + status); 
     }
 }
