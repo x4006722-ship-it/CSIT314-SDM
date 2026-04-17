@@ -16,9 +16,22 @@ public class UserAccount {
     public String phoneNumber;
     public String status;
     public int profileID;
+    public String lastErrorMessage = "";
 
-    // Common 
-    public boolean checkDuplicate(String username, String email, String phoneNumber) {
+    //Create Account
+    public boolean saveCreateAccount() {
+        lastErrorMessage = "";
+        userID = 0;
+        String st = status == null ? "" : status.trim();
+        if (st.isEmpty()) {
+            lastErrorMessage = "Account status is required.";
+            return false;
+        }
+        if (!st.equalsIgnoreCase("Active") && !st.equalsIgnoreCase("Suspended")) {
+            lastErrorMessage = "Invalid account status.";
+            return false;
+        }
+        String aStatus = st.equalsIgnoreCase("Active") ? "Active" : "Suspended";
         try (Connection c = DBUtils.getConnection();
              PreparedStatement ps = c.prepareStatement(
                      "SELECT COUNT(*) FROM user_account WHERE (username=? OR email=? OR phone_number=?) AND user_id<>?")) {
@@ -27,31 +40,37 @@ public class UserAccount {
             ps.setString(3, phoneNumber);
             ps.setInt(4, userID);
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() && rs.getInt(1) == 0;
+                if (!rs.next() || rs.getInt(1) != 0) {
+                    lastErrorMessage = "Duplicate username, email, or phone number.";
+                    return false;
+                }
             }
         } catch (Exception e) {
+            lastErrorMessage = "Duplicate username, email, or phone number.";
             return false;
         }
-    }
-
-    // Create Account
-    public boolean saveCreateAccount() {
         try (Connection c = DBUtils.getConnection();
              PreparedStatement ps = c.prepareStatement(
-                     "INSERT INTO user_account (username,password,full_name,email,phone_number,a_status,profile_id) VALUES (?,?,?,?,?,'Active',?)")) {
+                     "INSERT INTO user_account (username,password,full_name,email,phone_number,a_status,profile_id) VALUES (?,?,?,?,?,?,?)")) {
             ps.setString(1, username);
             ps.setString(2, password);
             ps.setString(3, fullName);
             ps.setString(4, email);
             ps.setString(5, phoneNumber);
-            ps.setInt(6, profileID);
-            return ps.executeUpdate() > 0;
+            ps.setString(6, aStatus);
+            ps.setInt(7, profileID);
+            boolean ok = ps.executeUpdate() > 0;
+            if (!ok) {
+                lastErrorMessage = "Could not create account.";
+            }
+            return ok;
         } catch (Exception e) {
+            lastErrorMessage = "Could not create account.";
             return false;
         }
     }
 
-    // View Account
+    //View Account
     public Object getViewAccount(int userID) {
         try (Connection c = DBUtils.getConnection();
              PreparedStatement ps = c.prepareStatement(
@@ -59,7 +78,9 @@ public class UserAccount {
                              "FROM user_account ua JOIN user_profile up ON ua.profile_id=up.profile_id WHERE ua.user_id=?")) {
             ps.setInt(1, userID);
             try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) return null;
+                if (!rs.next()) {
+                    return null;
+                }
                 return java.util.Map.of(
                         "user_id", rs.getInt("user_id"),
                         "username", rs.getString("username"),
@@ -77,8 +98,27 @@ public class UserAccount {
         }
     }
 
-    // Update Account
+    //Update Account
     public boolean saveUpdateAccount(int userID) {
+        lastErrorMessage = "";
+        this.userID = userID;
+        try (Connection c = DBUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT COUNT(*) FROM user_account WHERE (username=? OR email=? OR phone_number=?) AND user_id<>?")) {
+            ps.setString(1, username);
+            ps.setString(2, email);
+            ps.setString(3, phoneNumber);
+            ps.setInt(4, userID);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next() || rs.getInt(1) != 0) {
+                    lastErrorMessage = "Duplicate username, email, or phone number.";
+                    return false;
+                }
+            }
+        } catch (Exception e) {
+            lastErrorMessage = "Duplicate username, email, or phone number.";
+            return false;
+        }
         try (Connection c = DBUtils.getConnection();
              PreparedStatement ps = c.prepareStatement(
                      "UPDATE user_account SET username=?, full_name=?, email=?, phone_number=?, password=?, a_status=?, profile_id=? WHERE user_id=?")) {
@@ -90,25 +130,62 @@ public class UserAccount {
             ps.setString(6, status);
             ps.setInt(7, profileID);
             ps.setInt(8, userID);
-            return ps.executeUpdate() > 0;
+            boolean ok = ps.executeUpdate() > 0;
+            if (!ok) {
+                lastErrorMessage = "Update failed.";
+            }
+            return ok;
         } catch (Exception e) {
+            lastErrorMessage = "Update failed.";
             return false;
         }
     }
 
-    // Suspend Account
-    public boolean saveSuspendAccount(int userID) {
+    //Suspend Account
+    public boolean saveSuspendAccount(int targetUserId, int currentUserId) {
+        lastErrorMessage = "";
+        if (targetUserId <= 0) {
+            lastErrorMessage = "Invalid account.";
+            return false;
+        }
+        if (currentUserId <= 0) {
+            lastErrorMessage = "Session invalid.";
+            return false;
+        }
+        if (targetUserId == currentUserId) {
+            lastErrorMessage = "Cannot suspend your own account.";
+            return false;
+        }
+
+        Object detail = getViewAccount(targetUserId);
+        if (detail == null) {
+            lastErrorMessage = "Account not found.";
+            return false;
+        }
+        if (detail instanceof java.util.Map<?, ?> m) {
+            Object role = m.get("roleName");
+            if (role != null && "User Admin".equalsIgnoreCase(String.valueOf(role).trim())) {
+                lastErrorMessage = "Cannot suspend User Admin account.";
+                return false;
+            }
+        }
+
         try (Connection c = DBUtils.getConnection();
              PreparedStatement ps = c.prepareStatement(
                      "UPDATE user_account SET a_status = CASE WHEN LOWER(TRIM(a_status))='suspended' THEN 'Active' ELSE 'Suspended' END WHERE user_id=?")) {
-            ps.setInt(1, userID);
-            return ps.executeUpdate() > 0;
+            ps.setInt(1, targetUserId);
+            boolean ok = ps.executeUpdate() > 0;
+            if (!ok) {
+                lastErrorMessage = "Suspend failed.";
+            }
+            return ok;
         } catch (Exception e) {
+            lastErrorMessage = "Suspend failed.";
             return false;
         }
     }
 
-    // Search Account
+    //Search Account
     public Object getSearchAccount(String username, String fullName, String email, int phoneNumber, String status, int profileID) {
         try (Connection c = DBUtils.getConnection();
              PreparedStatement ps = c.prepareStatement(
@@ -153,14 +230,4 @@ public class UserAccount {
             return java.util.List.of();
         }
     }
-
-
-
-
-
-
-
-
-
 }
-

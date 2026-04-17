@@ -39,6 +39,7 @@ public class LoginPage {
 
         session.setAttribute("username", username);
         session.setAttribute("role", loginController.role);
+        session.setAttribute("userId", loginController.userId);
         return redirectPage();
     }
 

@@ -5,8 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Admin - Manage Account</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
-        body { background-color: #f8f9fa; color: #333; }
+        :root {
+            --surface: #ffffff;
+            --surface-soft: #f8fafc;
+            --surface-tint: #f1f5f9;
+            --border: rgba(99, 102, 241, 0.18);
+            --border-soft: #e2e8f0;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --accent: #4f46e5;
+            --accent-hover: #4338ca;
+            --accent-light: #eef2ff;
+            --accent-ring: rgba(99, 102, 241, 0.35);
+            --danger-soft: #fef2f2;
+            --shadow: 0 10px 40px rgba(30, 27, 75, 0.12);
+            --shadow-sm: 0 4px 20px rgba(30, 27, 75, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif; }
+
+        body {
+            min-height: 100vh;
+            color: var(--text);
+            background:
+                radial-gradient(1200px 600px at 10% -10%, rgba(99, 102, 241, 0.22), transparent 55%),
+                radial-gradient(900px 500px at 100% 20%, rgba(14, 165, 233, 0.12), transparent 50%),
+                linear-gradient(165deg, #dce4f3 0%, #e8edf7 38%, #eef2f9 100%);
+        }
 
         .container { min-height: 100vh; }
         .main-content { padding: 30px; max-width: 1500px; margin: 0 auto; }
@@ -15,46 +40,55 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #fff;
-            padding: 15px 25px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 1px solid #eaeaea;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            padding: 16px 26px;
+            border-radius: 14px;
+            margin-bottom: 22px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--accent);
         }
 
         .tab-bar {
             display: flex;
-            gap: 15px;
-            margin-bottom: 25px;
+            gap: 12px;
+            margin-bottom: 26px;
         }
 
         .tab-btn {
             padding: 12px 24px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            background: #fff;
+            border-radius: 10px;
+            border: 1px solid var(--border-soft);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(6px);
             cursor: pointer;
             font-weight: 600;
-            transition: 0.3s;
-            color: #555;
+            transition: color 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s;
+            color: var(--text-muted);
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
         }
 
         .tab-btn.active {
-            background: #000;
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
             color: #fff;
-            border-color: #000;
+            border-color: transparent;
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35);
         }
 
-        .tab-btn:hover:not(.active) { background: #f0f0f0; }
+        .tab-btn:hover:not(.active) {
+            background: #fff;
+            border-color: #c7d2fe;
+            color: var(--accent);
+        }
 
         .admin-section {
-            background: #fff;
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 1px solid #eaeaea;
+            background: var(--surface);
+            border-radius: 14px;
+            padding: 26px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            outline: 1px solid var(--border);
         }
 
         .section-header {
@@ -62,11 +96,22 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-soft);
+            padding-bottom: 12px;
+            position: relative;
+        }
+        .section-header::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -2px;
+            width: min(160px, 40%);
+            height: 3px;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--accent), #38bdf8);
         }
 
-        h2 { font-size: 20px; color: #000; }
+        h2 { font-size: 20px; color: var(--text); letter-spacing: -0.02em; }
 
         .action-bar {
             display: grid;
@@ -75,67 +120,96 @@
         }
 
         .form-group { margin-bottom: 15px; }
-        label { display: block; font-size: 13px; color: #666; margin-bottom: 5px; }
+        label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
         input, select {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
+            padding: 10px 12px;
+            border: 1px solid var(--border-soft);
+            border-radius: 8px;
             font-size: 14px;
+            background: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #a5b4fc;
+            box-shadow: 0 0 0 3px var(--accent-ring);
         }
 
         .btn {
             padding: 10px 20px;
-            border-radius: 6px;
+            border-radius: 8px;
             border: none;
             cursor: pointer;
             font-weight: 600;
-            transition: 0.2s;
+            transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
         }
-        .btn-black { background: #000; color: #fff; }
+        .btn:active { transform: translateY(1px); }
+        .btn-black {
+            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+        }
+        .btn-black:hover {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+        }
         .btn-view {
-            background: #f2f4f7;
-            color: #111;
-            border: 1px solid #e5e7eb;
+            background: var(--accent-light);
+            color: #312e81;
+            border: 1px solid #c7d2fe;
             font-weight: 600;
         }
         .btn-view:hover {
-            background: #e8eaef;
-            border-color: #d0d5dd;
+            background: #e0e7ff;
+            border-color: #a5b4fc;
         }
-        .btn-outline { background: transparent; border: 1px solid #000; color: #000; }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+        }
+        .btn-outline:hover { background: var(--accent-light); }
         .logout-btn {
-            border: 1px solid #ff4d4f;
-            color: #ff4d4f;
+            border: 1px solid rgba(220, 38, 38, 0.45);
+            color: #b91c1c;
+            background: var(--danger-soft);
             padding: 10px 18px;
             border-radius: 10px;
             text-decoration: none;
             font-size: 15px;
             font-weight: 600;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
         }
-        .logout-btn:hover { background: #ff4d4f; color: #fff; }
+        .logout-btn:hover {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.35);
+        }
 
         .topbar-user {
             font-size: 16px;
-            color: #666;
+            color: var(--text-muted);
         }
 
         .topbar-user strong {
-            color: #000;
+            color: var(--text);
             font-size: 17px;
         }
 
         .subsection {
             padding: 18px;
-            border: 1px solid #eee;
-            border-radius: 10px;
-            background: #fafafa;
+            border: 1px solid var(--border-soft);
+            border-radius: 12px;
+            background: linear-gradient(180deg, #fafbfc 0%, var(--surface-soft) 100%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
         }
 
         .subsection h3 {
             font-size: 15px;
             margin-bottom: 10px;
-            color: #111;
+            color: #1e293b;
         }
 
         .grid-2 {
@@ -157,15 +231,20 @@
         }
 
         .btn-danger {
-            background: #ff4d4f;
+            background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
             color: #fff;
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+        }
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #fca5a5 0%, #f87171 100%);
         }
 
         .btn-muted {
-            background: #f2f4f7;
-            color: #111;
-            border: 1px solid #e5e7eb;
+            background: var(--surface-tint);
+            color: #334155;
+            border: 1px solid var(--border-soft);
         }
+        .btn-muted:hover { background: #e2e8f0; }
 
         .pill {
             display: inline-flex;
@@ -174,20 +253,21 @@
             padding: 6px 10px;
             border-radius: 999px;
             font-size: 12px;
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--border-soft);
             background: #fff;
-            color: #111;
+            color: #1e293b;
             font-weight: 600;
         }
 
-        .pill.ok { background: #ecfdf3; border-color: #b7ebc6; color: #0f5132; }
-        .pill.bad { background: #fff1f0; border-color: #ffccc7; color: #a8071a; }
+        .pill.ok { background: #ecfdf5; border-color: #6ee7b7; color: #065f46; }
+        .pill.bad { background: #fef2f2; border-color: #fca5a5; color: #991b1b; }
 
         .table-wrap {
-            border: 1px solid #eee;
-            border-radius: 10px;
+            border: 1px solid var(--border-soft);
+            border-radius: 12px;
             overflow: hidden;
             background: #fff;
+            box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
         }
 
         .table-scroll {
@@ -214,12 +294,12 @@
             position: sticky;
             top: 0;
             z-index: 1;
-            background: #fafafa;
-            border-bottom: 1px solid #eee;
+            background: linear-gradient(180deg, #f1f5f9 0%, #e8eef5 100%);
+            border-bottom: 1px solid var(--border-soft);
             font-size: 12px;
             letter-spacing: 0.04em;
             text-transform: uppercase;
-            color: #667085;
+            color: #475569;
             padding: 12px 12px;
             text-align: left;
             white-space: nowrap;
@@ -227,13 +307,13 @@
 
         tbody td {
             padding: 12px 12px;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid #f1f5f9;
             font-size: 14px;
-            color: #111;
+            color: #1e293b;
             vertical-align: middle;
         }
 
-        tbody tr:hover td { background: #fcfcfd; }
+        tbody tr:hover td { background: #f5f7ff; }
 
         .td-actions {
             display: inline-flex;
@@ -284,7 +364,7 @@
         }
 
         .muted {
-            color: #667085;
+            color: var(--text-muted);
             font-size: 12px;
         }
 
@@ -292,10 +372,10 @@
             display: flex;
             justify-content: flex-start;
             align-items: center;
-            padding: 12px;
+            padding: 12px 14px;
             gap: 12px;
-            border-top: 1px solid #eee;
-            background: #fff;
+            border-top: 1px solid var(--border-soft);
+            background: linear-gradient(180deg, #fafbfc 0%, #fff 100%);
         }
 
         .toast {
@@ -303,14 +383,15 @@
             left: 50%;
             bottom: 18px;
             transform: translateX(-50%);
-            background: #111;
+            background: linear-gradient(135deg, #312e81 0%, #1e1b4b 100%);
             color: #fff;
-            padding: 10px 14px;
+            padding: 10px 16px;
             border-radius: 10px;
             font-size: 13px;
             display: none;
             z-index: 1100;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.18);
+            box-shadow: 0 12px 32px rgba(30, 27, 75, 0.35);
+            border: 1px solid rgba(165, 180, 252, 0.35);
         }
 
         .modal-backdrop {
@@ -331,9 +412,9 @@
             width: min(640px, 92vw);
             max-height: 88vh;
             background: #fff;
-            border: 1px solid #eaeaea;
-            border-radius: 14px;
-            box-shadow: 0 18px 60px rgba(0,0,0,0.25);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 24px 64px rgba(30, 27, 75, 0.22);
             display: none;
             z-index: 1210;
             overflow: hidden;
@@ -345,33 +426,33 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 14px 16px;
-            background: #fafafa;
-            border-bottom: 1px solid #eee;
+            padding: 14px 18px;
+            background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+            border-bottom: 1px solid var(--border-soft);
         }
 
         .modal-header strong {
             font-size: 16px;
-            color: #111;
+            color: #1e293b;
         }
 
         .modal-body {
-            padding: 16px;
+            padding: 16px 18px;
             font-size: 16px;
             line-height: 1.5;
-            color: #111;
+            color: #1e293b;
             word-break: break-word;
             overflow: auto;
             max-height: calc(88vh - 56px - 64px);
         }
 
         .modal-footer {
-            padding: 14px 16px;
-            border-top: 1px solid #eee;
+            padding: 14px 18px;
+            border-top: 1px solid var(--border-soft);
             display: flex;
             justify-content: flex-end;
             gap: 10px;
-            background: #fff;
+            background: linear-gradient(180deg, #fafbfc 0%, #fff 100%);
         }
 
         #ua-note-backdrop.modal-backdrop {
@@ -456,10 +537,11 @@
 
             #ua-list-table tbody tr {
                 background: #fff;
-                border: 1px solid #e9eaeb;
+                border: 1px solid var(--border-soft);
                 border-radius: 10px;
                 padding: 8px 10px;
                 margin-bottom: 10px;
+                box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
             }
 
             #ua-list-table tbody td {
@@ -480,7 +562,7 @@
             }
 
             #ua-list-table tbody td::before {
-                color: #667085;
+                color: var(--text-muted);
                 font-weight: 600;
                 text-align: left;
                 padding-right: 8px;
@@ -598,6 +680,16 @@
                             </select>
                         </div>
                     </div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Account status</label>
+                            <select name="accountStatus" required>
+                                <option value="">Select account status</option>
+                                <option value="Active">Active</option>
+                                <option value="Suspended">Suspended</option>
+                            </select>
+                        </div>
+                    </div>
                     <button type="submit" class="btn btn-black">Create</button>
                 </form>
             </div>
@@ -610,7 +702,7 @@
 
             <div class="action-bar">
                 <div class="subsection">
-                    <div class="subsection" style="padding: 12px; margin-bottom: 12px;">
+                    <div style="margin-bottom: 12px;">
                         <h3>Search User Accounts</h3>
                         <div class="grid-3">
                             <div class="form-group" style="margin-bottom:0;">
@@ -695,11 +787,8 @@
 <div id="ua-toast" class="toast"></div>
 
 <script>
-    const UA_LIST_PAGE_SIZE = 2000;
-
     const uaState = {
-        profiles: [],
-        listTotal: 0
+        profiles: []
     };
 
     function uaAssignableProfile(p) {
@@ -779,7 +868,6 @@
             if (Number.isFinite(t)) n = t;
         }
 
-        uaState.listTotal = n;
         el.textContent = `Showing ${n} accounts`;
     }
 
@@ -914,7 +1002,7 @@
 
             const bodyHtml = `
                 <div class="muted" style="margin-bottom: 10px;">Tip: Double-click a value to edit, then click “Save changes”.</div>
-                <div class="table-wrap" style="border: 1px solid #eee;">
+                <div class="table-wrap">
                     <div class="table-scroll" style="max-height: none;">
                         <table aria-label="Account detail" style="min-width: 0;">
                             <thead>
@@ -1115,6 +1203,7 @@
             const email = createForm.querySelector('input[name="email"]');
             const phone = createForm.querySelector('input[name="phone"]');
             const profileId = createForm.querySelector('select[name="profileId"]');
+            const accountStatus = createForm.querySelector('select[name="accountStatus"]');
 
             if (username) username.value = username.value.trim();
             if (password) password.value = password.value.trim();
@@ -1125,6 +1214,13 @@
                 e.preventDefault();
                 uaModalOpen('Please select a profile (role).', 'Notice');
                 profileId.focus();
+                return;
+            }
+
+            if (accountStatus && !accountStatus.value) {
+                e.preventDefault();
+                uaModalOpen('Please select account status (Active or Suspended).', 'Notice');
+                accountStatus.focus();
                 return;
             }
 
