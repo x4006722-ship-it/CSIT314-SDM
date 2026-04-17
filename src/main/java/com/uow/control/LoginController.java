@@ -11,8 +11,10 @@ public class LoginController {
 
     public String errorMessage = "";
     public String role = null;
+    public int userId = 0;
 
     public void login(String username, String password) {
+        userId = 0;
         boolean ok = login.verifyCredentials(username, password);
         if (!ok) {
             errorMessage = "Invalid username or password.";
@@ -33,6 +35,7 @@ public class LoginController {
         }
 
         role = login.role;
+        userId = login.user_id;
         errorMessage = "";
     }
 

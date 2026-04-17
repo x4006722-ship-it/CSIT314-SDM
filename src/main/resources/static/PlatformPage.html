@@ -5,179 +5,388 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Platform Management Page</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
+        :root {
+            --surface: #ffffff;
+            --surface-soft: #f8fafc;
+            --surface-tint: #f1f5f9;
+            --border: rgba(16, 185, 129, 0.2);
+            --border-soft: #e2e8f0;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --accent: #059669;
+            --accent-hover: #047857;
+            --accent-light: #ecfdf5;
+            --accent-ring: rgba(16, 185, 129, 0.35);
+            --accent-soft: #d1fae5;
+            --danger-soft: #fef2f2;
+            --shadow: 0 10px 40px rgba(6, 78, 59, 0.1);
+            --shadow-sm: 0 4px 20px rgba(6, 78, 59, 0.07);
         }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif; }
 
         body {
-            background-color: #f8f9fa;
-            color: #222;
-        }
-
-        .container {
             min-height: 100vh;
+            color: var(--text);
+            background:
+                radial-gradient(1200px 600px at 10% -10%, rgba(16, 185, 129, 0.2), transparent 55%),
+                radial-gradient(900px 500px at 100% 20%, rgba(20, 184, 166, 0.14), transparent 50%),
+                linear-gradient(165deg, #d5ede4 0%, #e4f4ec 38%, #eef8f4 100%);
         }
 
-        .main-content {
-            padding: 30px;
-            max-width: 1500px;
-            margin: 0 auto;
-        }
+        .container { min-height: 100vh; }
+        .main-content { padding: 30px; max-width: 1500px; margin: 0 auto; }
 
         .topbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            padding: 16px 26px;
+            border-radius: 14px;
+            margin-bottom: 22px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--accent);
+        }
+        .topbar-user { font-size: 16px; color: var(--text-muted); }
+        .topbar-user strong { color: var(--text); font-size: 17px; }
+
+        .topbar-left { display: flex; align-items: center; gap: 12px; }
+        .nav-btn {
+            width: 42px; height: 42px;
+            border-radius: 10px;
+            border: 1px solid var(--border-soft);
+            background: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+            transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+        }
+        .nav-btn:hover {
             background: #fff;
-            padding: 15px 25px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 1px solid #eaeaea;
+            border-color: var(--accent-soft);
+            box-shadow: 0 4px 14px rgba(5, 150, 105, 0.15);
         }
-
-        .topbar-user {
-            font-size: 16px;
-            color: #666;
+        .nav-btn:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-ring);
         }
-
-        .topbar-user strong {
-            color: #000;
-            font-size: 17px;
+        .nav-icon {
+            width: 18px; height: 12px; position: relative;
         }
+        .nav-icon span {
+            position: absolute; left: 0; right: 0;
+            height: 2px; background: #064e3b; border-radius: 999px;
+        }
+        .nav-icon span:nth-child(1) { top: 0; }
+        .nav-icon span:nth-child(2) { top: 5px; }
+        .nav-icon span:nth-child(3) { top: 10px; }
 
         .logout-btn {
-            border: 1px solid #ff4d4f;
-            color: #ff4d4f;
+            border: 1px solid rgba(220, 38, 38, 0.45);
+            color: #b91c1c;
+            background: var(--danger-soft);
             padding: 10px 18px;
             border-radius: 10px;
             text-decoration: none;
             font-size: 15px;
             font-weight: 600;
-            background: transparent;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+        }
+        .logout-btn:hover {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.35);
         }
 
-        .logout-btn:hover { background: #ff4d4f; color: #fff; }
-
-        .content-area {
-            padding: 0;
-        }
-
-        .welcome-card {
-            background-color: #ffffff;
+        .admin-section {
+            background: var(--surface);
             border-radius: 14px;
-            padding: 30px;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
-            margin-bottom: 25px;
+            padding: 26px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            outline: 1px solid var(--border);
         }
-
-        .welcome-card h1 {
-            font-size: 28px;
-            margin-bottom: 12px;
-            color: #000;
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-soft);
+            padding-bottom: 12px;
+            position: relative;
         }
-
-        .welcome-card p {
-            font-size: 15px;
-            color: #555;
-            line-height: 1.6;
+        .section-header::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -2px;
+            width: min(160px, 40%);
+            height: 3px;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--accent), #34d399);
         }
+        h2 { font-size: 20px; color: var(--text); letter-spacing: -0.02em; }
 
-        .cards {
+        .subsection {
+            padding: 18px;
+            border: 1px solid var(--border-soft);
+            border-radius: 12px;
+            background: linear-gradient(180deg, #fafbfc 0%, var(--surface-soft) 100%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+        .subsection h3 { font-size: 15px; margin-bottom: 10px; color: #1e293b; white-space: nowrap; }
+
+        .cm-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 20px;
-        }
-
-        .card {
-            background-color: #ffffff;
-            border-radius: 14px;
-            padding: 24px;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
-        }
-
-        .card h2 {
-            font-size: 20px;
-            margin-bottom: 14px;
-            color: #000;
-        }
-
-        .card ul {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .card ul li {
-            padding: 9px 0;
-            color: #444;
-            border-bottom: 1px solid #f0f0f0;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        .card ul li:last-child {
-            border-bottom: none;
-        }
-
-        .highlight-box {
-            margin-top: 25px;
-            background-color: #ffffff;
-            border-radius: 14px;
-            padding: 24px;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
-        }
-
-        .highlight-box h2 {
-            font-size: 20px;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
             margin-bottom: 12px;
+            align-items: stretch;
         }
+        .cm-grid .subsection { display: flex; flex-direction: column; min-width: 0; }
+        .cm-grid form { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+        .cm-card-body { flex: 1; min-height: 0; }
+        .cm-actions { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: auto; padding-top: 12px; width: 100%; }
+        .cm-form-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 12px; }
+        .cm-form-grid .form-group { min-width: 0; }
+        .cm-form-grid input, .cm-form-grid select { min-width: 0; }
 
-        .highlight-box p {
+        .form-group { margin-bottom: 0; }
+        label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; white-space: nowrap; overflow: visible; }
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-soft);
+            border-radius: 8px;
             font-size: 14px;
-            color: #555;
-            line-height: 1.7;
+            background: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #6ee7b7;
+            box-shadow: 0 0 0 3px var(--accent-ring);
         }
 
-        @media (max-width: 1024px) {
-            .content-area {
-                padding: 28px 20px;
-            }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+        }
+        .btn:active { transform: translateY(1px); }
+        .btn-black {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);
+        }
+        .btn-black:hover {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4);
+        }
+        .btn-view {
+            background: var(--accent-light);
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+            font-weight: 600;
+        }
+        .btn-view:hover {
+            background: #d1fae5;
+            border-color: #6ee7b7;
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+        }
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #fca5a5 0%, #f87171 100%);
+        }
+        .btn-muted {
+            background: var(--surface-tint);
+            color: #334155;
+            border: 1px solid var(--border-soft);
+        }
+        .btn-muted:hover { background: #e2e8f0; }
+        .btn-sm { padding: 8px 12px; font-size: 13px; border-radius: 8px; }
+
+        .pill {
+            display: inline-flex; align-items: center;
+            gap: 8px; padding: 6px 10px; border-radius: 999px;
+            font-size: 12px; border: 1px solid var(--border-soft);
+            background: #fff; color: #1e293b; font-weight: 600;
+        }
+        .pill.ok { background: #ecfdf5; border-color: #6ee7b7; color: #065f46; }
+        .pill.bad { background: #fef2f2; border-color: #fca5a5; color: #991b1b; }
+
+        .muted { color: var(--text-muted); font-size: 12px; }
+
+        .table-wrap {
+            border: 1px solid var(--border-soft);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
+        }
+        .table-scroll { max-height: 800px; overflow: auto; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 980px; }
+        thead th {
+            position: sticky; top: 0; z-index: 1;
+            background: linear-gradient(180deg, #ecfdf5 0%, #d1fae5 100%);
+            border-bottom: 1px solid var(--border-soft);
+            font-size: 12px; letter-spacing: 0.04em;
+            text-transform: uppercase; color: #475569;
+            padding: 12px 12px;
+            text-align: left; white-space: nowrap;
+        }
+        tbody td {
+            padding: 12px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+            color: #1e293b;
+            vertical-align: middle;
+        }
+        tbody tr:hover td { background: #f0fdf4; }
+
+        .td-actions { display: inline-flex; gap: 8px; flex-wrap: nowrap; align-items: center; justify-content: center; width: 100%; }
+
+        .pagination {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 12px 14px;
+            gap: 12px;
+            border-top: 1px solid var(--border-soft);
+            background: linear-gradient(180deg, #fafbfc 0%, #fff 100%);
         }
 
-        @media (max-width: 820px) {
-            .topbar {
-                padding: 14px 16px;
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-
-            .logout-btn {
-                width: 100%;
-            }
-
-            .content-area {
-                padding: 18px 16px;
-            }
-
-            .cards {
-                grid-template-columns: 1fr;
-            }
+        .modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); display: none; z-index: 1200; }
+        .modal-backdrop.open { display: block; }
+        .modal {
+            position: fixed; left: 50%; top: 8%; transform: translateX(-50%);
+            width: min(640px, 92vw); max-height: 88vh; background: #fff;
+            border: 1px solid var(--border-soft); border-radius: 14px;
+            box-shadow: var(--shadow);
+            display: none; z-index: 1210; overflow: hidden;
+        }
+        .modal.open { display: block; }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 16px;
+            background: linear-gradient(180deg, #f8fafc 0%, #fff 100%);
+            border-bottom: 1px solid var(--border-soft);
+        }
+        .modal-header strong { font-size: 16px; color: #1e293b; }
+        .modal-body { padding: 16px; font-size: 16px; line-height: 1.5; color: #1e293b; word-break: break-word; overflow: auto; max-height: calc(88vh - 56px - 64px); }
+        .modal-footer {
+            padding: 14px 16px; border-top: 1px solid var(--border-soft);
+            display: flex; justify-content: flex-end; gap: 10px;
+            background: #fff;
         }
 
-        @media (max-width: 480px) {
-            .welcome-card,
-            .card,
-            .highlight-box {
-                padding: 16px;
-            }
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 18px;
+            transform: translateX(-50%);
+            z-index: 1100;
+            background: linear-gradient(135deg, #065f46 0%, #064e3b 100%);
+            color: #fff;
+            border-radius: 12px;
+            padding: 12px 14px;
+            box-shadow: 0 12px 32px rgba(6, 78, 59, 0.35);
+            display: none;
+            max-width: min(520px, 92vw);
+            font-size: 14px;
+            line-height: 1.35;
+            border: 1px solid rgba(167, 243, 208, 0.35);
+        }
+        .toast.open { display: block; }
+        .toast.bad { background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%); border-color: rgba(252, 165, 165, 0.4); }
+        .toast.ok { background: linear-gradient(135deg, #047857 0%, #065f46 100%); border-color: rgba(167, 243, 208, 0.45); }
 
-            .welcome-card h1 {
-                font-size: 22px;
-            }
+        .nav-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.35); display: none; z-index: 2100; }
+        .nav-backdrop.open { display: block; }
+        .nav-drawer {
+            position: fixed;
+            width: min(280px, calc(100vw - 24px));
+            max-width: 280px;
+            background: #fff;
+            border: 1px solid var(--border-soft);
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+            z-index: 2110;
+            display: none;
+            overflow: hidden;
+        }
+        .nav-drawer.open { display: block; }
+        .nav-drawer-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 14px;
+            background: linear-gradient(180deg, #ecfdf5 0%, #f8fafc 100%);
+            border-bottom: 1px solid var(--border-soft);
+        }
+        .nav-drawer-header strong { font-size: 14px; color: #1e293b; }
+        .nav-close {
+            border: 1px solid var(--border-soft);
+            background: #fff;
+            border-radius: 10px;
+            padding: 8px 10px;
+            cursor: pointer;
+            font-weight: 700;
+            color: #334155;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .nav-close:hover {
+            border-color: var(--accent-soft);
+            background: var(--accent-light);
+        }
+        .nav-list { padding: 10px; display: grid; gap: 8px; }
+        .nav-item {
+            width: 100%;
+            text-align: left;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border-soft);
+            background: #fff;
+            cursor: pointer;
+            font-weight: 700;
+            color: #334155;
+            transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
+        }
+        .nav-item.active {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 6px 20px rgba(5, 150, 105, 0.35);
+        }
+        .nav-item:hover { background: #f0fdf4; border-color: #a7f3d0; color: var(--accent); }
+        .nav-item.active:hover {
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            color: #fff;
+        }
+
+        @media (max-width: 980px) {
+            table { min-width: 0; width: 100%; table-layout: fixed; }
+            thead { display: none; }
+            table, tbody, tr, td { display: block; width: 100%; }
+            tbody tr { background: #fff; border: 1px solid var(--border-soft); border-radius: 10px; padding: 8px 10px; margin-bottom: 10px; }
+            tbody td { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; padding: 8px 0; white-space: normal; word-break: break-word; text-align: right; }
+            tbody td:last-child { border-bottom: none; }
+            tbody td::before { color: var(--text-muted); font-weight: 600; text-align: left; padding-right: 8px; flex: 0 0 44%; }
+            #fra-list-table tbody td:nth-child(1)::before { content: "Category ID"; }
+            #fra-list-table tbody td:nth-child(2)::before { content: "Category Name"; }
+            #fra-list-table tbody td:nth-child(3)::before { content: "Category Status"; }
+            #fra-list-table tbody td:nth-child(4)::before { content: "Action"; }
         }
     </style>
 </head>
@@ -185,50 +394,477 @@
 <div class="container">
     <main class="main-content">
         <div class="topbar">
-            <span class="topbar-user">Logged in as: <strong>Platform Management</strong></span>
+            <div class="topbar-left">
+                <button id="nav-open" class="nav-btn" type="button" aria-label="Open menu" aria-haspopup="dialog" aria-controls="nav-drawer">
+                    <span class="nav-icon" aria-hidden="true">
+                        <span></span><span></span><span></span>
+                    </span>
+                </button>
+                <span class="topbar-user">Logged in as: <strong>Platform Management</strong></span>
+            </div>
             <a href="/logout" class="logout-btn">Logout</a>
         </div>
 
-        <div class="content-area">
-            <div class="welcome-card">
-                <h1>Welcome back, Platform Management</h1>
-                <p>
-                    This dashboard allows you to manage FSA categories and monitor platform performance through daily,
-                    weekly, and monthly reporting. You can organize activity types and review operational trends from the menu on the left.
-                </p>
+        <div id="view-dashboard" class="admin-section">
+            <div class="section-header">
+                <h2>Category Management</h2>
             </div>
-
-            <div class="cards">
-                <div class="card">
-                    <h2>FSA Category Functions</h2>
-                    <ul>
-                        <li>Create FSA categories to organize different types of activities</li>
-                        <li>View FSA categories to see the list of existing categories</li>
-                        <li>Update FSA categories to modify category names or details</li>
-                        <li>Suspend FSA categories to disable categories that are no longer needed</li>
-                        <li>Search FSA categories to find specific categories quickly</li>
-                    </ul>
+            
+            <div class="cm-grid">
+                <div class="subsection">
+                    <h3>Create Category</h3>
+                    <form id="fra-create-form" action="/api/fra-categories/create" method="POST" novalidate>
+                        <div class="cm-card-body">
+                            <div class="cm-form-grid" style="margin-top:10px;">
+                                <div class="form-group">
+                                    <label>Category Name</label>
+                                    <input type="text" name="categoryName" required pattern=".*\\S.*"/>
+                                </div>
+                                <div class="form-group">
+                                    <label>Category Status</label>
+                                    <select name="categoryStatus" required>
+                                        <option value="Active" selected>Active</option>
+                                        <option value="Suspended">Suspended</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cm-actions">
+                            <button type="submit" class="btn btn-black">Create</button>
+                        </div>
+                    </form>
                 </div>
 
-                <div class="card">
-                    <h2>Reporting Functions</h2>
-                    <ul>
-                        <li>Get daily reports to monitor daily platform performance</li>
-                        <li>Get weekly reports to analyze weekly trends</li>
-                        <li>Get monthly reports to review long-term growth and data</li>
-                    </ul>
+                <div class="subsection">
+                    <h3>Search Categories</h3>
+                    <div class="cm-card-body">
+                        <div class="cm-form-grid">
+                            <div class="form-group">
+                                <label>Keyword</label>
+                                <input id="fra-search-q" type="text"/>
+                            </div>
+                            <div class="form-group">
+                                <label>Category Status</label>
+                                <select id="fra-filter-status">
+                                    <option value="" selected>All</option>
+                                    <option value="Active">Active</option>
+                                    <option value="Suspended">Suspended</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cm-actions">
+                        <button id="fra-search-btn" type="button" class="btn btn-black">Search</button>
+                        <button id="fra-search-clear" type="button" class="btn btn-muted">Clear</button>
+                    </div>
                 </div>
             </div>
 
-            <div class="highlight-box">
-                <h2>Platform Management Responsibilities</h2>
-                <p>
-                    As platform management, you are responsible for maintaining the category structure of fundraising service activities
-                    and reviewing operational reports over different time periods. Use the left navigation to manage categories and access reporting tools.
-                </p>
+            <div class="table-wrap">
+                <div class="table-scroll">
+                    <table id="fra-list-table" aria-label="FRA categories list">
+                        <thead>
+                        <tr>
+                            <th style="width: 120px;">Category ID</th>
+                            <th style="width: 420px;">Category Name</th>
+                            <th style="width: 220px;">Category Status</th>
+                            <th style="width: 220px; text-align: center;">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody id="fra-list-tbody">
+                        <tr>
+                            <td colspan="4" class="muted" style="text-align: center;">Loading…</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination">
+                    <div class="muted" id="fra-count">—</div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="view-report" class="admin-section" style="display:none;">
+            <div class="section-header">
+                <h2 id="report-title">Report</h2>
+            </div>
+            <div class="subsection">
+                <div class="muted" id="report-note">Select a report type from the menu.</div>
             </div>
         </div>
     </main>
 </div>
+
+<div id="nav-backdrop" class="nav-backdrop" aria-hidden="true"></div>
+<div id="nav-drawer" class="nav-drawer" role="dialog" aria-modal="true" aria-label="Navigation menu">
+    <div class="nav-drawer-header">
+        <strong>Menu</strong>
+        <button id="nav-close" type="button" class="nav-close" aria-label="Close menu">X</button>
+    </div>
+    <div class="nav-list">
+        <button class="nav-item active" type="button" data-view="dashboard">Dashboard</button>
+        <button class="nav-item" type="button" data-view="daily">Daily report</button>
+        <button class="nav-item" type="button" data-view="weekly">Weekly report</button>
+        <button class="nav-item" type="button" data-view="monthly">Monthly report</button>
+    </div>
+</div>
+
+<div id="fra-modal-backdrop" class="modal-backdrop"></div>
+<div id="fra-modal" class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+        <strong id="fra-modal-title">Category Detail</strong>
+    </div>
+    <div id="fra-modal-body" class="modal-body"></div>
+    <div class="modal-footer">
+        <button id="fra-modal-save" type="button" class="btn btn-muted" style="display:none;">Save</button>
+        <button id="fra-modal-ok" type="button" class="btn btn-black">OK</button>
+    </div>
+</div>
+
+<div id="fra-toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+    const fraState = {
+        searchQuery: '',
+        searchStatus: ''
+    };
+
+    function fraEscapeHtml(s) {
+        return String(s ?? '')
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#39;');
+    }
+
+    function fraOpenModal(title, html, showSave) {
+        document.getElementById('fra-modal-title').textContent = title || 'Category Detail';
+        const body = document.getElementById('fra-modal-body');
+        body.innerHTML = html || '';
+        document.getElementById('fra-modal-backdrop').classList.add('open');
+        document.getElementById('fra-modal').classList.add('open');
+        const save = document.getElementById('fra-modal-save');
+        save.style.display = showSave ? 'inline-flex' : 'none';
+        save.disabled = false;
+    }
+
+    function fraCloseModal() {
+        document.getElementById('fra-modal-backdrop').classList.remove('open');
+        document.getElementById('fra-modal').classList.remove('open');
+    }
+    
+    function fraToast(message, kind) {
+        const el = document.getElementById('fra-toast');
+        if (!el) return;
+        el.textContent = String(message ?? '');
+        el.className = 'toast open ' + (kind === 'bad' ? 'bad' : (kind === 'ok' ? 'ok' : ''));
+        clearTimeout(window.__fraToastTimer);
+        window.__fraToastTimer = setTimeout(() => {
+            el.classList.remove('open');
+        }, 1800);
+    }
+
+    function fraShowToastFromQuery() {
+        const params = new URLSearchParams(window.location.search);
+        const msg = params.get('toast');
+        if (!msg) return;
+        fraOpenModal(msg.toLowerCase().startsWith('success') ? 'Success' : 'Notice', `<div>${fraEscapeHtml(msg)}</div>`, false);
+        params.delete('toast');
+        const next = params.toString();
+        const url = window.location.pathname + (next ? `?${next}` : '');
+        window.history.replaceState({}, '', url);
+    }
+
+    async function loadFraCategories() {
+        const tbody = document.getElementById('fra-list-tbody');
+        const count = document.getElementById('fra-count');
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#667085;">Loading…</td></tr>`;
+        try {
+            const q = (fraState.searchQuery || '').trim();
+            const st = (fraState.searchStatus || '').trim();
+            const url = `/api/fra-categories/search?categoryName=${encodeURIComponent(q)}&categoryStatus=${encodeURIComponent(st)}`;
+            const r = await fetch(url, { credentials: 'same-origin' });
+            if (!r.ok) throw new Error('Failed to load categories');
+            const rows = await r.json();
+            const safeRows = Array.isArray(rows) ? rows : [];
+            if (safeRows.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#667085;">No categories found.</td></tr>`;
+                count.textContent = `Showing 0 categories`;
+                return;
+            }
+
+            tbody.innerHTML = safeRows.map(c => {
+                const id = c.categoryID ?? c.categoryId ?? '';
+                const name = fraEscapeHtml(c.categoryName ?? '');
+                const rawStatus = String(c.categoryStatus ?? '');
+                const status = fraEscapeHtml(rawStatus);
+                const isSuspended = rawStatus.toLowerCase() === 'suspended';
+                const pillClass = isSuspended ? 'pill bad' : 'pill ok';
+                const toggleLabel = isSuspended ? 'Re-activate' : 'Suspend';
+                const toggleClass = isSuspended ? 'btn-muted' : 'btn-danger';
+                return `
+                    <tr data-status="${isSuspended ? 'suspended' : 'active'}">
+                        <td>${fraEscapeHtml(id)}</td>
+                        <td>${name}</td>
+                        <td><span class="${pillClass}">${status || (isSuspended ? 'Suspended' : 'Active')}</span></td>
+                        <td style="text-align:center;">
+                            <div class="td-actions">
+                                <button type="button" class="btn btn-view btn-sm" data-action="view" data-category-id="${fraEscapeHtml(id)}">View</button>
+                                <button type="button" class="btn btn-sm ${toggleClass}" data-action="toggle-status" data-category-id="${fraEscapeHtml(id)}">${fraEscapeHtml(toggleLabel)}</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            count.textContent = `Showing ${safeRows.length} categories`;
+        } catch (e) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#667085;">Failed to load categories.</td></tr>`;
+            count.textContent = '—';
+            fraOpenModal('Notice', `Failed to load categories from database. ${fraEscapeHtml(e?.message || '')}`, false);
+        }
+    }
+
+    async function viewFraCategoryDetail(categoryID) {
+        if (!categoryID) return;
+        try {
+            const r = await fetch(`/api/fra-categories/view?categoryID=${encodeURIComponent(categoryID)}`, { credentials: 'same-origin' });
+            const d = await r.json().catch(() => null);
+            if (!r.ok || !d) throw new Error('Failed to load detail');
+
+            const name = String(d.categoryName ?? '');
+            const status = String(d.categoryStatus ?? '');
+            const html = `
+                <div style="display:grid; gap: 10px;">
+                    <div>
+                        <div style="font-size:12px; color:#667085; margin-bottom:4px;">categoryName</div>
+                        <input id="fra-edit-name" value="${fraEscapeHtml(name)}" />
+                    </div>
+                    <div>
+                        <div style="font-size:12px; color:#667085; margin-bottom:4px;">categoryStatus</div>
+                        <select id="fra-edit-status">
+                            <option value="Active">Active</option>
+                            <option value="Suspended">Suspended</option>
+                        </select>
+                    </div>
+                    <div id="fra-edit-error" style="display:none; color:#a8071a; font-weight:700;"></div>
+                </div>
+            `;
+            fraOpenModal(`Category Detail (ID: ${categoryID})`, html, true);
+            document.getElementById('fra-edit-status').value = status || 'Active';
+            document.getElementById('fra-modal-save').dataset.categoryId = String(categoryID);
+        } catch (e) {
+            fraOpenModal('Notice', 'Failed to load category detail.', false);
+        }
+    }
+
+    async function saveFraCategoryDetail(categoryID) {
+        if (!categoryID) return;
+        const name = (document.getElementById('fra-edit-name')?.value || '').trim();
+        const status = (document.getElementById('fra-edit-status')?.value || '').trim();
+        try {
+            const errEl = document.getElementById('fra-edit-error');
+            if (errEl) { errEl.textContent = ''; errEl.style.display = 'none'; }
+            const saveBtn = document.getElementById('fra-modal-save');
+            saveBtn.disabled = true;
+            const r = await fetch(`/api/fra-categories/update?categoryID=${encodeURIComponent(categoryID)}&categoryName=${encodeURIComponent(name)}&categoryStatus=${encodeURIComponent(status)}`, {
+                method: 'POST',
+                credentials: 'same-origin'
+            });
+            const resp = await r.json().catch(() => ({}));
+            if (!r.ok || resp?.success === false) throw new Error(resp?.error || 'Update failed');
+            fraCloseModal();
+            await loadFraCategories();
+            fraToast('Category updated.', 'ok');
+        } catch (e) {
+            const errEl = document.getElementById('fra-edit-error');
+            const msg = String(e?.message || 'Update failed');
+            if (errEl) {
+                errEl.textContent = `Error: ${msg}`;
+                errEl.style.display = 'block';
+            } else {
+                fraToast(`Error: ${msg}`, 'bad');
+            }
+        } finally {
+            const saveBtn = document.getElementById('fra-modal-save');
+            saveBtn.disabled = false;
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        // Navigation menu (single-page views)
+        function positionNavDrawer() {
+            const btn = document.getElementById('nav-open');
+            const drawer = document.getElementById('nav-drawer');
+            if (!btn || !drawer) return;
+            const r = btn.getBoundingClientRect();
+            const gap = 8;
+            const maxW = Math.min(280, window.innerWidth - 24);
+            let left = r.left;
+            if (left + maxW > window.innerWidth - 12) {
+                left = window.innerWidth - maxW - 12;
+            }
+            if (left < 12) left = 12;
+            const top = r.bottom + gap;
+            drawer.style.top = `${Math.round(top)}px`;
+            drawer.style.left = `${Math.round(left)}px`;
+            drawer.style.width = `${maxW}px`;
+        }
+
+        function navOpen() {
+            document.getElementById('nav-backdrop')?.classList.add('open');
+            const drawer = document.getElementById('nav-drawer');
+            drawer?.classList.add('open');
+            positionNavDrawer();
+            document.getElementById('nav-close')?.focus();
+        }
+        function navClose() {
+            document.getElementById('nav-backdrop')?.classList.remove('open');
+            const drawer = document.getElementById('nav-drawer');
+            drawer?.classList.remove('open');
+            if (drawer) {
+                drawer.style.top = '';
+                drawer.style.left = '';
+                drawer.style.width = '';
+            }
+            document.getElementById('nav-open')?.focus();
+        }
+        function setView(view) {
+            const dash = document.getElementById('view-dashboard');
+            const rep = document.getElementById('view-report');
+            const title = document.getElementById('report-title');
+            const note = document.getElementById('report-note');
+            const isDash = view === 'dashboard';
+            if (dash) dash.style.display = isDash ? '' : 'none';
+            if (rep) rep.style.display = isDash ? 'none' : '';
+            if (!isDash) {
+                const label = view === 'daily' ? 'Daily report'
+                    : view === 'weekly' ? 'Weekly report'
+                        : view === 'monthly' ? 'Monthly report'
+                            : 'Report';
+                if (title) title.textContent = label;
+                if (note) note.textContent = `${label} (to be added on this page).`;
+            }
+            document.querySelectorAll('.nav-item[data-view]').forEach(btn => {
+                const v = btn.getAttribute('data-view');
+                btn.classList.toggle('active', v === view);
+            });
+        }
+
+        document.getElementById('nav-open')?.addEventListener('click', navOpen);
+        document.getElementById('nav-close')?.addEventListener('click', navClose);
+        document.getElementById('nav-backdrop')?.addEventListener('click', navClose);
+        window.addEventListener('resize', () => {
+            if (document.getElementById('nav-drawer')?.classList.contains('open')) {
+                positionNavDrawer();
+            }
+        });
+        document.getElementById('nav-drawer')?.addEventListener('click', (e) => {
+            const btn = e.target.closest('button[data-view]');
+            if (!btn) return;
+            const v = btn.getAttribute('data-view') || 'dashboard';
+            setView(v);
+            navClose();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key !== 'Escape') return;
+            const drawer = document.getElementById('nav-drawer');
+            if (drawer?.classList.contains('open')) {
+                navClose();
+                return;
+            }
+            fraCloseModal();
+        });
+
+        fraShowToastFromQuery();
+        loadFraCategories();
+
+        document.getElementById('fra-search-btn')?.addEventListener('click', async () => {
+            fraState.searchQuery = (document.getElementById('fra-search-q')?.value || '').trim();
+            fraState.searchStatus = (document.getElementById('fra-filter-status')?.value || '').trim();
+            await loadFraCategories();
+        });
+
+        document.getElementById('fra-search-clear')?.addEventListener('click', async () => {
+            const q = document.getElementById('fra-search-q');
+            const st = document.getElementById('fra-filter-status');
+            if (q) q.value = '';
+            if (st) st.value = '';
+            fraState.searchQuery = '';
+            fraState.searchStatus = '';
+            await loadFraCategories();
+        });
+
+        document.getElementById('fra-list-tbody')?.addEventListener('click', async (e) => {
+            const viewBtn = e.target.closest('button[data-action="view"]');
+            if (viewBtn) {
+                const id = viewBtn.getAttribute('data-category-id');
+                viewFraCategoryDetail(id);
+                return;
+            }
+            const toggleBtn = e.target.closest('button[data-action="toggle-status"]');
+            if (!toggleBtn) return;
+            const id = toggleBtn.getAttribute('data-category-id');
+            if (!id) return;
+            try {
+                toggleBtn.disabled = true;
+                const row = toggleBtn.closest('tr');
+                const isSusp = (row?.getAttribute('data-status') || '').toLowerCase() === 'suspended';
+                const r = await fetch(`/api/fra-categories/suspend?categoryID=${encodeURIComponent(id)}`, {
+                    method: 'POST',
+                    credentials: 'same-origin'
+                });
+                const resp = await r.json().catch(() => ({}));
+                if (!r.ok || resp?.success === false) throw new Error(resp?.error || 'Update failed');
+
+                if (row) {
+                    row.setAttribute('data-status', isSusp ? 'active' : 'suspended');
+                    const pill = row.querySelector('.pill');
+                    if (pill) {
+                        pill.className = isSusp ? 'pill ok' : 'pill bad';
+                        pill.textContent = isSusp ? 'Active' : 'Suspended';
+                    }
+                }
+                toggleBtn.className = isSusp ? 'btn btn-danger btn-sm' : 'btn btn-muted btn-sm';
+                toggleBtn.textContent = isSusp ? 'Suspend' : 'Re-activate';
+                
+                fraToast(isSusp ? 'Category re-activated.' : 'Category suspended.', 'ok');
+            } catch (err) {
+                fraToast(`Error: ${String(err?.message || 'Update failed')}`, 'bad');
+            } finally {
+                toggleBtn.disabled = false;
+            }
+        });
+
+        document.getElementById('fra-modal-backdrop')?.addEventListener('click', fraCloseModal);
+        document.getElementById('fra-modal-ok')?.addEventListener('click', fraCloseModal);
+        document.getElementById('fra-modal-save')?.addEventListener('click', async () => {
+            const id = document.getElementById('fra-modal-save')?.dataset.categoryId;
+            await saveFraCategoryDetail(id);
+        });
+        
+        function fraTriggerSearchOnEnter(e) {
+            if (e.key !== 'Enter') return;
+            e.preventDefault();
+            document.getElementById('fra-search-btn')?.click();
+        }
+        document.getElementById('fra-search-q')?.addEventListener('keydown', fraTriggerSearchOnEnter);
+        document.getElementById('fra-filter-status')?.addEventListener('keydown', fraTriggerSearchOnEnter);
+        document.addEventListener('keydown', async (e) => {
+            if (e.key !== 'Enter') return;
+            const modal = document.getElementById('fra-modal');
+            const save = document.getElementById('fra-modal-save');
+            const isOpen = modal?.classList.contains('open');
+            const canSave = isOpen && save && save.style.display !== 'none' && !save.disabled;
+            if (!canSave) return;
+            const active = document.activeElement;
+            if (active && (active.id === 'fra-edit-name' || active.id === 'fra-edit-status' || active === save)) {
+                e.preventDefault();
+                save.click();
+            }
+        });
+    });
+</script>
 </body>
 </html>
