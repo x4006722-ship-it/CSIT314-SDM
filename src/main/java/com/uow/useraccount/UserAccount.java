@@ -1,4 +1,4 @@
-package com.uow.entity;
+package com.uow.useraccount;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -22,16 +22,6 @@ public class UserAccount {
     public boolean saveCreateAccount() {
         lastErrorMessage = "";
         userID = 0;
-        String st = status == null ? "" : status.trim();
-        if (st.isEmpty()) {
-            lastErrorMessage = "Account status is required.";
-            return false;
-        }
-        if (!st.equalsIgnoreCase("Active") && !st.equalsIgnoreCase("Suspended")) {
-            lastErrorMessage = "Invalid account status.";
-            return false;
-        }
-        String aStatus = st.equalsIgnoreCase("Active") ? "Active" : "Suspended";
         try (Connection c = DBUtils.getConnection();
              PreparedStatement ps = c.prepareStatement(
                      "SELECT COUNT(*) FROM user_account WHERE (username=? OR email=? OR phone_number=?) AND user_id<>?")) {
@@ -57,7 +47,7 @@ public class UserAccount {
             ps.setString(3, fullName);
             ps.setString(4, email);
             ps.setString(5, phoneNumber);
-            ps.setString(6, aStatus);
+            ps.setString(6, status);
             ps.setInt(7, profileID);
             boolean ok = ps.executeUpdate() > 0;
             if (!ok) {
@@ -144,19 +134,6 @@ public class UserAccount {
     //Suspend Account
     public boolean saveSuspendAccount(int targetUserId, int currentUserId) {
         lastErrorMessage = "";
-        if (targetUserId <= 0) {
-            lastErrorMessage = "Invalid account.";
-            return false;
-        }
-        if (currentUserId <= 0) {
-            lastErrorMessage = "Session invalid.";
-            return false;
-        }
-        if (targetUserId == currentUserId) {
-            lastErrorMessage = "Cannot suspend your own account.";
-            return false;
-        }
-
         Object detail = getViewAccount(targetUserId);
         if (detail == null) {
             lastErrorMessage = "Account not found.";
