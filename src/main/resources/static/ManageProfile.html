@@ -703,7 +703,10 @@
     <main class="main-content">
         <div class="topbar">
             <span class="topbar-user">Logged in as: <strong> User Admin</strong></span>
-            <a href="/logout" class="logout-btn">Logout</a>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <button type="button" class="btn btn-view" onclick="viewMyAccount()">My Account</button>
+                <a href="/logout" class="logout-btn">Logout</a>
+            </div>
         </div>
 
         <div class="tab-bar">
@@ -840,6 +843,70 @@
 </div>
 
 <script>
+    function upEscapeHtml(s) {
+        return String(s ?? '')
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#39;');
+    }
+
+    async function viewMyAccount() {
+        try {
+            const r = await fetch('/api/accounts/view', { credentials: 'same-origin' });
+            const data = await r.json().catch(() => ({}));
+            if (!r.ok || data?.error) throw new Error(data?.error || 'Failed to load account');
+
+            const d = data || {};
+            const labels = {
+                username: 'Username',
+                full_name: 'Full Name',
+                email: 'Email',
+                phone_number: 'Phone Number',
+                a_status: 'Account Status',
+                roleName: 'Role'
+            };
+            const rows = [
+                ['username',     d.username     ?? '-'],
+                ['full_name',    d.full_name    ?? '-'],
+                ['email',        d.email        ?? '-'],
+                ['phone_number', d.phone_number ?? '-'],
+                ['a_status',     d.a_status     ?? '-'],
+                ['roleName',     d.roleName     ?? '-'],
+            ];
+
+            const tableHtml = `
+                <div class="table-wrap">
+                    <table style="min-width:0;" aria-label="My account detail">
+                        <thead>
+                            <tr>
+                                <th style="width:180px;">Field</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rows.map(([k, v]) => `
+                                <tr>
+                                    <td class="muted" style="font-weight:600;">${upEscapeHtml(labels[k] ?? k)}</td>
+                                    <td>${upEscapeHtml(String(v))}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>`;
+
+            const msgEl = document.getElementById('up-note-message');
+            if (msgEl) msgEl.innerHTML = tableHtml;
+            const titleEl = document.getElementById('up-note-title');
+            if (titleEl) titleEl.textContent = 'My Account';
+            document.getElementById('up-note-backdrop')?.classList.add('open');
+            document.getElementById('up-note-modal')?.classList.add('open');
+        } catch (e) {
+            upNoteOpen('Failed to load your account information.', 'Notice');
+        }
+    }
+
     function showToast(msg) {
         const t = document.getElementById('up-toast');
         t.textContent = msg;

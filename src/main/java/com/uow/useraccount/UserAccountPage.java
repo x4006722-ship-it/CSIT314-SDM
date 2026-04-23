@@ -1,4 +1,4 @@
-package com.uow.boundary;
+package com.uow.useraccount;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -12,17 +12,26 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.uow.control.UserAccountController;
-
 import jakarta.servlet.http.HttpSession;
 
 @Controller
-public class UserAccountUI {
+public class UserAccountPage {
 
     @Autowired
-    private UserAccountController userAccountController;
+    private CreateUserAccountController createUserAccountController;
 
-    //Common methods for User Account
+    @Autowired
+    private ViewUserAccountController viewUserAccountController;
+
+    @Autowired
+    private UpdateUserAccountController updateUserAccountController;
+
+    @Autowired
+    private SuspendUserAccountController suspendUserAccountController;
+
+    @Autowired
+    private SearchUserAccountController searchUserAccountController;
+
     public String showAccountPage() {
         return "forward:/ManageAccount.html";
     }
@@ -33,17 +42,9 @@ public class UserAccountUI {
     }
 
     public String showAccountErrorMessage(String message) {
-        String msg;
-        if (message == null || message.isBlank()) {
-            String err = userAccountController.errorMessage;
-            msg = err == null || err.isBlank() ? "" : err;
-        } else {
-            msg = message;
-        }
+        String msg = message == null || message.isBlank() ? "" : message;
         return "redirect:/ManageAccount.html?toast=" + URLEncoder.encode(msg, StandardCharsets.UTF_8);
     }
-    //Common methods for User Account
-
 
     //Create Account
     @PostMapping(path = "/api/accounts/create", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
@@ -54,28 +55,37 @@ public class UserAccountUI {
                                   @RequestParam(value = "phone", defaultValue = "") String phoneNumber,
                                   @RequestParam(value = "profileId", defaultValue = "0") int profileID,
                                   @RequestParam(value = "accountStatus", defaultValue = "") String accountStatus) {
-        userAccountController.createAccount(username, password, fullName, email, phoneNumber, profileID, accountStatus);
-        return userAccountController.ok ? showAccountSuccessMessage("Account created successfully.") : showAccountErrorMessage(null);
+        boolean ok = createUserAccountController.createAccount(username, password, fullName, email, phoneNumber, profileID, accountStatus);
+        return ok
+                ? showAccountSuccessMessage("Account created successfully.")
+                : showAccountErrorMessage(createUserAccountController.getErrorMessage());
     }
 
-    //View Account
+    //View Account — if userId is 0 (not provided), returns the logged-in user's own account
     @GetMapping("/api/accounts/view")
     @ResponseBody
-    public Object onViewAccount(@RequestParam(value = "userId", defaultValue = "0") int userID) {
-        return userAccountController.viewAccount(userID);
+    public Object onViewAccount(@RequestParam(value = "userId", defaultValue = "0") int userID, HttpSession session) {
+        if (userID <= 0) {
+            Integer sessionUserId = (Integer) session.getAttribute("userId");
+            if (sessionUserId == null || sessionUserId <= 0) {
+                return java.util.Map.of("error", "Not logged in.");
+            }
+            userID = sessionUserId;
+        }
+        return viewUserAccountController.viewAccount(userID);
     }
 
     //Update Account
     @PostMapping(path = "/api/accounts/update", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public Object onUpdateAccount(@RequestBody java.util.Map<String, Object> payload) {
-        userAccountController.updateAccount(payload);
-        if (userAccountController.ok) {
+        boolean ok = updateUserAccountController.updateAccount(payload);
+        if (ok) {
             return java.util.Map.of("success", true, "message", "Account updated successfully.");
         }
         return java.util.Map.of(
                 "success", false,
-                "error", userAccountController.errorMessage == null ? "Update failed." : userAccountController.errorMessage
+                "error", updateUserAccountController.getErrorMessage()
         );
     }
 
@@ -85,13 +95,13 @@ public class UserAccountUI {
     public Object onSuspendAccount(@RequestParam(value = "userID", defaultValue = "0") int userID, HttpSession session) {
         Integer sessionUserId = (Integer) session.getAttribute("userId");
         int currentUserId = sessionUserId == null ? 0 : sessionUserId;
-        userAccountController.suspendAccount(userID, currentUserId);
-        if (userAccountController.ok) {
+        boolean ok = suspendUserAccountController.suspendAccount(userID, currentUserId);
+        if (ok) {
             return java.util.Map.of("success", true, "message", "Account status updated successfully.");
         }
         return java.util.Map.of(
                 "success", false,
-                "error", userAccountController.errorMessage == null ? "Suspend not allowed." : userAccountController.errorMessage
+                "error", suspendUserAccountController.getErrorMessage()
         );
     }
 
@@ -104,7 +114,7 @@ public class UserAccountUI {
                                   @RequestParam(value = "phoneNumber", defaultValue = "0") int phoneNumber,
                                   @RequestParam(value = "status", defaultValue = "") String status,
                                   @RequestParam(value = "profileID", defaultValue = "0") int profileID) {
-        Object result = userAccountController.searchAccount(username, fullName, email, phoneNumber, status, profileID);
+        Object result = searchUserAccountController.searchAccount(username, fullName, email, phoneNumber, status, profileID);
         return result == null ? java.util.List.of() : result;
     }
 }
