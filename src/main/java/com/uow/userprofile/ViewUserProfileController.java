@@ -1,13 +1,12 @@
 package com.uow.userprofile;
 
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 
-@Controller
+
+@Service
 public class ViewUserProfileController {
 
-    private final UserProfile userProfile = new UserProfile();
-
-    public Object viewProfile(int profileID) {
-        return userProfile.getViewProfile(profileID);
+    public UserProfile getProfileDetails(String profileID) {
+        return UserProfile.findByID(profileID);
     }
 }

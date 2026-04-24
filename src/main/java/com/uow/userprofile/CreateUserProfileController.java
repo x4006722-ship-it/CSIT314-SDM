@@ -1,34 +1,33 @@
 package com.uow.userprofile;
 
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 
-@Controller
+import java.util.List;
+
+@Service
 public class CreateUserProfileController {
 
-    private final UserProfile userProfile = new UserProfile();
+    // Helper method specific to creation
+    private Boolean validateProfileData(String roleName) {
+        List<UserProfile> allProfiles = UserProfile.findAll(null, "all");
+        for (UserProfile profile : allProfiles) {
+            if (profile.getRoleName().equalsIgnoreCase(roleName.trim())) {
+                return false;
+            }
+        }
+        return true; 
+    }
 
-    private String errorMessage = "";
-
-    public String getErrorMessage() { return errorMessage; }
-
-    public boolean createProfile(String roleName, String status) {
-        errorMessage = "";
-
-        if (roleName == null || roleName.isBlank()) { errorMessage = "Role name is required."; return false; }
-        if (status == null || status.isBlank()) { errorMessage = "Status is required."; return false; }
-        String st = status.trim();
-        if (!st.equalsIgnoreCase("Active") && !st.equalsIgnoreCase("Suspended")) {
-            errorMessage = "Invalid status.";
-            return false;
+    public String createProfile(String roleName, String status) {
+        if (roleName == null || roleName.trim().isEmpty()) {
+            return "Role name cannot be empty";
+        }
+        if (!validateProfileData(roleName)) {
+            return "Role already exists";
         }
 
-        userProfile.roleName = roleName.trim();
-        userProfile.status = st;
-
-        if (!userProfile.saveCreateProfile()) {
-            errorMessage = userProfile.lastErrorMessage;
-            return false;
-        }
-        return true;
+        UserProfile newProfile = new UserProfile(roleName.trim(), status);
+        Boolean success = newProfile.save();
+        return success ? "Success" : "Database Error";
     }
 }
