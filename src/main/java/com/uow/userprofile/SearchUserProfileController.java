@@ -1,13 +1,13 @@
 package com.uow.userprofile;
 
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 
-@Controller
+import java.util.List;
+
+@Service
 public class SearchUserProfileController {
 
-    private final UserProfile userProfile = new UserProfile();
-
-    public Object searchProfile(String keyword, String status) {
-        return userProfile.getSearchProfile(keyword, status);
+    public List<UserProfile> searchProfiles(String keyword, String status) {
+        return UserProfile.findAll(keyword, status);
     }
 }

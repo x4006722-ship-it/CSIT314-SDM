@@ -1,25 +1,25 @@
 package com.uow.userprofile;
+import org.springframework.stereotype.Service;
 
-import org.springframework.stereotype.Controller;
 
-@Controller
+@Service
 public class SuspendUserProfileController {
 
-    private final UserProfile userProfile = new UserProfile();
-
-    private String errorMessage = "";
-
-    public String getErrorMessage() { return errorMessage; }
-
-    public boolean suspendProfile(int profileID) {
-        errorMessage = "";
-
-        if (profileID <= 0) { errorMessage = "Invalid profile."; return false; }
-
-        if (!userProfile.saveSuspendProfile(profileID)) {
-            errorMessage = userProfile.lastErrorMessage;
-            return false;
+    public String suspendProfile(String profileID) {
+        UserProfile profile = UserProfile.findByID(profileID);
+        if (profile == null) {
+            return "Profile not found";
         }
-        return true;
+
+        profile.updateStatus("Suspended");
+        return "Success";
+    }
+
+    public String reactivateProfile(String profileID) {
+        UserProfile profile = UserProfile.findByID(profileID);
+        if (profile != null) {
+            profile.updateStatus("Active");
+        }
+        return "Success";
     }
 }
