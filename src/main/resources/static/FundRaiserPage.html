@@ -44,9 +44,12 @@
     </div>
 
     <main class="main-content">
+        <p id="fra-file-hint" style="display:none; margin: 0 0 18px; padding: 12px 14px; background: #fff7e6; border: 1px solid #faad14; border-radius: 8px; font-size: 14px; color: #333;">
+            You opened this file directly. API calls are sent to <strong>http://localhost:8080</strong>. Start the Spring Boot app first, or use <strong>http://localhost:8080/FundRaiserPage.html</strong> after login.
+        </p>
         <div class="topbar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
             <div class="user-info">Logged in as: <strong>Fund Raiser</strong></div>
-            <a href="/logout" style="color: #e74c3c; text-decoration: none; font-weight: bold; border: 1px solid #e74c3c; padding: 5px 15px; border-radius: 5px;">Logout</a>
+            <a id="fra-logout" href="/logout" style="color: #e74c3c; text-decoration: none; font-weight: bold; border: 1px solid #e74c3c; padding: 5px 15px; border-radius: 5px;">Logout</a>
         </div>
 
         <div id="dashboard" class="page-section active">
@@ -141,7 +144,31 @@
     </main>
 
     <script>
-        const API_BASE_URL = '/api/fra';
+        /** When opened via file://, call the API on localhost (must match server.port, default 8080). */
+        var API_ORIGIN = (function () {
+            if (window.location.protocol === 'file:') {
+                return 'http://localhost:8080';
+            }
+            return (window.location && window.location.origin) ? window.location.origin : '';
+        })();
+        const API_BASE_URL = API_ORIGIN + '/api/fra';
+
+        function apiFetchOptions() {
+            var o = { credentials: 'include' };
+            if (window.location.protocol === 'file:') {
+                o.mode = 'cors';
+            }
+            return o;
+        }
+
+        (function initFraPage() {
+            if (window.location.protocol === 'file:') {
+                var h = document.getElementById('fra-file-hint');
+                if (h) h.style.display = 'block';
+                var lo = document.getElementById('fra-logout');
+                if (lo) lo.href = API_ORIGIN + '/logout';
+            }
+        })();
 
         function switchPage(pageId, navElement) {
             document.querySelectorAll('.page-section').forEach(page => page.classList.remove('active'));
@@ -152,8 +179,8 @@
 
         function fetchEngagementTotals() {
             Promise.all([
-                fetch(`${API_BASE_URL}/engagement/views`).then(r => r.ok ? r.json() : []),
-                fetch(`${API_BASE_URL}/engagement/favorites`).then(r => r.ok ? r.json() : [])
+                fetch(`${API_BASE_URL}/engagement/views`, apiFetchOptions()).then(r => r.ok ? r.json() : Promise.resolve([])),
+                fetch(`${API_BASE_URL}/engagement/favorites`, apiFetchOptions()).then(r => r.ok ? r.json() : Promise.resolve([]))
             ]).then(([byViews, byFavs]) => {
                 const vList = Array.isArray(byViews) ? byViews : [];
                 const fList = Array.isArray(byFavs) ? byFavs : [];
@@ -165,10 +192,17 @@
         }
 
         function fetchAllFRAs() {
-            fetch(`${API_BASE_URL}/view`)
-                .then(r => r.json())
+            fetch(`${API_BASE_URL}/view`, apiFetchOptions())
+                .then(function (r) {
+                    if (!r.ok) {
+                        return r.text().then(function (t) {
+                            throw new Error('HTTP ' + r.status + (t ? ' — ' + t.substring(0, 200) : ''));
+                        });
+                    }
+                    return r.json();
+                })
                 .then(data => { renderTable(data, 'fra-table-body', true); updateStats(data); fetchEngagementTotals(); })
-                .catch(e => { console.error(e); document.getElementById('fra-table-body').innerHTML = '<tr><td colspan="11" style="text-align:center;">Failed to connect to backend.</td></tr>'; });
+                .catch(e => { console.error(e); document.getElementById('fra-table-body').innerHTML = '<tr><td colspan="11" style="text-align:center;">' + (e.message || 'Failed to connect to backend. Is the app running? Try http://localhost:8080/FundRaiserPage.html') + '</td></tr>'; });
         }
 
         function submitFRA() {
@@ -192,7 +226,8 @@
 
             fetch(id ? `${API_BASE_URL}/update/${id}` : `${API_BASE_URL}/create`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payload),
+                ...apiFetchOptions()
             }).then(r => r.text()).then(res => {
                 if(res === "Success") { alert("Saved successfully!"); switchPage('dashboard', document.querySelectorAll('.nav-link')[0]); fetchAllFRAs(); }
                 else alert("Error: " + res);
@@ -200,15 +235,19 @@
         }
 
         function deleteFRA(id) {
-            if(confirm("Are you sure you want to delete this?")) fetch(`${API_BASE_URL}/delete/${id}`, { method: 'DELETE' }).then(() => fetchAllFRAs());
+            if(confirm("Are you sure you want to delete this?")) fetch(`${API_BASE_URL}/delete/${id}`, { method: 'DELETE', ...apiFetchOptions() }).then(() => fetchAllFRAs());
         }
 
         function searchFRAs() {
             const t = document.getElementById('search-title').value.toLowerCase();
             const s = document.getElementById('search-status').value;
             const c = document.getElementById('search-category').value;
-            fetch(`${API_BASE_URL}/view`).then(r => r.json()).then(data => {
-                let filtered = data.filter(i => (!t || (i.fraTitle && i.fraTitle.toLowerCase().includes(t))) && (!s || i.fraStatus === s) && (!c || i.categoryId == c));
+            fetch(`${API_BASE_URL}/view`, apiFetchOptions()).then(r => {
+                if (!r.ok) return Promise.resolve([]);
+                return r.json();
+            }).then(data => {
+                const list = Array.isArray(data) ? data : [];
+                let filtered = list.filter(i => (!t || (i.fraTitle && i.fraTitle.toLowerCase().includes(t))) && (!s || i.fraStatus === s) && (!c || i.categoryId == c));
                 renderTable(filtered, 'fra-table-body', true);
                 updateStats(filtered);
             });

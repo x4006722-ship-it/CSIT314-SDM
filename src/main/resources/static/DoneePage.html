@@ -4,181 +4,439 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Donee Page</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700&display=swap" rel="stylesheet">
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
+        :root {
+            --surface: #ffffff;
+            --surface-soft: #f8fafc;
+            --surface-tint: #f1f5f9;
+            --border: rgba(234, 88, 12, 0.16);
+            --border-soft: #e2e8f0;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --accent: #ea580c;
+            --accent-hover: #c2410c;
+            --accent-bright: #fb923c;
+            --accent-light: #ffedd5;
+            --accent-soft: #fed7aa;
+            --accent-ring: rgba(249, 115, 22, 0.28);
+            --danger-soft: #fef2f2;
+            --shadow: 0 20px 50px -12px rgba(15, 23, 42, 0.1);
+            --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+            --head-fg: #475569;
         }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, -apple-system, sans-serif; }
 
         body {
-            background-color: #f8f9fa;
-            color: #222;
-        }
-
-        .container {
             min-height: 100vh;
+            color: var(--text);
+            position: relative;
+            background:
+                radial-gradient(1000px 500px at 0% 0%, rgba(249, 115, 22, 0.08), transparent 55%),
+                radial-gradient(800px 400px at 100% 0%, rgba(251, 146, 60, 0.05), transparent 50%),
+                #f1f5f9;
         }
 
-        .main-content {
-            padding: 30px;
-            max-width: 1500px;
-            margin: 0 auto;
-        }
+        .container { min-height: 100vh; position: relative; z-index: 1; }
+        .main-content { padding: 30px; max-width: 1500px; margin: 0 auto; }
 
         .topbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             background: #fff;
-            padding: 15px 25px;
-            border-radius: 12px;
+            padding: 16px 26px;
+            border-radius: 14px;
+            margin-bottom: 22px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-soft);
+            border-left: 4px solid var(--accent);
+        }
+
+        .tab-bar { display: flex; gap: 12px; margin-bottom: 26px; }
+
+        .tab-btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            border: 1px solid var(--border-soft);
+            background: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            transition: color 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s;
+            color: var(--text-muted);
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+            color: #fff;
+            border-color: #ea580c;
+            box-shadow: 0 4px 14px rgba(234, 88, 12, 0.28);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: #fafafa;
+            border-color: var(--accent-soft);
+            color: var(--accent);
+        }
+
+        .admin-section {
+            background: #fff;
+            border-radius: 14px;
+            padding: 26px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-soft);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 1px solid #eaeaea;
+            border-bottom: 1px solid var(--border-soft);
+            padding-bottom: 12px;
+            position: relative;
+        }
+        .section-header::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -1px;
+            width: min(180px, 45%);
+            height: 2px;
+            border-radius: 2px;
+            background: linear-gradient(90deg, #fb923c, #f97316);
         }
 
-        .topbar-user {
-            font-size: 16px;
-            color: #666;
+        h2 { font-size: 20px; color: var(--text); letter-spacing: -0.02em; font-weight: 700; }
+
+        .action-bar { display: grid; grid-template-columns: 1fr; gap: 18px; }
+
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-soft);
+            border-radius: 8px;
+            font-size: 14px;
+            background: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-bright);
+            box-shadow: 0 0 0 3px var(--accent-ring);
         }
 
-        .topbar-user strong {
-            color: #000;
-            font-size: 17px;
+        .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
         }
-
+        .btn:active { transform: translateY(1px); }
+        .btn-black {
+            background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(234, 88, 12, 0.3);
+        }
+        .btn-black:hover {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            box-shadow: 0 6px 20px rgba(234, 88, 12, 0.35);
+        }
+        .btn-view {
+            background: var(--accent-light);
+            color: #9a3412;
+            border: 1px solid var(--accent-soft);
+            font-weight: 600;
+            box-shadow: none;
+        }
+        .btn-view:hover { background: #ffedd5; border-color: #fdba74; }
         .logout-btn {
-            border: 1px solid #ff4d4f;
-            color: #ff4d4f;
+            border: 1px solid rgba(248, 113, 113, 0.5);
+            color: #b91c1c;
+            background: var(--danger-soft);
             padding: 10px 18px;
             border-radius: 10px;
             text-decoration: none;
             font-size: 15px;
             font-weight: 600;
-            background: transparent;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
         }
-
-        .logout-btn:hover { background: #ff4d4f; color: #fff; }
-
-        .content-area {
-            padding: 0;
+        .logout-btn:hover {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
         }
+        .topbar-user { font-size: 16px; color: var(--text-muted); }
+        .topbar-user strong { color: #c2410c; font-size: 17px; font-weight: 700; }
 
-        .welcome-card {
-            background-color: #ffffff;
-            border-radius: 14px;
-            padding: 30px;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
-            margin-bottom: 25px;
+        .subsection {
+            padding: 18px;
+            border: 1px solid var(--border-soft);
+            border-radius: 12px;
+            background: #f8fafc;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
         }
-
-        .welcome-card h1 {
-            font-size: 28px;
-            margin-bottom: 12px;
-            color: #000;
-        }
-
-        .welcome-card p {
+        .subsection h3 {
             font-size: 15px;
-            color: #555;
-            line-height: 1.6;
+            margin-bottom: 10px;
+            color: #9a3412;
+            font-weight: 700;
         }
 
-        .cards {
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+        .btn-sm { padding: 8px 12px; font-size: 13px; border-radius: 8px; }
+        .btn-danger {
+            background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.38);
+        }
+        .btn-danger:hover { background: linear-gradient(135deg, #fca5a5 0%, #ef4444 100%); }
+        .btn-muted {
+            background: #e2e8f0;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+        }
+        .btn-muted:hover { background: #cbd5e1; }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            border: 1px solid var(--border-soft);
+            background: #fff;
+            color: #1e293b;
+            font-weight: 600;
+        }
+        .pill.ok { background: #ecfdf5; border-color: #6ee7b7; color: #065f46; }
+        .pill.neutral { background: #f1f5f9; color: #475569; }
+        .pill.bad { background: #fef2f2; border-color: #fca5a5; color: #991b1b; }
+
+        .table-wrap {
+            border: 1px solid var(--border-soft);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+        }
+        .table-scroll { max-height: 520px; overflow: auto; }
+
+        #fra-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 800px;
+            table-layout: fixed;
+        }
+        #fra-table thead th:nth-child(1), #fav-table thead th:nth-child(1), #hist-table thead th:nth-child(1) { width: 56px; }
+        #fra-table thead th:nth-child(4), #fav-table thead th:nth-child(4), #hist-table thead th:nth-child(4) { width: 132px; }
+        #fra-table thead th:nth-child(5), #fav-table thead th:nth-child(5), #hist-table thead th:nth-child(5) { width: 232px; text-align: center; }
+        #fra-table tbody td:nth-child(4), #fav-table tbody td:nth-child(4), #hist-table tbody td:nth-child(4) {
+            width: 132px;
+            max-width: 132px;
+            vertical-align: middle;
+        }
+        #fra-table tbody td:nth-child(5), #fav-table tbody td:nth-child(5), #hist-table tbody td:nth-child(5) {
+            text-align: center;
+            vertical-align: middle;
+            width: 232px;
+        }
+        #fav-table, #hist-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 720px;
+            table-layout: fixed;
+        }
+
+        thead th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+            border-bottom: 1px solid var(--border-soft);
+            font-size: 11px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--head-fg);
+            font-weight: 600;
+            padding: 13px 12px;
+            text-align: left;
+            white-space: nowrap;
+        }
+        tbody td {
+            padding: 12px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+            color: #1e293b;
+            vertical-align: middle;
+            background: #fff;
+        }
+        tbody tr:hover td { background: #fff7ed; }
+
+        .td-actions {
+            width: 100%;
+            box-sizing: border-box;
+            align-items: center;
+            gap: 6px;
+        }
+        #fra-table .td-actions,
+        #fav-table .td-actions {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 20px;
+            grid-template-columns: auto 84px;
+            gap: 6px;
+            align-items: center;
+            justify-content: center;
+        }
+        #hist-table .td-actions {
+            display: flex;
+            flex-wrap: nowrap;
+            justify-content: center;
+        }
+        #hist-table .td-actions button.btn-sm {
+            min-height: 28px;
+            height: 28px;
+            padding: 0 10px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 6px;
+        }
+        #fra-table .td-actions button.btn-sm,
+        #fav-table .td-actions button.btn-sm {
+            min-height: 28px;
+            height: 28px;
+            padding: 0 6px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 6px;
+            box-sizing: border-box;
+            min-width: 0;
+        }
+        #fra-table .td-actions button.btn-view.btn-sm,
+        #fav-table .td-actions button.btn-view.btn-sm {
+            width: auto;
+            padding: 0 10px;
+            justify-self: center;
+        }
+        #fra-table .td-actions .btn-danger.btn-sm,
+        #fav-table .td-actions .btn-danger.btn-sm,
+        #fra-table .td-actions button.fra-unsave.btn-sm,
+        #fav-table .td-actions button.fra-unsave.btn-sm {
+            width: 100%;
+            max-width: 84px;
+            padding: 0 4px;
+            font-size: 11px;
+            justify-self: stretch;
+            white-space: nowrap;
+        }
+        #fra-table .td-actions .btn-danger,
+        #fav-table .td-actions .btn-danger {
+            box-shadow: none;
+        }
+        #fra-table .td-actions button.fra-unsave,
+        #fav-table .td-actions button.fra-unsave {
+            background: #f8fafc;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+            cursor: pointer;
+        }
+        #fra-table .td-actions button.fra-unsave:hover,
+        #fav-table .td-actions button.fra-unsave:hover {
+            background: #f1f5f9;
+            border-color: #94a3b8;
         }
 
-        .card {
-            background-color: #ffffff;
-            border-radius: 14px;
-            padding: 24px;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+        .muted { color: var(--text-muted); font-size: 12px; }
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 14px;
+            gap: 12px;
+            border-top: 1px solid var(--border-soft);
+            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
         }
 
-        .card h2 {
-            font-size: 20px;
-            margin-bottom: 14px;
-            color: #000;
+        @media (max-width: 980px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
         }
 
-        .card ul {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .card ul li {
-            padding: 9px 0;
-            color: #444;
-            border-bottom: 1px solid #f0f0f0;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        .card ul li:last-child {
-            border-bottom: none;
-        }
-
-        .highlight-box {
-            margin-top: 25px;
-            background-color: #ffffff;
-            border-radius: 14px;
-            padding: 24px;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
-        }
-
-        .highlight-box h2 {
-            font-size: 20px;
-            margin-bottom: 12px;
-        }
-
-        .highlight-box p {
-            font-size: 14px;
-            color: #555;
-            line-height: 1.7;
-        }
-
-        @media (max-width: 1024px) {
-            .content-area {
-                padding: 28px 20px;
-            }
-        }
-
-        @media (max-width: 820px) {
+        @media (max-width: 768px) {
+            .main-content { padding: 16px; }
             .topbar {
-                padding: 14px 16px;
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 10px;
+                gap: 12px;
             }
-
-            .logout-btn {
-                width: 100%;
-            }
-
-            .content-area {
-                padding: 18px 16px;
-            }
-
-            .cards {
-                grid-template-columns: 1fr;
-            }
+            .admin-section { padding: 16px; }
         }
 
-        @media (max-width: 480px) {
-            .welcome-card,
-            .card,
-            .highlight-box {
-                padding: 16px;
-            }
-
-            .welcome-card h1 {
-                font-size: 22px;
-            }
+        .modal-backdrop {
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45);
+            display: none; z-index: 1200; align-items: center; justify-content: center; padding: 20px;
         }
+        .modal-backdrop.open { display: flex; }
+        .modal-card {
+            background: #fff; border-radius: 14px; max-width: 560px; width: 100%;
+            max-height: 86vh; overflow: auto; box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15);
+            border: 1px solid var(--border-soft);
+        }
+        .modal-card header {
+            padding: 16px 20px; border-bottom: 1px solid var(--border-soft);
+            font-weight: 700; color: #0f172a; display: flex; justify-content: space-between; align-items: center;
+            background: #fafafa;
+        }
+        .modal-card .modal-body { padding: 0; font-size: 14px; }
+        .fra-view-detail { display: flex; flex-direction: column; }
+        .fra-view-row {
+            display: grid;
+            grid-template-columns: minmax(120px, 38%) 1fr;
+            gap: 8px 16px;
+            padding: 12px 18px;
+            border-bottom: 1px solid #f1f5f9;
+            align-items: start;
+        }
+        .fra-view-row:last-child { border-bottom: none; }
+        .fra-view-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding-top: 2px;
+        }
+        .fra-view-value {
+            font-size: 15px;
+            color: #0f172a;
+            font-weight: 500;
+            line-height: 1.45;
+            word-break: break-word;
+        }
+
+        .donee-toast {
+            position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(120%);
+            z-index: 3000; max-width: min(90vw, 420px); padding: 12px 18px; border-radius: 12px;
+            font-size: 14px; font-weight: 600; text-align: center;
+            box-shadow: 0 10px 40px rgba(15, 23, 42, 0.22); border: 1px solid rgba(255,255,255,0.12);
+            opacity: 0; pointer-events: none; transition: transform 0.28s ease, opacity 0.28s ease;
+        }
+        .donee-toast.visible { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .donee-toast.ok { background: linear-gradient(135deg, #c2410c, #9a3412); color: #fff; border-color: rgba(254, 215, 170, 0.45); }
+        .donee-toast.err { background: linear-gradient(135deg, #b91c1c, #7f1d1d); color: #fff; }
     </style>
 </head>
 <body>
@@ -186,55 +444,724 @@
     <main class="main-content">
         <div class="topbar">
             <span class="topbar-user">Logged in as: <strong>Donee</strong></span>
-            <a href="/logout" class="logout-btn">Logout</a>
+            <a href="/logout" class="logout-btn" id="donee-logout">Logout</a>
+        </div>
+        <p id="file-open-hint" style="display:none; margin: -10px 0 18px; padding: 12px 14px; background: #fff7ed; border: 1px solid #fdba74; border-radius: 10px; font-size: 14px; color: #431407;">
+            This page was opened as a <strong>local file</strong>. Requests go to <code>http://localhost:8080</code> with cookies (CORS).
+            If My history or favourites look empty, sign in on the server first, then prefer
+            <strong><a href="http://localhost:8080/DoneePage.html" style="color:#c2410c;">http://localhost:8080/DoneePage.html</a></strong> (same site as the API).
+        </p>
+
+        <div class="tab-bar">
+            <button class="tab-btn active" type="button" id="tab-browse">Browse FRA</button>
+            <button class="tab-btn" type="button" id="tab-fav">My favourites</button>
+            <button class="tab-btn" type="button" id="tab-hist">My donation</button>
         </div>
 
-        <div class="content-area">
-            <div class="welcome-card">
-                <h1>Welcome back, Donee</h1>
-                <p>
-                    This page allows you to search and view fundraising service activities, save interesting campaigns
-                    into your favorite list, and review donation history and fundraising progress by category and date period.
-                </p>
+        <div id="panel-browse">
+            <div class="admin-section">
+                <div class="section-header">
+                    <h2>Browse FRA</h2>
+                </div>
+                <div class="action-bar">
+                    <div class="subsection">
+                        <h3>Search FRA</h3>
+                        <div class="grid-3" style="margin-bottom: 12px;">
+                            <div class="form-group">
+                                <label for="fra-search-q">Title</label>
+                                <input id="fra-search-q" type="text" autocomplete="off">
+                            </div>
+                            <div class="form-group">
+                                <label for="fra-filter-category">Category</label>
+                                <select id="fra-filter-category" data-filter-select>
+                                    <option value="all">All</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="fra-filter-status">FRA status</label>
+                                <select id="fra-filter-status" data-filter-select>
+                                    <option value="all">All</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Completed">Completed</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <button type="button" class="btn btn-black" id="fra-search-btn">Search</button>
+                            <button type="button" class="btn btn-muted" id="fra-search-clear">Clear</button>
+                        </div>
+
+                        <div class="table-wrap" style="margin-top: 16px;">
+                            <div class="table-scroll">
+                                <table id="fra-table" aria-label="FRA list">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Title</th>
+                                            <th>Category</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="fra-tbody">
+                                        <tr>
+                                            <td colspan="5" class="muted" style="text-align: center;">Loading…</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="pagination">
+                                <div class="muted" id="fra-count">—</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </div>
 
-            <div class="cards">
-                <div class="card">
-                    <h2>Campaign Discovery</h2>
-                    <ul>
-                        <li>Search FSA to find relevant campaigns</li>
-                        <li>View FSA to see activity details</li>
-                        <li>Save FSA into favorite list to bookmark interesting activities</li>
-                    </ul>
+        <div id="panel-fav" hidden>
+            <div class="admin-section">
+                <div class="section-header">
+                    <h2>My Favourites</h2>
                 </div>
-
-                <div class="card">
-                    <h2>Favorite List Functions</h2>
-                    <ul>
-                        <li>Search FSA in favorite list to filter saved activities</li>
-                        <li>View FSA in favorite list to check saved activity details</li>
-                    </ul>
-                </div>
-
-                <div class="card">
-                    <h2>Donation Review</h2>
-                    <ul>
-                        <li>Search donation history and progress of FSA by FSA categories and date period</li>
-                        <li>View donation history and progress of FSA by FSA categories and date period</li>
-                    </ul>
+                <div class="action-bar">
+                    <div class="subsection">
+                        <h3>Search in my favourites</h3>
+                        <div class="grid-3" style="margin-bottom: 12px;">
+                            <div class="form-group">
+                                <label for="fav-search-q">Title</label>
+                                <input id="fav-search-q" type="text" autocomplete="off">
+                            </div>
+                            <div class="form-group">
+                                <label for="fav-filter-category">Category</label>
+                                <select id="fav-filter-category" data-filter-select>
+                                    <option value="all">All</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="fav-filter-status">FRA status</label>
+                                <select id="fav-filter-status" data-filter-select>
+                                    <option value="all">All</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Completed">Completed</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <button type="button" class="btn btn-black" id="fav-search-btn">Search</button>
+                            <button type="button" class="btn btn-muted" id="fav-search-clear">Clear</button>
+                        </div>
+                        <div class="table-wrap" style="margin-top: 16px;">
+                            <div class="table-scroll">
+                                <table id="fav-table" aria-label="Favourite FRA list">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Title</th>
+                                            <th>Category</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="fav-tbody">
+                                        <tr><td colspan="5" class="muted" style="text-align:center;">—</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="pagination">
+                                <div class="muted" id="fav-count">—</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <div class="highlight-box">
-                <h2>Donee Responsibilities</h2>
-                <p>
-                    As a donee, you can explore suitable fundraising activities, keep track of your saved campaigns,
-                    and review donation history together with fundraising progress. Use the menu on the left to move
-                    between campaign browsing, favorite list management, and donation review functions.
-                </p>
+        <div id="panel-hist" hidden>
+            <div class="admin-section">
+                <div class="section-header">
+                    <h2>My Donation</h2>
+                </div>
+                <div class="action-bar">
+                    <div class="subsection">
+                        <h3>Search in my donation</h3>
+                            <div class="grid-3" style="margin-bottom: 12px;">
+                            <div class="form-group">
+                                <label for="hist-search-q">Title</label>
+                                <input id="hist-search-q" type="text" autocomplete="off">
+                            </div>
+                            <div class="form-group">
+                                <label for="hist-filter-category">Category</label>
+                                <select id="hist-filter-category" data-filter-select>
+                                    <option value="all">All</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="hist-filter-status">FRA status</label>
+                                <select id="hist-filter-status" data-filter-select>
+                                    <option value="all">All</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Completed">Completed</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom: 12px;">
+                            <button type="button" class="btn btn-black" id="hist-search-btn" style="background:linear-gradient(135deg,#c2410c,#f97316);">Search</button>
+                            <button type="button" class="btn btn-muted" id="hist-clear-btn">Clear</button>
+                        </div>
+                        <div class="table-wrap" style="margin-top: 16px;">
+                            <div class="table-scroll">
+                                <table id="hist-table" aria-label="My FRA history">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Title</th>
+                                            <th>Category</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="hist-tbody">
+                                        <tr><td colspan="5" class="muted" style="text-align:center;">—</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="pagination">
+                                <div class="muted" id="hist-count">—</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
 </div>
+<div id="fra-view-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="fra-view-title">
+    <div class="modal-card">
+        <header>
+            <span id="fra-view-title">FRA details</span>
+            <button type="button" class="btn btn-muted btn-sm" id="fra-view-close">Close</button>
+        </header>
+        <div class="modal-body" id="fra-view-body"></div>
+    </div>
+</div>
+<div id="donee-toast" class="donee-toast" role="status" aria-live="polite" aria-atomic="true"></div>
+<script>
+(function () {
+    var API_BASE = (function () {
+        if (window.location.protocol === 'file:') {
+            return 'http://localhost:8080';
+        }
+        return '';
+    })();
+    if (window.location.protocol === 'file:') {
+        var h = document.getElementById('file-open-hint');
+        if (h) h.style.display = 'block';
+    }
+    if (API_BASE) {
+        var lo = document.getElementById('donee-logout');
+        if (lo) lo.href = API_BASE + '/logout';
+    }
+    var panelBrowse = document.getElementById('panel-browse');
+    var panelFav = document.getElementById('panel-fav');
+    var panelHist = document.getElementById('panel-hist');
+    var tabBrowse = document.getElementById('tab-browse');
+    var tabFav = document.getElementById('tab-fav');
+    var tabHist = document.getElementById('tab-hist');
+    function switchPanel(which) {
+        var isBrowse = which === 'browse';
+        var isFav = which === 'fav';
+        var isHist = which === 'hist';
+        panelBrowse.hidden = !isBrowse;
+        panelFav.hidden = !isFav;
+        if (panelHist) panelHist.hidden = !isHist;
+        tabBrowse.classList.toggle('active', isBrowse);
+        tabFav.classList.toggle('active', isFav);
+        if (tabHist) tabHist.classList.toggle('active', isHist);
+        if (isBrowse) loadBrowse();
+        else if (isFav) loadFavourites();
+        else if (isHist) loadHistorySearch();
+    }
+    tabBrowse.addEventListener('click', function () { switchPanel('browse'); });
+    tabFav.addEventListener('click', function () { switchPanel('fav'); });
+    if (tabHist) tabHist.addEventListener('click', function () { switchPanel('hist'); });
+    function apiUrl(path) {
+        if (!path || path.charAt(0) !== '/') {
+            path = '/' + (path || '');
+        }
+        var base = API_BASE;
+        if (!base && typeof window !== 'undefined' && window.location && window.location.origin) {
+            base = window.location.origin;
+        }
+        return base + path;
+    }
+    function fetchOptions(extra) {
+        var o = { mode: API_BASE ? 'cors' : 'same-origin' };
+        o.credentials = 'include';
+        if (extra) {
+            for (var k in extra) {
+                if (Object.prototype.hasOwnProperty.call(extra, k)) {
+                    o[k] = extra[k];
+                }
+            }
+        }
+        return o;
+    }
+
+    var doneeToastTimer;
+    function showToast(msg, kind) {
+        var el = document.getElementById('donee-toast');
+        if (!el) return;
+        el.textContent = msg;
+        el.className = 'donee-toast ' + (kind === 'err' ? 'err' : 'ok');
+        requestAnimationFrame(function () { el.classList.add('visible'); });
+        clearTimeout(doneeToastTimer);
+        doneeToastTimer = setTimeout(function () { el.classList.remove('visible'); }, 3200);
+    }
+
+    function escapeHtml(s) {
+        if (s == null) return '';
+        return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function statusPill(status) {
+        var s = (status || '').toLowerCase();
+        var cls = 'pill';
+        if (s === 'active' || s === 'approved' || s === 'completed') cls = 'pill ok';
+        else if (s === 'closed' || s === 'suspended' || s === 'rejected' || s === 'cancelled') cls = 'pill bad';
+        else cls = 'pill neutral';
+        return '<span class="' + cls + '">' + escapeHtml(status) + '</span>';
+    }
+
+    function fillFilterSelect(id, values) {
+        var sel = document.getElementById(id);
+        if (!sel) return;
+        var keep = sel.value;
+        while (sel.options.length > 1) {
+            sel.remove(1);
+        }
+        (values || []).forEach(function (v) {
+            if (v == null || v === '') return;
+            var o = document.createElement('option');
+            o.value = v;
+            o.textContent = v;
+            sel.appendChild(o);
+        });
+        var found = false;
+        for (var i = 0; i < sel.options.length; i++) {
+            if (sel.options[i].value === keep) { found = true; break; }
+        }
+        sel.value = found ? keep : 'all';
+    }
+
+    function addCategoryOptionToBoth(name) {
+        if (!name || name === '—') return;
+        var v = String(name).trim();
+        if (!v) return;
+        ['fra-filter-category', 'fav-filter-category', 'hist-filter-category'].forEach(function (id) {
+            var sel = document.getElementById(id);
+            if (!sel) return;
+            for (var i = 0; i < sel.options.length; i++) {
+                if (sel.options[i].value === v) return;
+            }
+            var o = document.createElement('option');
+            o.value = v;
+            o.textContent = v;
+            sel.appendChild(o);
+        });
+    }
+    function mergeCategoryDropdownsFromRows(rows) {
+        if (!rows || !rows.length) return;
+        rows.forEach(function (row) {
+            if (row.category != null && row.category !== '—') {
+                addCategoryOptionToBoth(row.category);
+            }
+        });
+    }
+
+    function buildFavQuery() {
+        var title = (document.getElementById('fav-search-q').value || '').trim();
+        var fraStatus = (document.getElementById('fav-filter-status').value || 'all').trim();
+        var categoryName = (document.getElementById('fav-filter-category').value || 'all').trim();
+        return apiUrl('/api/donee/favourites/search?title=' + encodeURIComponent(title)
+            + '&fraStatus=' + encodeURIComponent(fraStatus)
+            + '&categoryName=' + encodeURIComponent(categoryName));
+    }
+
+    function buildBrowseQuery() {
+        var title = (document.getElementById('fra-search-q').value || '').trim();
+        var fraStatus = (document.getElementById('fra-filter-status').value || 'all').trim();
+        var categoryName = (document.getElementById('fra-filter-category').value || 'all').trim();
+        return apiUrl('/api/donee/fra/browse?title=' + encodeURIComponent(title)
+            + '&fraStatus=' + encodeURIComponent(fraStatus)
+            + '&categoryName=' + encodeURIComponent(categoryName));
+    }
+
+    function renderFraRows(rows) {
+        var tbody = document.getElementById('fra-tbody');
+        var countEl = document.getElementById('fra-count');
+        if (!rows || !rows.length) {
+            tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">No FRA match your search.</td></tr>';
+            countEl.textContent = '0 FRA';
+            return;
+        }
+        tbody.innerHTML = rows.map(function (row) {
+            var id = row.fra_id;
+            var saved = row.saved === true || row.saved === 'true' || row.saved === 1;
+            var saveBtn = saved
+                ? '<button type="button" class="btn btn-sm fra-unsave" data-action="unsave" data-id="' + escapeHtml(String(id)) + '" title="Remove from your favourites">Unsave</button>'
+                : '<button type="button" class="btn btn-danger btn-sm" data-action="fav" data-id="' + escapeHtml(String(id)) + '">Save</button>';
+            return '<tr>' +
+                '<td>' + escapeHtml(String(id)) + '</td>' +
+                '<td>' + escapeHtml(row.title) + '</td>' +
+                '<td>' + escapeHtml(row.category != null ? row.category : '—') + '</td>' +
+                '<td>' + statusPill(row.status) + '</td>' +
+                '<td><div class="td-actions">' +
+                '<button type="button" class="btn btn-view btn-sm" data-action="view" data-id="' + escapeHtml(String(id)) + '">View</button>' +
+                saveBtn +
+                '</div></td>' +
+                '</tr>';
+        }).join('');
+        countEl.textContent = rows.length + (rows.length === 1 ? ' FRA' : ' FRAs');
+    }
+
+    function renderFavRows(rows) {
+        var tbody = document.getElementById('fav-tbody');
+        var countEl = document.getElementById('fav-count');
+        if (!rows || !rows.length) {
+            tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">No favourites match this search.</td></tr>';
+            countEl.textContent = '0 FRA';
+            return;
+        }
+        tbody.innerHTML = rows.map(function (row) {
+            var id = row.fra_id;
+            return '<tr>' +
+                '<td>' + escapeHtml(String(id)) + '</td>' +
+                '<td>' + escapeHtml(row.title) + '</td>' +
+                '<td>' + escapeHtml(row.category != null ? row.category : '—') + '</td>' +
+                '<td>' + statusPill(row.status) + '</td>' +
+                '<td><div class="td-actions">' +
+                '<button type="button" class="btn btn-view btn-sm" data-action="view" data-id="' + escapeHtml(String(id)) + '">View</button>' +
+                '<button type="button" class="btn btn-sm fra-unsave" data-action="unsave" data-id="' + escapeHtml(String(id)) + '" title="Remove from your favourites">Unsave</button>' +
+                '</div></td></tr>';
+        }).join('');
+        countEl.textContent = rows.length + (rows.length === 1 ? ' FRA' : ' FRAs');
+    }
+
+    async function loadFavourites(silent) {
+        var tbody = document.getElementById('fav-tbody');
+        var countEl = document.getElementById('fav-count');
+        if (!silent) {
+            tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">Loading…</td></tr>';
+            countEl.textContent = '—';
+        }
+        try {
+            var r = await fetch(buildFavQuery(), fetchOptions());
+            var data = await r.json();
+            if (!r.ok) {
+                if (!silent) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">HTTP ' + r.status + ' — could not load favourites.</td></tr>';
+                } else {
+                    showToast('Could not refresh favourites (HTTP ' + r.status + ').', 'err');
+                }
+                return;
+            }
+            if (data && data.error) {
+                if (!silent) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">' + escapeHtml(String(data.error)) + '</td></tr>';
+                    countEl.textContent = '—';
+                } else {
+                    showToast(String(data.error), 'err');
+                }
+                return;
+            }
+            var rows = Array.isArray(data) ? data : (data && data.rows);
+            if (!Array.isArray(rows)) {
+                if (!silent) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">Could not load favourites (unexpected response).</td></tr>';
+                } else {
+                    showToast('Could not refresh favourites.', 'err');
+                }
+                return;
+            }
+            renderFavRows(rows);
+            mergeCategoryDropdownsFromRows(rows);
+        } catch (e) {
+            if (!silent) {
+                tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">' + escapeHtml(e.message || 'Request failed') + '</td></tr>';
+            } else {
+                showToast(e.message || 'Request failed', 'err');
+            }
+        }
+    }
+
+    async function loadBrowse(silent) {
+        var tbody = document.getElementById('fra-tbody');
+        var countEl = document.getElementById('fra-count');
+        if (!silent) {
+            tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">Loading…</td></tr>';
+            countEl.textContent = '—';
+        }
+        try {
+            var r = await fetch(buildBrowseQuery(), fetchOptions());
+            var data = await r.json();
+            if (!r.ok) {
+                if (!silent) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">HTTP ' + r.status + ' — could not load FRA list.</td></tr>';
+                } else {
+                    showToast('Could not refresh list (HTTP ' + r.status + ').', 'err');
+                }
+                return;
+            }
+            var rows = Array.isArray(data) ? data : (data && data.rows);
+            if (data && data.error) {
+                if (!silent) {
+                    var msg = escapeHtml(String(data.error));
+                    tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">' + msg + '</td></tr>';
+                } else {
+                    showToast(String(data.error), 'err');
+                }
+                return;
+            }
+            if (!Array.isArray(rows)) {
+                if (!silent) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">Could not load FRA list (unexpected response).</td></tr>';
+                } else {
+                    showToast('Could not refresh list.', 'err');
+                }
+                return;
+            }
+            renderFraRows(rows);
+            mergeCategoryDropdownsFromRows(rows);
+        } catch (e) {
+            if (!silent) {
+                tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">' + escapeHtml(e.message || 'Request failed') + '</td></tr>';
+            } else {
+                showToast(e.message || 'Request failed', 'err');
+            }
+        }
+    }
+
+    function openFraViewModal(data) {
+        if (data.error) {
+            showToast(String(data.error), 'err');
+            return;
+        }
+        var titleEl = document.getElementById('fra-view-title');
+        var body = document.getElementById('fra-view-body');
+        titleEl.textContent = 'FRA details';
+        var rows = [
+            ['Title', data.title],
+            ['Status', data.status],
+            ['Create At', data.createAt],
+            ['View count', data.viewCount],
+            ['Favourite count', data.favouriteCount],
+            ['Current amount', data.currentAmount],
+            ['Donee', data.doneeName]
+        ];
+        body.innerHTML = '<div class="fra-view-detail">' + rows.map(function (r) {
+            var v = r[1];
+            if (v === null || v === undefined) v = '—';
+            return '<div class="fra-view-row"><div class="fra-view-label">' + escapeHtml(r[0]) + '</div>' +
+                '<div class="fra-view-value">' + escapeHtml(String(v)) + '</div></div>';
+        }).join('') + '</div>';
+        document.getElementById('fra-view-backdrop').classList.add('open');
+    }
+
+    async function viewFra(fraId, viewPath) {
+        var path = viewPath || '/api/donee/fra/view';
+        try {
+            var r = await fetch(apiUrl(path + '?fraId=' + encodeURIComponent(fraId)), fetchOptions());
+            var data = await r.json();
+            openFraViewModal(data);
+        } catch (e) {
+            showToast(e.message || 'View failed', 'err');
+        }
+    }
+
+    async function saveFavourite(fraId) {
+        try {
+            var r = await fetch(apiUrl('/api/donee/favourites/save'), fetchOptions({
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'fraId=' + encodeURIComponent(fraId)
+            }));
+            var data = await r.json();
+            if (data.success) {
+                showToast(data.message || 'Saved to your favourites.', 'ok');
+                loadBrowse(true);
+                if (panelFav && !panelFav.hidden) {
+                    loadFavourites(true);
+                }
+                if (panelHist && !panelHist.hidden) {
+                    loadHistorySearch();
+                }
+            } else {
+                showToast(data.error || 'Save failed', 'err');
+            }
+        } catch (e) {
+            showToast(e.message || 'Save failed', 'err');
+        }
+    }
+
+    async function removeFavourite(fraId) {
+        try {
+            var r = await fetch(apiUrl('/api/donee/favourites/save'), fetchOptions({
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'fraId=' + encodeURIComponent(fraId) + '&remove=true'
+            }));
+            var data = await r.json();
+            if (data.success) {
+                showToast(data.message || 'Removed from your favourites.', 'ok');
+                loadBrowse(true);
+                if (panelFav && !panelFav.hidden) {
+                    loadFavourites(true);
+                }
+                if (panelHist && !panelHist.hidden) {
+                    loadHistorySearch();
+                }
+            } else {
+                showToast(data.error || 'Unsave failed', 'err');
+            }
+        } catch (e) {
+            showToast(e.message || 'Unsave failed', 'err');
+        }
+    }
+
+    function runSearch() { loadBrowse(); }
+    function clearAllFilters() {
+        document.getElementById('fra-search-q').value = '';
+        document.getElementById('fra-filter-category').value = 'all';
+        document.getElementById('fra-filter-status').value = 'all';
+        loadBrowse();
+    }
+    function clearFavFilters() {
+        document.getElementById('fav-search-q').value = '';
+        document.getElementById('fav-filter-category').value = 'all';
+        document.getElementById('fav-filter-status').value = 'all';
+        loadFavourites();
+    }
+
+    function buildHistorySearchUrl() {
+        var title = (document.getElementById('hist-search-q').value || '').trim();
+        var categoryName = (document.getElementById('hist-filter-category').value || 'all').trim();
+        var fraStatus = (document.getElementById('hist-filter-status').value || 'all').trim();
+        return apiUrl('/api/donee/history/search?title=' + encodeURIComponent(title)
+            + '&categoryName=' + encodeURIComponent(categoryName)
+            + '&fraStatus=' + encodeURIComponent(fraStatus));
+    }
+    function renderHistRows(rows) {
+        var tbody = document.getElementById('hist-tbody');
+        var countEl = document.getElementById('hist-count');
+        if (!rows || !rows.length) {
+            tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">No FRAs in this range.</td></tr>';
+            countEl.textContent = '0 FRA';
+            return;
+        }
+        tbody.innerHTML = rows.map(function (row) {
+            var id = row.fra_id;
+            return '<tr>' +
+                '<td>' + escapeHtml(String(id)) + '</td>' +
+                '<td>' + escapeHtml(row.title) + '</td>' +
+                '<td>' + escapeHtml(row.category != null ? row.category : '—') + '</td>' +
+                '<td>' + statusPill(row.status) + '</td>' +
+                '<td><div class="td-actions">' +
+                '<button type="button" class="btn btn-view btn-sm" data-action="view" data-id="' + escapeHtml(String(id)) + '">View</button>' +
+                '</div></td></tr>';
+        }).join('');
+        countEl.textContent = rows.length + (rows.length === 1 ? ' FRA' : ' FRAs');
+        mergeCategoryDropdownsFromRows(rows);
+    }
+    async function loadHistorySearch() {
+        var tbody = document.getElementById('hist-tbody');
+        var countEl = document.getElementById('hist-count');
+        tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">Loading…</td></tr>';
+        countEl.textContent = '—';
+        try {
+            var r = await fetch(buildHistorySearchUrl(), fetchOptions());
+            var data = await r.json();
+            if (!r.ok) {
+                tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">HTTP ' + r.status + '</td></tr>';
+                return;
+            }
+            if (data && data.error) {
+                tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">' + escapeHtml(String(data.error)) + '</td></tr>';
+                countEl.textContent = '—';
+                return;
+            }
+            var rows = Array.isArray(data) ? data : (data && data.rows);
+            if (!Array.isArray(rows)) {
+                tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">Unexpected response.</td></tr>';
+                return;
+            }
+            renderHistRows(rows);
+        } catch (e) {
+            tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">' + escapeHtml(e.message || 'Request failed') + '</td></tr>';
+        }
+    }
+    function clearHistFilters() {
+        document.getElementById('hist-search-q').value = '';
+        document.getElementById('hist-filter-category').value = 'all';
+        document.getElementById('hist-filter-status').value = 'all';
+        loadHistorySearch();
+    }
+
+    document.getElementById('fra-search-btn').addEventListener('click', runSearch);
+    document.getElementById('fra-search-clear').addEventListener('click', clearAllFilters);
+    document.getElementById('fra-search-q').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); runSearch(); }
+    });
+    document.getElementById('fra-view-close').addEventListener('click', function () {
+        document.getElementById('fra-view-backdrop').classList.remove('open');
+    });
+    document.getElementById('fra-view-backdrop').addEventListener('click', function (e) {
+        if (e.target.id === 'fra-view-backdrop') { document.getElementById('fra-view-backdrop').classList.remove('open'); }
+    });
+
+    document.getElementById('fra-tbody').addEventListener('click', function (e) {
+        var btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        var id = btn.getAttribute('data-id');
+        var act = btn.getAttribute('data-action');
+        if (act === 'view') {
+            viewFra(id, '/api/donee/fra/view');
+        } else if (act === 'unsave') {
+            removeFavourite(id);
+        } else {
+            saveFavourite(id);
+        }
+    });
+    document.getElementById('fav-search-btn').addEventListener('click', loadFavourites);
+    document.getElementById('fav-search-clear').addEventListener('click', clearFavFilters);
+    document.getElementById('fav-search-q').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); loadFavourites(); }
+    });
+    document.getElementById('fav-tbody').addEventListener('click', function (e) {
+        var u = e.target.closest('button[data-action="unsave"]');
+        if (u) {
+            removeFavourite(u.getAttribute('data-id'));
+            return;
+        }
+        var v = e.target.closest('button[data-action="view"]');
+        if (v) viewFra(v.getAttribute('data-id'), '/api/donee/favourites/view');
+    });
+    document.getElementById('hist-search-btn').addEventListener('click', loadHistorySearch);
+    document.getElementById('hist-clear-btn').addEventListener('click', clearHistFilters);
+    document.getElementById('hist-search-q').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); loadHistorySearch(); }
+    });
+    document.getElementById('hist-tbody').addEventListener('click', function (e) {
+        var v = e.target.closest('button[data-action="view"]');
+        if (v) viewFra(v.getAttribute('data-id'), '/api/donee/fra/view');
+    });
+
+    loadBrowse();
+})();
+</script>
 </body>
 </html>

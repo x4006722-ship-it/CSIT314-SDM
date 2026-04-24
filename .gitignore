@@ -23,19 +23,19 @@
 hs_err_pid*
 replay_pid*
 
-# 忽略编译生成的文件夹
+# Build output
 /target/
 
-# 忽略 VS Code 自动生成的配置
+# IDE / editor project files
 .vscode/
 .settings/
 .classpath
 .project
 
-# 忽略日志文件
+# Logs
 *.log
 
-# 忽略临时文件
+# Temp
 *.tmp
 
 *.sql

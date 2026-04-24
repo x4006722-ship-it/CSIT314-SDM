@@ -25,14 +25,14 @@ public class FRA {
 
     public FRA() {}
 
-    // 👇 修改：包含所有新字段的构造函数
+    /** Full constructor including extended fields (dates, donee). */
     public FRA(String fraId, String title, Double target, String categoryId, String status, double currentAmount, int viewCount, int favoriteCount, String createdAt, String endedAt, String doneeId, String doneeName) {
         this.fraId = fraId;
         this.fraTitle = title;
         this.fraTargetAmount = target;
         this.categoryId = categoryId;
         
-        // 强制规范状态为 Pending 或 Completed
+        // Normalise status to Pending or Completed
         this.fraStatus = "Completed".equalsIgnoreCase(status) ? "Completed" : "Pending"; 
         
         this.currentAmount = currentAmount;
@@ -66,7 +66,7 @@ public class FRA {
     public int getFavoriteCount() { return favoriteCount; }
     public void setFavoriteCount(int favoriteCount) { this.favoriteCount = favoriteCount; }
 
-    // 👇 新增的 Getters & Setters
+    // Getters and setters for date and donee fields
     public String getCreatedAt() { return createdAt; }
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
     public String getEndedAt() { return endedAt; }
@@ -77,14 +77,14 @@ public class FRA {
     public void setDoneeName(String doneeName) { this.doneeName = doneeName; }
 
     public Boolean saveFRA() {
-        // 👇 修改：加入真实日期列和 donee_id
+        // INSERT with date columns and donee_id
         String sql = "INSERT INTO fra (fra_title, fra_targetAmount, category_id, fra_status, current_amount, fra_viewCount, fra_favouriteCount, fra_createdAt, fra_endedAt, donee_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBUtils.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, this.fraTitle);
             pstmt.setDouble(2, this.fraTargetAmount);
             pstmt.setString(3, this.categoryId);
-            pstmt.setString(4, "Pending"); // 新建强制为 Pending
+            pstmt.setString(4, "Pending"); // new rows always start as Pending
             pstmt.setDouble(5, 0.0);
             pstmt.setInt(6, 0);
             pstmt.setInt(7, 0);
@@ -100,7 +100,7 @@ public class FRA {
 
     public static List<FRA> findFRAsByCriteria(String criteria) {
         List<FRA> list = new ArrayList<>();
-        // 👇 修改：加入 LEFT JOIN 联表查询 donee 名字
+        // LEFT JOIN donee for donee_name
         String sql = "SELECT f.*, d.donee_name AS donee_name FROM fra f LEFT JOIN donee d ON f.donee_id = d.donee_id WHERE f.fra_title LIKE ?";
         try (Connection conn = DBUtils.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -205,7 +205,7 @@ public class FRA {
 
     public static List<FRA> findAllFRAs() {
         List<FRA> list = new ArrayList<>();
-        // 👇 修改：加入 LEFT JOIN 联表查询 donee 名字
+        // LEFT JOIN donee for donee_name
         String sql = "SELECT f.*, d.donee_name AS donee_name FROM fra f LEFT JOIN donee d ON f.donee_id = d.donee_id";
         try (Connection conn = DBUtils.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -220,7 +220,7 @@ public class FRA {
     }
 
     public void updateFRAData() {
-        // 👇 修改：加入了 fra_status, 两个日期, 和 donee_id 的更新
+        // UPDATE fra_status, date fields, and donee_id
         String sql = "UPDATE fra SET fra_title = ?, fra_targetAmount = ?, category_id = ?, fra_status = ?, fra_createdAt = ?, fra_endedAt = ?, donee_id = ? WHERE fra_id = ?";
         try (Connection conn = DBUtils.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
