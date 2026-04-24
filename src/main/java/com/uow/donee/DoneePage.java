@@ -51,23 +51,16 @@ public class DoneePage {
     // Save Favourite
     @PostMapping(value = "/api/donee/favourites/save", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Map<String, Object> onSaveFavourite(
+    public Object onSaveFavourite(
             @RequestParam(value = "fraId", defaultValue = "0") int fraId,
             @RequestParam(value = "remove", defaultValue = "false") boolean remove,
             HttpSession session) {
         Object _o = session == null ? null : session.getAttribute("userId");
         int uid = _o instanceof Number n ? n.intValue() : 0;
         boolean ok = saveFavouriteController.saveFavourite(uid, fraId, remove);
-        if (ok) {
-            return Map.of(
-                    "success", true,
-                    "message", remove ? "Removed from favourites." : "Saved to favourites.");
-        }
+        if (ok) return Map.of("success", true, "message", remove ? "Removed from favourites." : "Saved to favourites.");
         String err = saveFavouriteController.donee.lastErrorMessage;
-        if (err == null || err.isBlank()) {
-            err = "Failed to update favourites.";
-        }
-        return Map.of("success", false, "error", err);
+        return Map.of("success", false, "error", err == null || err.isBlank() ? "Failed to update favourites." : err);
     }
 
     // View Favourite
