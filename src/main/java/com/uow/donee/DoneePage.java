@@ -1,6 +1,7 @@
 package com.uow.donee;
 
-import java.util.Objects;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -15,48 +16,27 @@ import jakarta.servlet.http.HttpSession;
 @Controller
 public class DoneePage {
 
-    @Autowired
-    private SearchFraController searchFraController;
-
-    @Autowired
-    private ViewFraController viewFraController;
-
-    @Autowired
-    private ViewFavouriteController viewFavouriteController;
-
-    @Autowired
-    private SaveFavouriteController saveFavouriteController;
-
-    @Autowired
-    private SearchFavouriteController searchFavouriteController;
-
-    @Autowired
-    private SearchDonationController searchDonationController;
-
-    @Autowired
-    private ViewDonationController viewDonationController;
+    @Autowired private SearchFraController searchFraController;
+    @Autowired private ViewFraController viewFraController;
+    @Autowired private SaveFavouriteController saveFavouriteController;
+    @Autowired private ViewFavouriteController viewFavouriteController;
+    @Autowired private SearchFavouriteController searchFavouriteController;
+    @Autowired private SearchDonationController searchDonationController;
+    @Autowired private ViewDonationController viewDonationController;
 
     @GetMapping({ "/donee", "/showDoneePage" })
     public String showDoneePage() {
         return "forward:/DoneePage.html";
     }
 
-    private int userId(HttpSession session) {
-        if (session == null) {
-            return 0;
-        }
-        Object o = session.getAttribute("userId");
-        if (o == null) {
-            return 0;
-        }
-        if (o instanceof Number) {
-            return ((Number) o).intValue();
-        }
-        try {
-            return Integer.parseInt(Objects.toString(o, "0").trim());
-        } catch (NumberFormatException e) {
-            return 0;
-        }
+    public String showSaveSuccessMessage(String message) {
+        String msg = message == null ? "" : message;
+        return "redirect:/DoneePage.html?toast=" + URLEncoder.encode(msg, StandardCharsets.UTF_8);
+    }
+
+    public String showSaveErrorMessage(String message) {
+        String msg = message == null || message.isBlank() ? "Failed to update favourites." : message;
+        return "redirect:/DoneePage.html?toast=" + URLEncoder.encode(msg, StandardCharsets.UTF_8);
     }
 
     @GetMapping(value = "/api/donee/fra/browse", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -66,7 +46,9 @@ public class DoneePage {
             @RequestParam(value = "fraStatus", defaultValue = "all") String fraStatus,
             @RequestParam(value = "categoryName", defaultValue = "all") String categoryName,
             HttpSession session) {
-        return searchFraController.searchFra(userId(session), title, fraStatus, categoryName);
+        Object _o = session == null ? null : session.getAttribute("userId");
+        int uid = _o instanceof Number n ? n.intValue() : 0;
+        return searchFraController.searchFra(uid, title, fraStatus, categoryName);
     }
 
     @GetMapping(value = "/api/donee/fra/view", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -75,13 +57,16 @@ public class DoneePage {
         return viewFraController.viewFra(fraId);
     }
 
-    @PostMapping(value = "/api/donee/favourites/save", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public Object onSaveFavourite(
+    @PostMapping(value = "/api/donee/favourites/save")
+    public String onSaveFavourite(
             @RequestParam(value = "fraId", defaultValue = "0") int fraId,
             @RequestParam(value = "remove", defaultValue = "false") boolean remove,
             HttpSession session) {
-        return saveFavouriteController.saveFavourite(userId(session), fraId, remove);
+        Object _o = session == null ? null : session.getAttribute("userId");
+        int uid = _o instanceof Number n ? n.intValue() : 0;
+        boolean ok = saveFavouriteController.saveFavourite(uid, fraId, remove);
+        return ok ? showSaveSuccessMessage(remove ? "Removed from favourites." : "Saved to favourites.")
+                  : showSaveErrorMessage(saveFavouriteController.donee.lastErrorMessage);
     }
 
     @GetMapping(value = "/api/donee/favourites/view", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -97,8 +82,9 @@ public class DoneePage {
             @RequestParam(value = "fraStatus", defaultValue = "all") String fraStatus,
             @RequestParam(value = "categoryName", defaultValue = "all") String categoryName,
             HttpSession session) {
-        return searchFavouriteController.searchFavourite(
-                userId(session), title, fraStatus, categoryName);
+        Object _o = session == null ? null : session.getAttribute("userId");
+        int uid = _o instanceof Number n ? n.intValue() : 0;
+        return searchFavouriteController.searchFavourite(uid, title, fraStatus, categoryName);
     }
 
     @GetMapping(value = "/api/donee/history/search", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -108,8 +94,9 @@ public class DoneePage {
             @RequestParam(value = "categoryName", defaultValue = "all") String categoryName,
             @RequestParam(value = "fraStatus", defaultValue = "all") String fraStatus,
             HttpSession session) {
-        return searchDonationController.searchDonation(
-                userId(session), title, categoryName, fraStatus);
+        Object _o = session == null ? null : session.getAttribute("userId");
+        int uid = _o instanceof Number n ? n.intValue() : 0;
+        return searchDonationController.searchDonation(uid, title, categoryName, fraStatus);
     }
 
     @GetMapping(value = "/api/donee/donation/view", produces = MediaType.APPLICATION_JSON_VALUE)
