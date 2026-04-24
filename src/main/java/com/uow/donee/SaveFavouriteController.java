@@ -7,15 +7,20 @@ public class SaveFavouriteController {
 
     private final Donee donee = new Donee();
 
-    public boolean saveToFavourite(int fraId, int userId) {
-        return donee.saveToFavourite(fraId, userId);
-    }
-
-    public boolean removeFromFavourite(int fraId, int userId) {
-        return donee.removeFromFavourite(fraId, userId);
-    }
-
-    public String getErrorMessage() {
-        return donee.lastErrorMessage;
+    public Object saveFavourite(int userId, int fraId, boolean remove) {
+        if (userId <= 0) {
+            return java.util.Map.of("success", false, "error", "Not logged in.");
+        }
+        if (donee.keepSaveFavourite(fraId, userId, remove)) {
+            if (remove) {
+                return java.util.Map.of("success", true, "message", "Removed from your favourites.");
+            }
+            return java.util.Map.of("success", true, "message", "Saved to your favourites.");
+        }
+        String em = donee.lastErrorMessage;
+        return java.util.Map.of(
+                "success", false,
+                "error", (em == null || em.isBlank()) ? "Could not update favourites." : em
+        );
     }
 }

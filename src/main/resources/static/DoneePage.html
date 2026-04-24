@@ -414,17 +414,17 @@
                         <h3>Search FRA</h3>
                         <div class="grid-3" style="margin-bottom: 12px;">
                             <div class="form-group">
-                                <label>Search keyword</label>
+                                <label for="fra-search-q">Title</label>
                                 <input id="fra-search-q" type="text" autocomplete="off">
                             </div>
                             <div class="form-group">
-                                <label>Category</label>
+                                <label for="fra-filter-category">Category</label>
                                 <select id="fra-filter-category" data-filter-select>
                                     <option value="all">All</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Status</label>
+                                <label for="fra-filter-status">FRA status</label>
                                 <select id="fra-filter-status" data-filter-select>
                                     <option value="all">All</option>
                                     <option value="Pending">Pending</option>
@@ -475,17 +475,17 @@
                         <h3>Search in my favourites</h3>
                         <div class="grid-3" style="margin-bottom: 12px;">
                             <div class="form-group">
-                                <label>Search keyword</label>
+                                <label for="fav-search-q">Title</label>
                                 <input id="fav-search-q" type="text" autocomplete="off">
                             </div>
                             <div class="form-group">
-                                <label>Category</label>
+                                <label for="fav-filter-category">Category</label>
                                 <select id="fav-filter-category" data-filter-select>
                                     <option value="all">All</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Status</label>
+                                <label for="fav-filter-status">FRA status</label>
                                 <select id="fav-filter-status" data-filter-select>
                                     <option value="all">All</option>
                                     <option value="Pending">Pending</option>
@@ -533,17 +533,17 @@
                         <h3>Search in my history</h3>
                             <div class="grid-3" style="margin-bottom: 12px;">
                             <div class="form-group">
-                                <label>Search keyword</label>
+                                <label for="hist-search-q">Title</label>
                                 <input id="hist-search-q" type="text" autocomplete="off">
                             </div>
                             <div class="form-group">
-                                <label>Category</label>
+                                <label for="hist-filter-category">Category</label>
                                 <select id="hist-filter-category" data-filter-select>
                                     <option value="all">All</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Status</label>
+                                <label for="hist-filter-status">FRA status</label>
                                 <select id="hist-filter-status" data-filter-select>
                                     <option value="all">All</option>
                                     <option value="Pending">Pending</option>
@@ -551,19 +551,9 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="grid-3" style="margin-bottom: 12px;">
-                            <div class="form-group">
-                                <label>From date</label>
-                                <input id="hist-date-from" type="date">
-                            </div>
-                            <div class="form-group">
-                                <label>To date</label>
-                                <input id="hist-date-to" type="date">
-                            </div>
-                            <div class="form-group" style="display:flex; align-items:flex-end; gap:10px; flex-wrap:wrap;">
-                                <button type="button" class="btn btn-black" id="hist-keyword-btn" style="background:linear-gradient(135deg,#4338ca,#6366f1);">Search</button>
-                                <button type="button" class="btn btn-muted" id="hist-clear-btn">Clear</button>
-                            </div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom: 12px;">
+                            <button type="button" class="btn btn-black" id="hist-search-btn" style="background:linear-gradient(135deg,#4338ca,#6366f1);">Search</button>
+                            <button type="button" class="btn btn-muted" id="hist-clear-btn">Clear</button>
                         </div>
                         <div class="table-wrap" style="margin-top: 16px;">
                             <div class="table-scroll">
@@ -611,7 +601,6 @@
 <div id="donee-toast" class="donee-toast" role="status" aria-live="polite" aria-atomic="true"></div>
 <script>
 (function () {
-    /** When opened via file://, use this base URL for /api (default Spring Boot port). Change if not 8080. */
     var API_BASE = (function () {
         if (window.location.protocol === 'file:') {
             return 'http://localhost:8080';
@@ -653,7 +642,6 @@
         if (!path || path.charAt(0) !== '/') {
             path = '/' + (path || '');
         }
-        // Root-relative "/api/..." can resolve incorrectly from some contexts; always use absolute origin when not using file→API_BASE.
         var base = API_BASE;
         if (!base && typeof window !== 'undefined' && window.location && window.location.origin) {
             base = window.location.origin;
@@ -661,8 +649,6 @@
         return base + path;
     }
     function fetchOptions(extra) {
-        // Always send cookies: same-origin, or file:// -> localhost:8080 (needs CORS + credentials in WebConfig).
-        // Using 'omit' breaks session, so /api/donee/history/* always saw userId=0 and returned nothing.
         var o = { mode: API_BASE ? 'cors' : 'same-origin' };
         o.credentials = 'include';
         if (extra) {
@@ -750,35 +736,22 @@
         });
     }
 
-    /** Category names from /api (fra_category). If that fails, rows still add options via mergeCategoryDropdownsFromRows. */
-    function loadFilterOptions() {
-        return fetch(apiUrl('/api/donee/fra/filters'), fetchOptions())
-            .then(function (r) { return r.ok ? r.json() : Promise.resolve(null); })
-            .then(function (data) {
-                if (!data || data.error) return;
-                fillFilterSelect('fra-filter-category', data.categories);
-                fillFilterSelect('fav-filter-category', data.categories);
-                fillFilterSelect('hist-filter-category', data.categories);
-            })
-            .catch(function () { /* use merge from table rows as fallback */ });
-    }
-
     function buildFavQuery() {
-        var keyword = (document.getElementById('fav-search-q').value || '').trim();
-        var status = (document.getElementById('fav-filter-status').value || 'all').trim();
-        var category = (document.getElementById('fav-filter-category').value || 'all').trim();
-        return apiUrl('/api/donee/favourites/search?keyword=' + encodeURIComponent(keyword)
-            + '&status=' + encodeURIComponent(status)
-            + '&category=' + encodeURIComponent(category));
+        var title = (document.getElementById('fav-search-q').value || '').trim();
+        var fraStatus = (document.getElementById('fav-filter-status').value || 'all').trim();
+        var categoryName = (document.getElementById('fav-filter-category').value || 'all').trim();
+        return apiUrl('/api/donee/favourites/search?title=' + encodeURIComponent(title)
+            + '&fraStatus=' + encodeURIComponent(fraStatus)
+            + '&categoryName=' + encodeURIComponent(categoryName));
     }
 
     function buildBrowseQuery() {
-        var keyword = (document.getElementById('fra-search-q').value || '').trim();
-        var status = (document.getElementById('fra-filter-status').value || 'all').trim();
-        var category = (document.getElementById('fra-filter-category').value || 'all').trim();
-        return apiUrl('/api/donee/fra/browse?keyword=' + encodeURIComponent(keyword)
-            + '&status=' + encodeURIComponent(status)
-            + '&category=' + encodeURIComponent(category));
+        var title = (document.getElementById('fra-search-q').value || '').trim();
+        var fraStatus = (document.getElementById('fra-filter-status').value || 'all').trim();
+        var categoryName = (document.getElementById('fra-filter-category').value || 'all').trim();
+        return apiUrl('/api/donee/fra/browse?title=' + encodeURIComponent(title)
+            + '&fraStatus=' + encodeURIComponent(fraStatus)
+            + '&categoryName=' + encodeURIComponent(categoryName));
     }
 
     function renderFraRows(rows) {
@@ -832,9 +805,6 @@
         countEl.textContent = rows.length + (rows.length === 1 ? ' FRA' : ' FRAs');
     }
 
-    /**
-     * @param {boolean} [silent] — if true, do not show full-table "Loading…" (e.g. after save/unsave).
-     */
     async function loadFavourites(silent) {
         var tbody = document.getElementById('fav-tbody');
         var countEl = document.getElementById('fav-count');
@@ -882,9 +852,6 @@
         }
     }
 
-    /**
-     * @param {boolean} [silent] — if true, keep current table until new data arrives (e.g. after save/unsave).
-     */
     async function loadBrowse(silent) {
         var tbody = document.getElementById('fra-tbody');
         var countEl = document.getElementById('fra-count');
@@ -996,10 +963,10 @@
 
     async function removeFavourite(fraId) {
         try {
-            var r = await fetch(apiUrl('/api/donee/favourites/unsave'), fetchOptions({
+            var r = await fetch(apiUrl('/api/donee/favourites/save'), fetchOptions({
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: 'fraId=' + encodeURIComponent(fraId)
+                body: 'fraId=' + encodeURIComponent(fraId) + '&remove=true'
             }));
             var data = await r.json();
             if (data.success) {
@@ -1034,16 +1001,12 @@
     }
 
     function buildHistorySearchUrl() {
-        var keyword = (document.getElementById('hist-search-q').value || '').trim();
-        var category = (document.getElementById('hist-filter-category').value || 'all').trim();
-        var status = (document.getElementById('hist-filter-status').value || 'all').trim();
-        var df = (document.getElementById('hist-date-from').value || '').trim();
-        var dt = (document.getElementById('hist-date-to').value || '').trim();
-        return apiUrl('/api/donee/history/search?keyword=' + encodeURIComponent(keyword)
-            + '&category=' + encodeURIComponent(category)
-            + '&dateFrom=' + encodeURIComponent(df)
-            + '&dateTo=' + encodeURIComponent(dt)
-            + '&status=' + encodeURIComponent(status));
+        var title = (document.getElementById('hist-search-q').value || '').trim();
+        var categoryName = (document.getElementById('hist-filter-category').value || 'all').trim();
+        var fraStatus = (document.getElementById('hist-filter-status').value || 'all').trim();
+        return apiUrl('/api/donee/history/search?title=' + encodeURIComponent(title)
+            + '&categoryName=' + encodeURIComponent(categoryName)
+            + '&fraStatus=' + encodeURIComponent(fraStatus));
     }
     function renderHistRows(rows) {
         var tbody = document.getElementById('hist-tbody');
@@ -1105,8 +1068,6 @@
         document.getElementById('hist-search-q').value = '';
         document.getElementById('hist-filter-category').value = 'all';
         document.getElementById('hist-filter-status').value = 'all';
-        document.getElementById('hist-date-from').value = '';
-        document.getElementById('hist-date-to').value = '';
         loadHistorySearch();
     }
 
@@ -1149,7 +1110,7 @@
         var v = e.target.closest('button[data-action="view"]');
         if (v) viewFra(v.getAttribute('data-id'), '/api/donee/favourites/view');
     });
-    document.getElementById('hist-keyword-btn').addEventListener('click', loadHistorySearch);
+    document.getElementById('hist-search-btn').addEventListener('click', loadHistorySearch);
     document.getElementById('hist-clear-btn').addEventListener('click', clearHistFilters);
     document.getElementById('hist-search-q').addEventListener('keydown', function (e) {
         if (e.key === 'Enter') { e.preventDefault(); loadHistorySearch(); }
@@ -1159,7 +1120,7 @@
         if (v) viewFra(v.getAttribute('data-id'), '/api/donee/fra/view');
     });
 
-    loadFilterOptions().then(function () { loadBrowse(); });
+    loadBrowse();
 })();
 </script>
 </body>
