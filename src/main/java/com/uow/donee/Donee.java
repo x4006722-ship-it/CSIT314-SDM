@@ -21,6 +21,7 @@ public class Donee {
     public String doneeName;
     public String lastErrorMessage = "";
 
+    // Search Fra
     public Object getSearchFra(int userId, String title, String fraStatus, String categoryName) {
         lastErrorMessage = "";
         this.userId = userId;
@@ -66,6 +67,7 @@ public class Donee {
         }
     }
 
+    // View Fra
     public Object getViewFra(int fraId) {
         lastErrorMessage = "";
         this.fraId = fraId;
@@ -96,6 +98,7 @@ public class Donee {
         return null;
     }
 
+    // Save Favourite
     public boolean keepSaveFavourite(int fraId, int userId, boolean removing) {
         lastErrorMessage = "";
         this.fraId = fraId;
@@ -126,6 +129,7 @@ public class Donee {
         } catch (SQLException e) { lastErrorMessage = e.getMessage(); return false; }
     }
 
+    // Search Favourite
     public Object getSearchFavourite(int userId, String title, String fraStatus, String categoryName) {
         lastErrorMessage = "";
         this.userId = userId;
@@ -170,10 +174,12 @@ public class Donee {
         }
     }
 
+    // View Favourite
     public Object getViewFavourite(int fraId) {
         return getViewFra(fraId);
     }
 
+    // Search Donation
     public Object getSearchDonation(int userId, String title, String categoryName, String fraStatus) {
         lastErrorMessage = "";
         this.userId = userId;
@@ -230,6 +236,7 @@ public class Donee {
         }
     }
 
+    // View Donation
     public Object getViewDonation(int fraId) {
         return getViewFra(fraId);
     }

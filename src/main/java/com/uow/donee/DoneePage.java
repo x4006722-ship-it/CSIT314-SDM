@@ -28,6 +28,7 @@ public class DoneePage {
         return "forward:/DoneePage.html";
     }
 
+    // Search Fra
     @GetMapping(value = "/api/donee/fra/browse", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public Object onSearchFra(
@@ -40,12 +41,14 @@ public class DoneePage {
         return searchFraController.searchFra(uid, title, fraStatus, categoryName);
     }
 
+    // View Fra
     @GetMapping(value = "/api/donee/fra/view", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public Object onViewFra(@RequestParam(value = "fraId", defaultValue = "0") int fraId) {
         return viewFraController.viewFra(fraId);
     }
 
+    // Save Favourite
     @PostMapping(value = "/api/donee/favourites/save", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public Map<String, Object> onSaveFavourite(
@@ -67,12 +70,14 @@ public class DoneePage {
         return Map.of("success", false, "error", err);
     }
 
+    // View Favourite
     @GetMapping(value = "/api/donee/favourites/view", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public Object onViewFavourite(@RequestParam(value = "fraId", defaultValue = "0") int fraId) {
         return viewFavouriteController.viewFavourite(fraId);
     }
 
+    // Search Favourite
     @GetMapping(value = "/api/donee/favourites/search", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public Object onSearchFavourite(
@@ -85,6 +90,7 @@ public class DoneePage {
         return searchFavouriteController.searchFavourite(uid, title, fraStatus, categoryName);
     }
 
+    // Search Donation
     @GetMapping(value = "/api/donee/history/search", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public Object onSearchDonation(
@@ -97,6 +103,7 @@ public class DoneePage {
         return searchDonationController.searchDonation(uid, title, categoryName, fraStatus);
     }
 
+    // View Donation
     @GetMapping(value = "/api/donee/donation/view", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public Object onViewDonation(@RequestParam(value = "fraId", defaultValue = "0") int fraId) {
