@@ -1,7 +1,6 @@
 package com.uow.donee;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -29,16 +28,6 @@ public class DoneePage {
         return "forward:/DoneePage.html";
     }
 
-    public String showSaveSuccessMessage(String message) {
-        String msg = message == null ? "" : message;
-        return "redirect:/DoneePage.html?toast=" + URLEncoder.encode(msg, StandardCharsets.UTF_8);
-    }
-
-    public String showSaveErrorMessage(String message) {
-        String msg = message == null || message.isBlank() ? "Failed to update favourites." : message;
-        return "redirect:/DoneePage.html?toast=" + URLEncoder.encode(msg, StandardCharsets.UTF_8);
-    }
-
     @GetMapping(value = "/api/donee/fra/browse", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public Object onSearchFra(
@@ -57,16 +46,25 @@ public class DoneePage {
         return viewFraController.viewFra(fraId);
     }
 
-    @PostMapping(value = "/api/donee/favourites/save")
-    public String onSaveFavourite(
+    @PostMapping(value = "/api/donee/favourites/save", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public Map<String, Object> onSaveFavourite(
             @RequestParam(value = "fraId", defaultValue = "0") int fraId,
             @RequestParam(value = "remove", defaultValue = "false") boolean remove,
             HttpSession session) {
         Object _o = session == null ? null : session.getAttribute("userId");
         int uid = _o instanceof Number n ? n.intValue() : 0;
         boolean ok = saveFavouriteController.saveFavourite(uid, fraId, remove);
-        return ok ? showSaveSuccessMessage(remove ? "Removed from favourites." : "Saved to favourites.")
-                  : showSaveErrorMessage(saveFavouriteController.donee.lastErrorMessage);
+        if (ok) {
+            return Map.of(
+                    "success", true,
+                    "message", remove ? "Removed from favourites." : "Saved to favourites.");
+        }
+        String err = saveFavouriteController.donee.lastErrorMessage;
+        if (err == null || err.isBlank()) {
+            err = "Failed to update favourites.";
+        }
+        return Map.of("success", false, "error", err);
     }
 
     @GetMapping(value = "/api/donee/favourites/view", produces = MediaType.APPLICATION_JSON_VALUE)

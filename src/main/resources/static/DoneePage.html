@@ -3,49 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Donee</title>
+    <title>Donee Page</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700&display=swap" rel="stylesheet">
     <style>
         :root {
             --surface: #ffffff;
             --surface-soft: #f8fafc;
             --surface-tint: #f1f5f9;
-            --border: rgba(99, 102, 241, 0.18);
+            --border: rgba(234, 88, 12, 0.16);
             --border-soft: #e2e8f0;
             --text: #0f172a;
             --text-muted: #64748b;
-            --accent: #4f46e5;
-            --accent-hover: #4338ca;
-            --accent-light: #eef2ff;
-            --accent-ring: rgba(99, 102, 241, 0.35);
+            --accent: #ea580c;
+            --accent-hover: #c2410c;
+            --accent-bright: #fb923c;
+            --accent-light: #ffedd5;
+            --accent-soft: #fed7aa;
+            --accent-ring: rgba(249, 115, 22, 0.28);
             --danger-soft: #fef2f2;
-            --shadow: 0 10px 40px rgba(30, 27, 75, 0.12);
-            --shadow-sm: 0 4px 20px rgba(30, 27, 75, 0.08);
+            --shadow: 0 20px 50px -12px rgba(15, 23, 42, 0.1);
+            --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+            --head-fg: #475569;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, -apple-system, sans-serif; }
 
         body {
             min-height: 100vh;
             color: var(--text);
+            position: relative;
             background:
-                radial-gradient(1200px 600px at 10% -10%, rgba(99, 102, 241, 0.22), transparent 55%),
-                radial-gradient(900px 500px at 100% 20%, rgba(14, 165, 233, 0.12), transparent 50%),
-                linear-gradient(165deg, #dce4f3 0%, #e8edf7 38%, #eef2f9 100%);
+                radial-gradient(1000px 500px at 0% 0%, rgba(249, 115, 22, 0.08), transparent 55%),
+                radial-gradient(800px 400px at 100% 0%, rgba(251, 146, 60, 0.05), transparent 50%),
+                #f1f5f9;
         }
 
-        .container { min-height: 100vh; }
+        .container { min-height: 100vh; position: relative; z-index: 1; }
         .main-content { padding: 30px; max-width: 1500px; margin: 0 auto; }
 
         .topbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            background: #fff;
             padding: 16px 26px;
             border-radius: 14px;
             margin-bottom: 22px;
             box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border);
+            border: 1px solid var(--border-soft);
             border-left: 4px solid var(--accent);
         }
 
@@ -55,36 +62,34 @@
             padding: 12px 24px;
             border-radius: 10px;
             border: 1px solid var(--border-soft);
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(6px);
+            background: #fff;
             cursor: pointer;
             font-weight: 600;
             transition: color 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s;
             color: var(--text-muted);
-            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
         }
 
         .tab-btn.active {
-            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+            background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
             color: #fff;
-            border-color: transparent;
-            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35);
+            border-color: #ea580c;
+            box-shadow: 0 4px 14px rgba(234, 88, 12, 0.28);
         }
 
         .tab-btn:hover:not(.active) {
-            background: #fff;
-            border-color: #c7d2fe;
+            background: #fafafa;
+            border-color: var(--accent-soft);
             color: var(--accent);
         }
 
         .admin-section {
-            background: var(--surface);
+            background: #fff;
             border-radius: 14px;
             padding: 26px;
             margin-bottom: 28px;
             box-shadow: var(--shadow);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            outline: 1px solid var(--border);
+            border: 1px solid var(--border-soft);
         }
 
         .section-header {
@@ -92,7 +97,7 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-            border-bottom: 2px solid var(--border-soft);
+            border-bottom: 1px solid var(--border-soft);
             padding-bottom: 12px;
             position: relative;
         }
@@ -100,14 +105,14 @@
             content: '';
             position: absolute;
             left: 0;
-            bottom: -2px;
-            width: min(160px, 40%);
-            height: 3px;
-            border-radius: 3px;
-            background: linear-gradient(90deg, var(--accent), #38bdf8);
+            bottom: -1px;
+            width: min(180px, 45%);
+            height: 2px;
+            border-radius: 2px;
+            background: linear-gradient(90deg, #fb923c, #f97316);
         }
 
-        h2 { font-size: 20px; color: var(--text); letter-spacing: -0.02em; }
+        h2 { font-size: 20px; color: var(--text); letter-spacing: -0.02em; font-weight: 700; }
 
         .action-bar { display: grid; grid-template-columns: 1fr; gap: 18px; }
 
@@ -124,13 +129,13 @@
         }
         input:focus, select:focus {
             outline: none;
-            border-color: #a5b4fc;
+            border-color: var(--accent-bright);
             box-shadow: 0 0 0 3px var(--accent-ring);
         }
 
         .btn {
             padding: 10px 20px;
-            border-radius: 8px;
+            border-radius: 10px;
             border: none;
             cursor: pointer;
             font-weight: 600;
@@ -138,24 +143,24 @@
         }
         .btn:active { transform: translateY(1px); }
         .btn-black {
-            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+            background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
             color: #fff;
-            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+            box-shadow: 0 4px 14px rgba(234, 88, 12, 0.3);
         }
         .btn-black:hover {
-            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            box-shadow: 0 6px 20px rgba(234, 88, 12, 0.35);
         }
         .btn-view {
             background: var(--accent-light);
-            color: #312e81;
-            border: 1px solid #c7d2fe;
+            color: #9a3412;
+            border: 1px solid var(--accent-soft);
             font-weight: 600;
             box-shadow: none;
         }
-        .btn-view:hover { background: #e0e7ff; border-color: #a5b4fc; }
+        .btn-view:hover { background: #ffedd5; border-color: #fdba74; }
         .logout-btn {
-            border: 1px solid rgba(220, 38, 38, 0.45);
+            border: 1px solid rgba(248, 113, 113, 0.5);
             color: #b91c1c;
             background: var(--danger-soft);
             padding: 10px 18px;
@@ -169,22 +174,23 @@
             background: linear-gradient(135deg, #ef4444, #dc2626);
             color: #fff;
             border-color: transparent;
-            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.35);
+            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
         }
         .topbar-user { font-size: 16px; color: var(--text-muted); }
-        .topbar-user strong { color: var(--text); font-size: 17px; }
+        .topbar-user strong { color: #c2410c; font-size: 17px; font-weight: 700; }
 
         .subsection {
             padding: 18px;
             border: 1px solid var(--border-soft);
             border-radius: 12px;
-            background: linear-gradient(180deg, #fafbfc 0%, var(--surface-soft) 100%);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            background: #f8fafc;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
         }
         .subsection h3 {
             font-size: 15px;
             margin-bottom: 10px;
-            color: #1e293b;
+            color: #9a3412;
+            font-weight: 700;
         }
 
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -192,17 +198,17 @@
 
         .btn-sm { padding: 8px 12px; font-size: 13px; border-radius: 8px; }
         .btn-danger {
-            background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+            background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
             color: #fff;
-            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.38);
         }
-        .btn-danger:hover { background: linear-gradient(135deg, #fca5a5 0%, #f87171 100%); }
+        .btn-danger:hover { background: linear-gradient(135deg, #fca5a5 0%, #ef4444 100%); }
         .btn-muted {
-            background: var(--surface-tint);
+            background: #e2e8f0;
             color: #334155;
-            border: 1px solid var(--border-soft);
+            border: 1px solid #cbd5e1;
         }
-        .btn-muted:hover { background: #e2e8f0; }
+        .btn-muted:hover { background: #cbd5e1; }
 
         .pill {
             display: inline-flex;
@@ -225,7 +231,7 @@
             border-radius: 12px;
             overflow: hidden;
             background: #fff;
-            box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
         }
         .table-scroll { max-height: 520px; overflow: auto; }
 
@@ -234,39 +240,41 @@
             border-collapse: separate;
             border-spacing: 0;
             min-width: 800px;
+            table-layout: fixed;
         }
-        #fra-table thead th:nth-child(1), #fav-table thead th:nth-child(1) { width: 64px; }
-        #fra-table thead th:nth-child(4), #fav-table thead th:nth-child(4) { width: 110px; }
-        #fra-table thead th:nth-child(5), #fav-table thead th:nth-child(5) { min-width: 200px; text-align: center; }
-        #fra-table tbody td:nth-child(5), #fav-table tbody td:nth-child(5) { text-align: center; }
-        #hist-table .cell-num { text-align: right; font-variant-numeric: tabular-nums; }
+        #fra-table thead th:nth-child(1), #fav-table thead th:nth-child(1), #hist-table thead th:nth-child(1) { width: 56px; }
+        #fra-table thead th:nth-child(4), #fav-table thead th:nth-child(4), #hist-table thead th:nth-child(4) { width: 132px; }
+        #fra-table thead th:nth-child(5), #fav-table thead th:nth-child(5), #hist-table thead th:nth-child(5) { width: 232px; text-align: center; }
+        #fra-table tbody td:nth-child(4), #fav-table tbody td:nth-child(4), #hist-table tbody td:nth-child(4) {
+            width: 132px;
+            max-width: 132px;
+            vertical-align: middle;
+        }
+        #fra-table tbody td:nth-child(5), #fav-table tbody td:nth-child(5), #hist-table tbody td:nth-child(5) {
+            text-align: center;
+            vertical-align: middle;
+            width: 232px;
+        }
         #fav-table, #hist-table {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
             min-width: 720px;
-        }
-        #hist-table { min-width: 1100px; }
-        #fav-table .td-actions button.btn-sm {
-            min-height: 28px;
-            height: 28px;
-            padding: 0 10px;
-            font-size: 12px;
-            font-weight: 600;
-            border-radius: 6px;
+            table-layout: fixed;
         }
 
         thead th {
             position: sticky;
             top: 0;
             z-index: 1;
-            background: linear-gradient(180deg, #f1f5f9 0%, #e8eef5 100%);
+            background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
             border-bottom: 1px solid var(--border-soft);
-            font-size: 12px;
-            letter-spacing: 0.04em;
+            font-size: 11px;
+            letter-spacing: 0.05em;
             text-transform: uppercase;
-            color: #475569;
-            padding: 12px 12px;
+            color: var(--head-fg);
+            font-weight: 600;
+            padding: 13px 12px;
             text-align: left;
             white-space: nowrap;
         }
@@ -276,23 +284,68 @@
             font-size: 14px;
             color: #1e293b;
             vertical-align: middle;
+            background: #fff;
         }
-        tbody tr:hover td { background: #f5f7ff; }
+        tbody tr:hover td { background: #fff7ed; }
 
         .td-actions {
-            display: inline-flex;
+            width: 100%;
+            box-sizing: border-box;
+            align-items: center;
             gap: 6px;
-            flex-wrap: wrap;
+        }
+        #fra-table .td-actions,
+        #fav-table .td-actions {
+            display: grid;
+            grid-template-columns: auto 84px;
+            gap: 6px;
             align-items: center;
             justify-content: center;
         }
-        #fra-table .td-actions button.btn-sm {
+        #hist-table .td-actions {
+            display: flex;
+            flex-wrap: nowrap;
+            justify-content: center;
+        }
+        #hist-table .td-actions button.btn-sm {
             min-height: 28px;
             height: 28px;
             padding: 0 10px;
             font-size: 12px;
             font-weight: 600;
             border-radius: 6px;
+        }
+        #fra-table .td-actions button.btn-sm,
+        #fav-table .td-actions button.btn-sm {
+            min-height: 28px;
+            height: 28px;
+            padding: 0 6px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 6px;
+            box-sizing: border-box;
+            min-width: 0;
+        }
+        #fra-table .td-actions button.btn-view.btn-sm,
+        #fav-table .td-actions button.btn-view.btn-sm {
+            width: auto;
+            padding: 0 10px;
+            justify-self: center;
+        }
+        #fra-table .td-actions .btn-danger.btn-sm,
+        #fav-table .td-actions .btn-danger.btn-sm,
+        #fra-table .td-actions button.fra-unsave.btn-sm,
+        #fav-table .td-actions button.fra-unsave.btn-sm {
+            width: 100%;
+            max-width: 84px;
+            padding: 0 4px;
+            font-size: 11px;
+            justify-self: stretch;
+            white-space: nowrap;
+        }
+        #fra-table .td-actions .btn-danger,
+        #fav-table .td-actions .btn-danger {
+            box-shadow: none;
         }
         #fra-table .td-actions button.fra-unsave,
         #fav-table .td-actions button.fra-unsave {
@@ -315,7 +368,7 @@
             padding: 12px 14px;
             gap: 12px;
             border-top: 1px solid var(--border-soft);
-            background: linear-gradient(180deg, #fafbfc 0%, #fff 100%);
+            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
         }
 
         @media (max-width: 980px) {
@@ -338,13 +391,14 @@
         }
         .modal-backdrop.open { display: flex; }
         .modal-card {
-            background: #fff; border-radius: 16px; max-width: 560px; width: 100%;
-            max-height: 86vh; overflow: auto; box-shadow: 0 24px 64px rgba(30, 27, 75, 0.22);
-            border: 1px solid var(--border);
+            background: #fff; border-radius: 14px; max-width: 560px; width: 100%;
+            max-height: 86vh; overflow: auto; box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15);
+            border: 1px solid var(--border-soft);
         }
         .modal-card header {
-            padding: 14px 18px; border-bottom: 1px solid var(--border-soft);
-            font-weight: 700; display: flex; justify-content: space-between; align-items: center;
+            padding: 16px 20px; border-bottom: 1px solid var(--border-soft);
+            font-weight: 700; color: #0f172a; display: flex; justify-content: space-between; align-items: center;
+            background: #fafafa;
         }
         .modal-card .modal-body { padding: 0; font-size: 14px; }
         .fra-view-detail { display: flex; flex-direction: column; }
@@ -381,7 +435,7 @@
             opacity: 0; pointer-events: none; transition: transform 0.28s ease, opacity 0.28s ease;
         }
         .donee-toast.visible { transform: translateX(-50%) translateY(0); opacity: 1; }
-        .donee-toast.ok { background: linear-gradient(135deg, #312e81, #1e1b4b); color: #fff; }
+        .donee-toast.ok { background: linear-gradient(135deg, #c2410c, #9a3412); color: #fff; border-color: rgba(254, 215, 170, 0.45); }
         .donee-toast.err { background: linear-gradient(135deg, #b91c1c, #7f1d1d); color: #fff; }
     </style>
 </head>
@@ -392,16 +446,16 @@
             <span class="topbar-user">Logged in as: <strong>Donee</strong></span>
             <a href="/logout" class="logout-btn" id="donee-logout">Logout</a>
         </div>
-        <p id="file-open-hint" style="display:none; margin: -10px 0 18px; padding: 12px 14px; background: #fff7e6; border: 1px solid #faad14; border-radius: 10px; font-size: 14px; color: #333;">
+        <p id="file-open-hint" style="display:none; margin: -10px 0 18px; padding: 12px 14px; background: #fff7ed; border: 1px solid #fdba74; border-radius: 10px; font-size: 14px; color: #431407;">
             This page was opened as a <strong>local file</strong>. Requests go to <code>http://localhost:8080</code> with cookies (CORS).
             If My history or favourites look empty, sign in on the server first, then prefer
-            <strong><a href="http://localhost:8080/DoneePage.html" style="color:#4f46e5;">http://localhost:8080/DoneePage.html</a></strong> (same site as the API).
+            <strong><a href="http://localhost:8080/DoneePage.html" style="color:#c2410c;">http://localhost:8080/DoneePage.html</a></strong> (same site as the API).
         </p>
 
         <div class="tab-bar">
             <button class="tab-btn active" type="button" id="tab-browse">Browse FRA</button>
             <button class="tab-btn" type="button" id="tab-fav">My favourites</button>
-            <button class="tab-btn" type="button" id="tab-hist">My history</button>
+            <button class="tab-btn" type="button" id="tab-hist">My donation</button>
         </div>
 
         <div id="panel-browse">
@@ -526,11 +580,11 @@
         <div id="panel-hist" hidden>
             <div class="admin-section">
                 <div class="section-header">
-                    <h2>My history</h2>
+                    <h2>My Donation</h2>
                 </div>
                 <div class="action-bar">
                     <div class="subsection">
-                        <h3>Search in my history</h3>
+                        <h3>Search in my donation</h3>
                             <div class="grid-3" style="margin-bottom: 12px;">
                             <div class="form-group">
                                 <label for="hist-search-q">Title</label>
@@ -552,7 +606,7 @@
                             </div>
                         </div>
                         <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom: 12px;">
-                            <button type="button" class="btn btn-black" id="hist-search-btn" style="background:linear-gradient(135deg,#4338ca,#6366f1);">Search</button>
+                            <button type="button" class="btn btn-black" id="hist-search-btn" style="background:linear-gradient(135deg,#c2410c,#f97316);">Search</button>
                             <button type="button" class="btn btn-muted" id="hist-clear-btn">Clear</button>
                         </div>
                         <div class="table-wrap" style="margin-top: 16px;">
@@ -564,18 +618,11 @@
                                             <th>Title</th>
                                             <th>Category</th>
                                             <th>Status</th>
-                                            <th>Create At</th>
-                                            <th>View</th>
-                                            <th>Fav</th>
-                                            <th>Current</th>
-                                            <th>Target</th>
-                                            <th>Progress</th>
-                                            <th>Donee</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody id="hist-tbody">
-                                        <tr><td colspan="12" class="muted" style="text-align:center;">—</td></tr>
+                                        <tr><td colspan="5" class="muted" style="text-align:center;">—</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -1012,27 +1059,20 @@
         var tbody = document.getElementById('hist-tbody');
         var countEl = document.getElementById('hist-count');
         if (!rows || !rows.length) {
-            tbody.innerHTML = '<tr><td colspan="12" class="muted" style="text-align:center;">No FRAs in this range.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">No FRAs in this range.</td></tr>';
             countEl.textContent = '0 FRA';
             return;
         }
         tbody.innerHTML = rows.map(function (row) {
             var id = row.fra_id;
-            var p = row.progressPercent != null ? String(row.progressPercent) : '0';
             return '<tr>' +
                 '<td>' + escapeHtml(String(id)) + '</td>' +
                 '<td>' + escapeHtml(row.title) + '</td>' +
                 '<td>' + escapeHtml(row.category != null ? row.category : '—') + '</td>' +
                 '<td>' + statusPill(row.status) + '</td>' +
-                '<td>' + escapeHtml(row.createAt != null ? row.createAt : '—') + '</td>' +
-                '<td class="cell-num">' + escapeHtml(String(row.viewCount != null ? row.viewCount : '—')) + '</td>' +
-                '<td class="cell-num">' + escapeHtml(String(row.favouriteCount != null ? row.favouriteCount : '—')) + '</td>' +
-                '<td class="cell-num">' + escapeHtml(String(row.currentAmount != null ? row.currentAmount : '—')) + '</td>' +
-                '<td class="cell-num">' + escapeHtml(String(row.targetAmount != null ? row.targetAmount : '—')) + '</td>' +
-                '<td class="cell-num">' + escapeHtml(p) + '%</td>' +
-                '<td>' + escapeHtml(row.doneeName != null ? row.doneeName : '—') + '</td>' +
-                '<td><button type="button" class="btn btn-view btn-sm" data-action="view" data-id="' + escapeHtml(String(id)) + '">View</button></td>' +
-                '</tr>';
+                '<td><div class="td-actions">' +
+                '<button type="button" class="btn btn-view btn-sm" data-action="view" data-id="' + escapeHtml(String(id)) + '">View</button>' +
+                '</div></td></tr>';
         }).join('');
         countEl.textContent = rows.length + (rows.length === 1 ? ' FRA' : ' FRAs');
         mergeCategoryDropdownsFromRows(rows);
@@ -1040,28 +1080,28 @@
     async function loadHistorySearch() {
         var tbody = document.getElementById('hist-tbody');
         var countEl = document.getElementById('hist-count');
-        tbody.innerHTML = '<tr><td colspan="12" class="muted" style="text-align:center;">Loading…</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">Loading…</td></tr>';
         countEl.textContent = '—';
         try {
             var r = await fetch(buildHistorySearchUrl(), fetchOptions());
             var data = await r.json();
             if (!r.ok) {
-                tbody.innerHTML = '<tr><td colspan="12" class="muted" style="text-align:center;">HTTP ' + r.status + '</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">HTTP ' + r.status + '</td></tr>';
                 return;
             }
             if (data && data.error) {
-                tbody.innerHTML = '<tr><td colspan="12" class="muted" style="text-align:center;">' + escapeHtml(String(data.error)) + '</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">' + escapeHtml(String(data.error)) + '</td></tr>';
                 countEl.textContent = '—';
                 return;
             }
             var rows = Array.isArray(data) ? data : (data && data.rows);
             if (!Array.isArray(rows)) {
-                tbody.innerHTML = '<tr><td colspan="12" class="muted" style="text-align:center;">Unexpected response.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">Unexpected response.</td></tr>';
                 return;
             }
             renderHistRows(rows);
         } catch (e) {
-            tbody.innerHTML = '<tr><td colspan="12" class="muted" style="text-align:center;">' + escapeHtml(e.message || 'Request failed') + '</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">' + escapeHtml(e.message || 'Request failed') + '</td></tr>';
         }
     }
     function clearHistFilters() {

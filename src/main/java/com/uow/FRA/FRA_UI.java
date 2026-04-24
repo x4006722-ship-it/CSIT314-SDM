@@ -6,7 +6,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/fra")
-@CrossOrigin(origins = "*")
 public class FRA_UI {
 
     private final CreateFRAController createController;

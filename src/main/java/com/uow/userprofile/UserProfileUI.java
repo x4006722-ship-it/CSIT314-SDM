@@ -6,7 +6,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/profiles")
-@CrossOrigin(origins = "*") 
 public class UserProfileUI {
 
     // Declare the 5 specialized controllers
