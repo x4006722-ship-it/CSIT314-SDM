@@ -14,7 +14,7 @@ public class WebConfig implements WebMvcConfigurer {
         // file:// or other origins calling localhost: must allow credentials so JSESSIONID is sent
         // (see DoneePage.html fetchOptions). Wildcard + credentials is not allowed; list origins/patterns.
         registry.addMapping("/api/**")
-                .allowedOriginPatterns("http://localhost:*", "http://127.0.0.1:*", "null", "https://*.github.io")
+                .allowedOriginPatterns("http://localhost:*", "http://127.0.0.1:*", "null", "https://*.github.io", "https://*.railway.app")
                 .allowCredentials(true)
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD")
                 .allowedHeaders("*");
