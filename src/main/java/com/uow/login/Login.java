@@ -4,18 +4,19 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
 import com.uow.util.DBUtils;
 
 public class Login {
 
-    private int user_id;
-    private String role;
+    public Object verifyLogin(Object loginData) {
+        if (!(loginData instanceof Map<?, ?> data)) {
+            return null;
+        }
 
-    public int getUserId() { return user_id; }
-    public String getRole() { return role; }
-
-    public boolean verifyLogin(String username, String password) {
+        String username = readText(data.get("username"));
+        String password = readText(data.get("password"));
         String sql = """
                 SELECT ua.user_id, ua.a_status, up.role, up.p_status
                 FROM user_account ua
@@ -30,21 +31,23 @@ public class Login {
             ps.setString(2, password);
 
             try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) return false;
-
-                String aStatus = rs.getString("a_status");
-                String pStatus = rs.getString("p_status");
-
-                if (!"Active".equalsIgnoreCase(aStatus == null ? "" : aStatus.trim())) return false;
-                if (!"Active".equalsIgnoreCase(pStatus == null ? "" : pStatus.trim())) return false;
-
-                this.user_id = rs.getInt("user_id");
-                this.role = rs.getString("role");
-                return true;
+                if (!rs.next()) {
+                    return null;
+                }
+                return Map.of(
+                        "user_id", rs.getInt("user_id"),
+                        "a_status", rs.getString("a_status"),
+                        "role", rs.getString("role"),
+                        "p_status", rs.getString("p_status")
+                );
             }
         } catch (SQLException e) {
-            return false;
+            return null;
         }
+    }
+
+    private String readText(Object value) {
+        return value == null ? "" : String.valueOf(value).trim();
     }
 }
 

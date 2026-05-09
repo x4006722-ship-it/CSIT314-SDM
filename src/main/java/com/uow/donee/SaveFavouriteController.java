@@ -5,10 +5,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class SaveFavouriteController {
 
-    public final Donee donee = new Donee();
+    private final Favourite favourite = new Favourite();
 
-    public boolean saveFavourite(int userId, int fraId, boolean remove) {
-        if (userId <= 0) { donee.lastErrorMessage = "Not logged in."; return false; }
-        return donee.keepSaveFavourite(fraId, userId, remove);
+    public boolean saveFavourite(int fraId, int userId, boolean remove) {
+        return favourite.saveFavourite(fraId, userId, remove);
     }
 }

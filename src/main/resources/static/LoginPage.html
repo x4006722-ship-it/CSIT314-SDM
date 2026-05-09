@@ -4,10 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - User Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 50%, #ecfdf5 100%);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -15,104 +21,129 @@
             min-height: 100dvh;
             margin: 0;
             padding: 16px;
+            color: #0f172a;
         }
 
         .login-card {
-            background-color: #ffffff;
-            padding: 50px 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            position: relative;
+            background: #ffffff;
+            padding: 2.8rem 2.4rem;
+            border-radius: 14px;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
             width: 100%;
-            max-width: 450px;
-            box-sizing: border-box;
+            max-width: 440px;
+            overflow: hidden;
+        }
+
+        .login-card::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+        }
+
+        .hero-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            background: #6366f1;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px auto;
+            font-size: 24px;
         }
 
         h1 {
             text-align: center;
-            font-size: 32px;
-            font-weight: 700;
-            color: #000000;
-            margin-bottom: 40px;
+            font-size: 22px;
+            font-weight: 500;
+            color: #0f172a;
+            margin-bottom: 10px;
             margin-top: 0;
         }
 
+        .subtitle {
+            text-align: center;
+            font-size: 14px;
+            color: #94a3b8;
+            margin-bottom: 2rem;
+        }
+
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .form-group label {
             display: block;
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 10px;
-            color: #333;
+            font-weight: 500;
+            font-size: 13px;
+            margin-bottom: 8px;
+            color: #64748b;
         }
 
         input[type="text"],
         input[type="password"] {
             width: 100%;
-            padding: 14px;
-            border: 1px solid #e0e0e0;
+            height: 46px;
+            padding: 0 14px;
+            border: 1.5px solid #e2e8f0;
             border-radius: 8px;
-            font-size: 15px;
-            background-color: #ffffff;
+            font-size: 14px;
+            background-color: #f8fafc;
             transition: border-color 0.3s;
-            box-sizing: border-box;
         }
 
         input:focus {
             outline: none;
-            border-color: #000;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
         }
 
         input::placeholder {
-            color: #bbb;
+            color: #94a3b8;
         }
 
         .login-button {
             width: 100%;
-            background-color: #000000;
+            height: 46px;
+            background-color: #6366f1;
             color: #ffffff;
-            padding: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 0 16px;
             border: none;
-            border-radius: 10px;
-            font-size: 16px;
+            border-radius: 8px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 15px;
+            margin-top: 10px;
             transition: background-color 0.3s;
         }
 
         .login-button:hover {
-            background-color: #222222;
+            background-color: #4f46e5;
         }
 
         @media (max-width: 768px) {
             .login-card {
-                padding: 28px 20px;
-                border-radius: 10px;
+                padding: 2rem 1.25rem;
                 max-width: 100%;
             }
 
             h1 {
-                font-size: 26px;
-                margin-bottom: 28px;
-            }
-
-            .form-group {
-                margin-bottom: 18px;
+                font-size: 17px;
             }
 
             input[type="text"],
             input[type="password"] {
-                padding: 12px;
-                font-size: 14px;
-            }
-
-            .login-button {
-                padding: 14px;
-                font-size: 15px;
-                margin-top: 10px;
+                font-size: 13px;
             }
         }
     </style>
@@ -120,7 +151,9 @@
 <body>
 
 <div class="login-card">
-    <h1>Login Your Account</h1>
+    <div class="hero-icon"><i class="ti ti-heart-handshake"></i></div>
+    <h1>Welcome back</h1>
+    <p class="subtitle">Sign in to continue to FRA Platform</p>
 
     <form action="/login" method="POST">
         <div class="form-group">
@@ -133,7 +166,7 @@
             <input type="password" id="password" name="password" placeholder="Password" required>
         </div>
 
-        <button type="submit" class="login-button">Log In</button>
+        <button type="submit" class="login-button"><i class="ti ti-login"></i> Log In</button>
     </form>
 </div>
 

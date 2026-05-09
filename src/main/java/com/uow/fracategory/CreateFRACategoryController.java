@@ -7,34 +7,31 @@ public class CreateFRACategoryController {
 
     private final FRACategory fraCategory = new FRACategory();
 
-    private String errorMessage = "";
-
-    public String getErrorMessage() { return errorMessage; }
-
-    public boolean createCategory(String categoryName, String categoryStatus) {
-        errorMessage = "";
-
-        if (categoryName == null || categoryName.isBlank()) {
-            errorMessage = "Category name is required.";
-            return false;
-        }
-        if (categoryStatus == null || categoryStatus.isBlank()) {
-            errorMessage = "Category status is required.";
-            return false;
-        }
-        String st = categoryStatus.trim();
-        if (!st.equalsIgnoreCase("Active") && !st.equalsIgnoreCase("Suspended")) {
-            errorMessage = "Invalid category status.";
+    public boolean createCategory(Object newCategoryData) {
+        if (!(newCategoryData instanceof java.util.Map<?, ?> map)) {
             return false;
         }
 
-        fraCategory.categoryName = categoryName.trim();
-        fraCategory.categoryStatus = st;
+        String newName = readText(map.get("categoryName"));
+        java.util.Map<String, Object> searchData = new java.util.HashMap<>();
+        searchData.put("categoryName", newName);
+        Object existingRows = fraCategory.getSearchCategory(searchData);
 
-        if (!fraCategory.saveCreateCategory()) {
-            errorMessage = fraCategory.lastErrorMessage;
-            return false;
+        if (existingRows instanceof java.util.List<?> rows) {
+            for (Object row : rows) {
+                if (row instanceof java.util.Map<?, ?> r) {
+                    String categoryName = readText(r.get("categoryName"));
+                    if (newName.equalsIgnoreCase(categoryName)) {
+                        return false;
+                    }
+                }
+            }
         }
-        return true;
+
+        return fraCategory.saveCreateCategory(newCategoryData);
+    }
+
+    private String readText(Object value) {
+        return value == null ? "" : String.valueOf(value).trim();
     }
 }

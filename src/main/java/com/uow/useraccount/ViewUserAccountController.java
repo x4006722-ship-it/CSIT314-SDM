@@ -7,7 +7,7 @@ public class ViewUserAccountController {
 
     private final UserAccount userAccount = new UserAccount();
 
-    public Object viewAccount(int userID) {
-        return userAccount.getViewAccount(userID);
+    public Object viewAccount(int userId) {
+        return userAccount.getViewAccount(userId);
     }
 }

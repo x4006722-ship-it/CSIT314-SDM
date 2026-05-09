@@ -1240,7 +1240,7 @@
                 const currentStatus = (statusCell?.querySelector('.pill')?.textContent ?? statusCell?.textContent ?? '').trim();
                 const nextStatus = currentStatus.toLowerCase() === 'suspended' ? 'Active' : 'Suspended';
 
-                const r = await fetch(`/api/accounts/suspend?userID=${encodeURIComponent(userId)}`, {
+                const r = await fetch(`/api/accounts/suspend?targetUserId=${encodeURIComponent(userId)}&currentUserId=1`, {
                     method: 'POST',
                     credentials: 'same-origin'
                 });

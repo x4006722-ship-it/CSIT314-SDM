@@ -1,7 +1,9 @@
-package com.uow.FRA;
+package com.uow.fra;
 
+import com.uow.useraccount.UserAccount;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpSession;
 import java.util.List;
 
 @RestController
@@ -17,6 +19,7 @@ public class FRA_UI {
     private final ViewFRAFavoriteCountController viewFRAFavoriteCountController;
     private final SearchCompletedFRAByCategoryAndDateController searchCompletedFRAByCategoryAndDateController;
     private final ViewCompletedFRAByCategoryAndDateController viewCompletedFRAByCategoryAndDateController;
+    private final UserAccount userAccount = new UserAccount();
 
     @Autowired
     public FRA_UI(CreateFRAController createController, 
@@ -49,18 +52,28 @@ public class FRA_UI {
         return searchController.searchFRA(criteria);
     }
 
+    @GetMapping("/donee-options")
+    public Object onGetDoneeOptions() {
+        return userAccount.getDoneeOptions();
+    }
+
+    @GetMapping("/fund-raiser-options")
+    public Object onGetFundRaiserOptions() {
+        return userAccount.getFundRaiserOptions();
+    }
+
     @PostMapping("/create")
-    public String submitFRACreationData(@RequestBody FRA fraData) {
+    public FRA submitFRACreationData(@RequestBody FRA fraData, HttpSession session) {
         return createController.createFRA(fraData);
     }
 
     @PostMapping("/update/{fraId}")
-    public String submitFRAUpdateData(@PathVariable String fraId, @RequestBody FRA fraData) {
+    public boolean submitFRAUpdateData(@PathVariable String fraId, @RequestBody FRA fraData) {
         return updateController.updateFRA(fraId, fraData);
     }
 
     @DeleteMapping("/delete/{fraId}")
-    public String confirmFRADeletion(@PathVariable String fraId) {
+    public boolean confirmFRADeletion(@PathVariable String fraId) {
         return removeController.deleteFRA(fraId);
     }
 

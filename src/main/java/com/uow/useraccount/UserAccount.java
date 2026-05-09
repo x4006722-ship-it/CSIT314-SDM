@@ -3,75 +3,49 @@ package com.uow.useraccount;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.uow.util.DBUtils;
 
 public class UserAccount {
 
-    public int userID;
-    public String username;
-    public String password;
-    public String fullName;
-    public String email;
-    public String phoneNumber;
-    public String status;
-    public int profileID;
-    public String lastErrorMessage = "";
-
     //Create Account
-    public boolean saveCreateAccount() {
-        lastErrorMessage = "";
-        userID = 0;
-        try (Connection c = DBUtils.getConnection();
-             PreparedStatement ps = c.prepareStatement(
-                     "SELECT COUNT(*) FROM user_account WHERE (username=? OR email=? OR phone_number=?) AND user_id<>?")) {
-            ps.setString(1, username);
-            ps.setString(2, email);
-            ps.setString(3, phoneNumber);
-            ps.setInt(4, userID);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next() || rs.getInt(1) != 0) {
-                    lastErrorMessage = "Duplicate username, email, or phone number.";
-                    return false;
-                }
-            }
-        } catch (Exception e) {
-            lastErrorMessage = "Duplicate username, email, or phone number.";
+    public boolean saveCreateAccount(Object newAccountData) {
+        if (!(newAccountData instanceof Map<?, ?> data)) {
             return false;
         }
         try (Connection c = DBUtils.getConnection();
              PreparedStatement ps = c.prepareStatement(
                      "INSERT INTO user_account (username,password,full_name,email,phone_number,a_status,profile_id) VALUES (?,?,?,?,?,?,?)")) {
-            ps.setString(1, username);
-            ps.setString(2, password);
-            ps.setString(3, fullName);
-            ps.setString(4, email);
-            ps.setString(5, phoneNumber);
-            ps.setString(6, status);
-            ps.setInt(7, profileID);
-            boolean ok = ps.executeUpdate() > 0;
-            if (!ok) {
-                lastErrorMessage = "Could not create account.";
-            }
-            return ok;
+            ps.setString(1, readText(data, "username"));
+            ps.setString(2, readText(data, "password"));
+            ps.setString(3, readText(data, "fullName"));
+            ps.setString(4, readText(data, "email"));
+            ps.setString(5, readText(data, "phoneNumber"));
+            ps.setString(6, readText(data, "accountStatus"));
+            ps.setInt(7, readInt(data, "profileId"));
+            return ps.executeUpdate() > 0;
         } catch (Exception e) {
-            lastErrorMessage = "Could not create account.";
             return false;
         }
     }
 
     //View Account
-    public Object getViewAccount(int userID) {
+    public Object getViewAccount(int userId) {
         try (Connection c = DBUtils.getConnection();
              PreparedStatement ps = c.prepareStatement(
                      "SELECT ua.user_id,ua.username,ua.full_name,ua.email,ua.phone_number,ua.password,ua.a_status,ua.profile_id,up.role AS roleName " +
                              "FROM user_account ua JOIN user_profile up ON ua.profile_id=up.profile_id WHERE ua.user_id=?")) {
-            ps.setInt(1, userID);
+            ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (!rs.next()) {
                     return null;
                 }
-                return java.util.Map.of(
+                return Map.of(
                         "user_id", rs.getInt("user_id"),
                         "username", rs.getString("username"),
                         "full_name", rs.getString("full_name"),
@@ -89,81 +63,57 @@ public class UserAccount {
     }
 
     //Update Account
-    public boolean saveUpdateAccount(int userID) {
-        lastErrorMessage = "";
-        this.userID = userID;
-        try (Connection c = DBUtils.getConnection();
-             PreparedStatement ps = c.prepareStatement(
-                     "SELECT COUNT(*) FROM user_account WHERE (username=? OR email=? OR phone_number=?) AND user_id<>?")) {
-            ps.setString(1, username);
-            ps.setString(2, email);
-            ps.setString(3, phoneNumber);
-            ps.setInt(4, userID);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next() || rs.getInt(1) != 0) {
-                    lastErrorMessage = "Duplicate username, email, or phone number.";
-                    return false;
-                }
-            }
-        } catch (Exception e) {
-            lastErrorMessage = "Duplicate username, email, or phone number.";
+    public boolean saveUpdateAccount(Object updatedAccountData) {
+        if (!(updatedAccountData instanceof Map<?, ?> data)) {
             return false;
         }
         try (Connection c = DBUtils.getConnection();
              PreparedStatement ps = c.prepareStatement(
                      "UPDATE user_account SET username=?, full_name=?, email=?, phone_number=?, password=?, a_status=?, profile_id=? WHERE user_id=?")) {
-            ps.setString(1, username);
-            ps.setString(2, fullName);
-            ps.setString(3, email);
-            ps.setString(4, phoneNumber);
-            ps.setString(5, password);
-            ps.setString(6, status);
-            ps.setInt(7, profileID);
-            ps.setInt(8, userID);
-            boolean ok = ps.executeUpdate() > 0;
-            if (!ok) {
-                lastErrorMessage = "Update failed.";
-            }
-            return ok;
+            ps.setString(1, readText(data, "username"));
+            ps.setString(2, readText(data, "fullName"));
+            ps.setString(3, readText(data, "email"));
+            ps.setString(4, readText(data, "phoneNumber"));
+            ps.setString(5, readText(data, "password"));
+            ps.setString(6, readText(data, "accountStatus"));
+            ps.setInt(7, readInt(data, "profileId"));
+            ps.setInt(8, readInt(data, "userId"));
+            return ps.executeUpdate() > 0;
         } catch (Exception e) {
-            lastErrorMessage = "Update failed.";
             return false;
         }
     }
 
     //Suspend Account
     public boolean saveSuspendAccount(int targetUserId, int currentUserId) {
-        lastErrorMessage = "";
-        Object detail = getViewAccount(targetUserId);
-        if (detail == null) {
-            lastErrorMessage = "Account not found.";
-            return false;
-        }
-        if (detail instanceof java.util.Map<?, ?> m) {
-            Object role = m.get("roleName");
-            if (role != null && "User Admin".equalsIgnoreCase(String.valueOf(role).trim())) {
-                lastErrorMessage = "Cannot suspend User Admin account.";
-                return false;
-            }
-        }
-
         try (Connection c = DBUtils.getConnection();
              PreparedStatement ps = c.prepareStatement(
                      "UPDATE user_account SET a_status = CASE WHEN LOWER(TRIM(a_status))='suspended' THEN 'Active' ELSE 'Suspended' END WHERE user_id=?")) {
             ps.setInt(1, targetUserId);
-            boolean ok = ps.executeUpdate() > 0;
-            if (!ok) {
-                lastErrorMessage = "Suspend failed.";
-            }
-            return ok;
+            return ps.executeUpdate() > 0;
         } catch (Exception e) {
-            lastErrorMessage = "Suspend failed.";
             return false;
         }
     }
 
     //Search Account
-    public Object getSearchAccount(String username, String fullName, String email, int phoneNumber, String status, int profileID) {
+    public Object getSearchAccount(Object searchData) {
+        String username = "";
+        String fullName = "";
+        String email = "";
+        String phoneNumber = "";
+        String status = "";
+        int profileId = 0;
+
+        if (searchData instanceof Map<?, ?> data) {
+            username = readText(data, "username");
+            fullName = readText(data, "fullName");
+            email = readText(data, "email");
+            phoneNumber = readText(data, "phoneNumber");
+            status = readText(data, "status");
+            profileId = readInt(data, "profileID");
+        }
+
         try (Connection c = DBUtils.getConnection();
              PreparedStatement ps = c.prepareStatement(
                      "SELECT ua.user_id,ua.username,ua.full_name,ua.email,ua.phone_number,ua.a_status,ua.profile_id,up.role AS roleName " +
@@ -171,7 +121,7 @@ public class UserAccount {
                              "WHERE (? = '' OR ua.username LIKE ?) " +
                              "AND (? = '' OR ua.full_name LIKE ?) " +
                              "AND (? = '' OR ua.email LIKE ?) " +
-                             "AND (? = 0 OR ua.phone_number LIKE ?) " +
+                             "AND (? = '' OR ua.phone_number LIKE ?) " +
                              "AND (? = '' OR ua.a_status = ?) " +
                              "AND (? = 0 OR ua.profile_id = ?)")) {
             ps.setString(1, username);
@@ -180,31 +130,293 @@ public class UserAccount {
             ps.setString(4, "%" + fullName + "%");
             ps.setString(5, email);
             ps.setString(6, "%" + email + "%");
-            ps.setInt(7, phoneNumber);
-            ps.setString(8, "%" + (phoneNumber == 0 ? "" : String.valueOf(phoneNumber)) + "%");
-            String st = status == null ? "" : status;
-            ps.setString(9, st);
-            ps.setString(10, st);
-            ps.setInt(11, profileID);
-            ps.setInt(12, profileID);
+            ps.setString(7, phoneNumber);
+            ps.setString(8, "%" + phoneNumber + "%");
+            ps.setString(9, status);
+            ps.setString(10, status);
+            ps.setInt(11, profileId);
+            ps.setInt(12, profileId);
             try (ResultSet rs = ps.executeQuery()) {
-                java.util.List<java.util.Map<String, Object>> out = new java.util.ArrayList<>();
+                List<Map<String, Object>> out = new ArrayList<>();
                 while (rs.next()) {
-                    out.add(java.util.Map.of(
-                            "userId", rs.getInt("user_id"),
-                            "username", rs.getString("username"),
-                            "fullName", rs.getString("full_name"),
-                            "email", rs.getString("email"),
-                            "phoneNumber", rs.getString("phone_number"),
-                            "accountStatus", rs.getString("a_status"),
-                            "profileID", rs.getInt("profile_id"),
-                            "roleName", rs.getString("roleName")
-                    ));
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("userId", rs.getInt("user_id"));
+                    row.put("username", rs.getString("username"));
+                    row.put("fullName", rs.getString("full_name"));
+                    row.put("email", rs.getString("email"));
+                    row.put("phoneNumber", rs.getString("phone_number"));
+                    row.put("accountStatus", rs.getString("a_status"));
+                    row.put("profileID", rs.getInt("profile_id"));
+                    row.put("roleName", rs.getString("roleName"));
+                    out.add(row);
                 }
                 return out;
             }
         } catch (Exception e) {
-            return java.util.List.of();
+            return List.of();
         }
+    }
+
+    public Object getDoneeOptions() {
+        List<Map<String, Object>> out = new ArrayList<>();
+        try (Connection c = DBUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT user_id, full_name FROM user_account WHERE profile_id = 3 ORDER BY full_name ASC, user_id ASC")) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("userId", rs.getInt("user_id"));
+                    row.put("fullName", rs.getString("full_name"));
+                    out.add(row);
+                }
+            }
+            return out;
+        } catch (Exception e) {
+            return List.of();
+        }
+    }
+
+    public Object getFundRaiserOptions() {
+        List<Map<String, Object>> out = new ArrayList<>();
+        try (Connection c = DBUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT ua.user_id, ua.full_name "
+                             + "FROM user_account ua "
+                             + "JOIN user_profile up ON ua.profile_id = up.profile_id "
+                             + "WHERE LOWER(TRIM(up.role)) = 'fund raiser' "
+                             + "ORDER BY ua.full_name ASC, ua.user_id ASC")) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("userId", rs.getInt("user_id"));
+                    row.put("fullName", rs.getString("full_name"));
+                    out.add(row);
+                }
+            }
+            return out;
+        } catch (Exception e) {
+            return List.of();
+        }
+    }
+
+    private String readText(Map<?, ?> data, String key) {
+        Object value = data.get(key);
+        return value == null ? "" : String.valueOf(value).trim();
+    }
+
+    private int readInt(Map<?, ?> data, String key) {
+        Object value = data.get(key);
+        if (value instanceof Number number) {
+            return number.intValue();
+        }
+        if (value == null || String.valueOf(value).isBlank()) {
+            return 0;
+        }
+        try {
+            return Integer.parseInt(String.valueOf(value).trim());
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    public Object getDailyUserStats() {
+        Map<String, Object> out = new HashMap<>();
+        out.put("totalUserCount", 0);
+        out.put("activeCount", 0);
+        out.put("suspendedCount", 0);
+        out.put("userByRole", new ArrayList<Map<String, Object>>());
+        String createdColumn = "";
+        try (Connection c = DBUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'user_account'")) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String col = rs.getString("COLUMN_NAME");
+                    if ("created_at".equalsIgnoreCase(col) || "createdAt".equalsIgnoreCase(col)
+                            || "user_createdAt".equalsIgnoreCase(col)) {
+                        createdColumn = col;
+                        break;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            return out;
+        }
+
+        String whereClause = createdColumn.isBlank() ? "" : (" WHERE DATE(ua." + createdColumn + ") = CURDATE()");
+
+        try (Connection c = DBUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT COUNT(*) AS totalUserCount, "
+                             + "SUM(CASE WHEN LOWER(TRIM(ua.a_status))='active' THEN 1 ELSE 0 END) AS activeCount, "
+                             + "SUM(CASE WHEN LOWER(TRIM(ua.a_status))='suspended' THEN 1 ELSE 0 END) AS suspendedCount "
+                             + "FROM user_account ua" + whereClause)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    out.put("totalUserCount", rs.getInt("totalUserCount"));
+                    out.put("activeCount", rs.getInt("activeCount"));
+                    out.put("suspendedCount", rs.getInt("suspendedCount"));
+                }
+            }
+        } catch (SQLException e) {
+            return out;
+        }
+
+        List<Map<String, Object>> byRole = new ArrayList<>();
+        try (Connection c = DBUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT COALESCE(NULLIF(TRIM(up.role),''), 'Unknown') AS roleName, COUNT(*) AS userCount "
+                             + "FROM user_account ua "
+                             + "LEFT JOIN user_profile up ON ua.profile_id = up.profile_id"
+                             + whereClause
+                             + " GROUP BY COALESCE(NULLIF(TRIM(up.role),''), 'Unknown') "
+                             + "ORDER BY userCount DESC, roleName ASC")) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("roleName", rs.getString("roleName"));
+                    row.put("count", rs.getInt("userCount"));
+                    byRole.add(row);
+                }
+            }
+            out.put("userByRole", byRole);
+        } catch (SQLException e) {
+            return out;
+        }
+        return out;
+    }
+
+    public Object getWeeklyUserStats() {
+        Map<String, Object> out = new HashMap<>();
+        out.put("totalUserCount", 0);
+        out.put("activeCount", 0);
+        out.put("suspendedCount", 0);
+        out.put("userByRole", new ArrayList<Map<String, Object>>());
+        String createdColumn = "";
+        try (Connection c = DBUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'user_account'")) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String col = rs.getString("COLUMN_NAME");
+                    if ("created_at".equalsIgnoreCase(col) || "createdAt".equalsIgnoreCase(col)
+                            || "user_createdAt".equalsIgnoreCase(col)) {
+                        createdColumn = col;
+                        break;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            return out;
+        }
+
+        String whereClause = createdColumn.isBlank() ? "" : (" WHERE YEARWEEK(DATE(ua." + createdColumn + "), 1) = YEARWEEK(CURDATE(), 1)");
+
+        try (Connection c = DBUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT COUNT(*) AS totalUserCount, "
+                             + "SUM(CASE WHEN LOWER(TRIM(ua.a_status))='active' THEN 1 ELSE 0 END) AS activeCount, "
+                             + "SUM(CASE WHEN LOWER(TRIM(ua.a_status))='suspended' THEN 1 ELSE 0 END) AS suspendedCount "
+                             + "FROM user_account ua" + whereClause)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    out.put("totalUserCount", rs.getInt("totalUserCount"));
+                    out.put("activeCount", rs.getInt("activeCount"));
+                    out.put("suspendedCount", rs.getInt("suspendedCount"));
+                }
+            }
+        } catch (SQLException e) {
+            return out;
+        }
+
+        List<Map<String, Object>> byRole = new ArrayList<>();
+        try (Connection c = DBUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT COALESCE(NULLIF(TRIM(up.role),''), 'Unknown') AS roleName, COUNT(*) AS userCount "
+                             + "FROM user_account ua "
+                             + "LEFT JOIN user_profile up ON ua.profile_id = up.profile_id"
+                             + whereClause
+                             + " GROUP BY COALESCE(NULLIF(TRIM(up.role),''), 'Unknown') "
+                             + "ORDER BY userCount DESC, roleName ASC")) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("roleName", rs.getString("roleName"));
+                    row.put("count", rs.getInt("userCount"));
+                    byRole.add(row);
+                }
+            }
+            out.put("userByRole", byRole);
+        } catch (SQLException e) {
+            return out;
+        }
+        return out;
+    }
+
+    public Object getMonthlyUserStats() {
+        Map<String, Object> out = new HashMap<>();
+        out.put("totalUserCount", 0);
+        out.put("activeCount", 0);
+        out.put("suspendedCount", 0);
+        out.put("userByRole", new ArrayList<Map<String, Object>>());
+        String createdColumn = "";
+        try (Connection c = DBUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'user_account'")) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String col = rs.getString("COLUMN_NAME");
+                    if ("created_at".equalsIgnoreCase(col) || "createdAt".equalsIgnoreCase(col)
+                            || "user_createdAt".equalsIgnoreCase(col)) {
+                        createdColumn = col;
+                        break;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            return out;
+        }
+
+        String whereClause = createdColumn.isBlank() ? "" : (" WHERE YEAR(DATE(ua." + createdColumn + ")) = YEAR(CURDATE()) AND MONTH(DATE(ua." + createdColumn + ")) = MONTH(CURDATE())");
+
+        try (Connection c = DBUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT COUNT(*) AS totalUserCount, "
+                             + "SUM(CASE WHEN LOWER(TRIM(ua.a_status))='active' THEN 1 ELSE 0 END) AS activeCount, "
+                             + "SUM(CASE WHEN LOWER(TRIM(ua.a_status))='suspended' THEN 1 ELSE 0 END) AS suspendedCount "
+                             + "FROM user_account ua" + whereClause)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    out.put("totalUserCount", rs.getInt("totalUserCount"));
+                    out.put("activeCount", rs.getInt("activeCount"));
+                    out.put("suspendedCount", rs.getInt("suspendedCount"));
+                }
+            }
+        } catch (SQLException e) {
+            return out;
+        }
+
+        List<Map<String, Object>> byRole = new ArrayList<>();
+        try (Connection c = DBUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT COALESCE(NULLIF(TRIM(up.role),''), 'Unknown') AS roleName, COUNT(*) AS userCount "
+                             + "FROM user_account ua "
+                             + "LEFT JOIN user_profile up ON ua.profile_id = up.profile_id"
+                             + whereClause
+                             + " GROUP BY COALESCE(NULLIF(TRIM(up.role),''), 'Unknown') "
+                             + "ORDER BY userCount DESC, roleName ASC")) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("roleName", rs.getString("roleName"));
+                    row.put("count", rs.getInt("userCount"));
+                    byRole.add(row);
+                }
+            }
+            out.put("userByRole", byRole);
+        } catch (SQLException e) {
+            return out;
+        }
+        return out;
     }
 }

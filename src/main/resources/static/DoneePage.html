@@ -244,16 +244,23 @@
         }
         #fra-table thead th:nth-child(1), #fav-table thead th:nth-child(1), #hist-table thead th:nth-child(1) { width: 56px; }
         #fra-table thead th:nth-child(4), #fav-table thead th:nth-child(4), #hist-table thead th:nth-child(4) { width: 132px; }
-        #fra-table thead th:nth-child(5), #fav-table thead th:nth-child(5), #hist-table thead th:nth-child(5) { width: 232px; text-align: center; }
+        #fra-table thead th:nth-child(5), #fav-table thead th:nth-child(5) { width: 232px; text-align: center; }
+        #hist-table thead th:nth-child(5) { width: 150px; text-align: left; }
+        #hist-table thead th:nth-child(6) { width: 120px; text-align: center; }
         #fra-table tbody td:nth-child(4), #fav-table tbody td:nth-child(4), #hist-table tbody td:nth-child(4) {
             width: 132px;
             max-width: 132px;
             vertical-align: middle;
         }
-        #fra-table tbody td:nth-child(5), #fav-table tbody td:nth-child(5), #hist-table tbody td:nth-child(5) {
+        #fra-table tbody td:nth-child(5), #fav-table tbody td:nth-child(5) {
             text-align: center;
             vertical-align: middle;
             width: 232px;
+        }
+        #hist-table tbody td:nth-child(6) {
+            text-align: center;
+            vertical-align: middle;
+            width: 120px;
         }
         #fav-table, #hist-table {
             width: 100%;
@@ -604,6 +611,14 @@
                                     <option value="Completed">Completed</option>
                                 </select>
                             </div>
+                            <div class="form-group">
+                                <label for="hist-date-from">Date From</label>
+                                <input id="hist-date-from" type="date">
+                            </div>
+                            <div class="form-group">
+                                <label for="hist-date-to">Date To</label>
+                                <input id="hist-date-to" type="date">
+                            </div>
                         </div>
                         <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom: 12px;">
                             <button type="button" class="btn btn-black" id="hist-search-btn" style="background:linear-gradient(135deg,#c2410c,#f97316);">Search</button>
@@ -618,11 +633,12 @@
                                             <th>Title</th>
                                             <th>Category</th>
                                             <th>Status</th>
+                                            <th>Progress</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody id="hist-tbody">
-                                        <tr><td colspan="5" class="muted" style="text-align:center;">—</td></tr>
+                                        <tr><td colspan="6" class="muted" style="text-align:center;">—</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -648,6 +664,8 @@
 <div id="donee-toast" class="donee-toast" role="status" aria-live="polite" aria-atomic="true"></div>
 <script>
 (function () {
+    var doneeCategoryById = {};
+    var doneeSavedFraIds = {};
     var API_BASE = (function () {
         if (window.location.protocol === 'file:') {
             return 'http://localhost:8080';
@@ -758,29 +776,61 @@
         sel.value = found ? keep : 'all';
     }
 
-    function addCategoryOptionToBoth(name) {
+    function addCategoryOption(id, name) {
         if (!name || name === '—') return;
         var v = String(name).trim();
         if (!v) return;
-        ['fra-filter-category', 'fav-filter-category', 'hist-filter-category'].forEach(function (id) {
-            var sel = document.getElementById(id);
-            if (!sel) return;
-            for (var i = 0; i < sel.options.length; i++) {
-                if (sel.options[i].value === v) return;
-            }
-            var o = document.createElement('option');
-            o.value = v;
-            o.textContent = v;
-            sel.appendChild(o);
-        });
+        var sel = document.getElementById(id);
+        if (!sel) return;
+        for (var i = 0; i < sel.options.length; i++) {
+            if (sel.options[i].value === v) return;
+        }
+        var o = document.createElement('option');
+        o.value = v;
+        o.textContent = v;
+        sel.appendChild(o);
     }
-    function mergeCategoryDropdownsFromRows(rows) {
+    function resetCategorySelect(id) {
+        var sel = document.getElementById(id);
+        if (!sel) return;
+        while (sel.options.length > 1) {
+            sel.remove(1);
+        }
+        sel.value = 'all';
+    }
+    function mergeCategoryDropdownFromRows(rows, selectId) {
         if (!rows || !rows.length) return;
         rows.forEach(function (row) {
-            if (row.category != null && row.category !== '—') {
-                addCategoryOptionToBoth(row.category);
+            var category = row && (row.category != null ? row.category : row.categoryName);
+            if ((category == null || category === '') && row) {
+                var cid = row.category_id != null ? row.category_id : row.categoryId;
+                if (cid != null && doneeCategoryById[String(cid)]) {
+                    category = doneeCategoryById[String(cid)];
+                }
+            }
+            if (category != null && category !== '—') {
+                addCategoryOption(selectId, category);
             }
         });
+    }
+
+    async function loadAllCategories() {
+        try {
+            var r = await fetch(apiUrl('/api/fra-categories/list'), fetchOptions());
+            if (!r.ok) return;
+            var data = await r.json();
+            var rows = Array.isArray(data) ? data : [];
+            rows.forEach(function (c) {
+                var cid = c.categoryID != null ? c.categoryID : c.categoryId;
+                var cname = c.categoryName != null ? String(c.categoryName).trim() : '';
+                if (cid != null && cname) {
+                    doneeCategoryById[String(cid)] = cname;
+                    addCategoryOption('fra-filter-category', cname);
+                }
+            });
+        } catch (e) {
+            // keep existing fallback behavior
+        }
     }
 
     function buildFavQuery() {
@@ -794,11 +844,7 @@
 
     function buildBrowseQuery() {
         var title = (document.getElementById('fra-search-q').value || '').trim();
-        var fraStatus = (document.getElementById('fra-filter-status').value || 'all').trim();
-        var categoryName = (document.getElementById('fra-filter-category').value || 'all').trim();
-        return apiUrl('/api/donee/fra/browse?title=' + encodeURIComponent(title)
-            + '&fraStatus=' + encodeURIComponent(fraStatus)
-            + '&categoryName=' + encodeURIComponent(categoryName));
+        return apiUrl('/api/donee/fra/search?criteria=' + encodeURIComponent(title));
     }
 
     function renderFraRows(rows) {
@@ -810,16 +856,25 @@
             return;
         }
         tbody.innerHTML = rows.map(function (row) {
-            var id = row.fra_id;
-            var saved = row.saved === true || row.saved === 'true' || row.saved === 1;
+            var id = row.fra_id != null ? row.fra_id : row.fraId;
+            var title = row.title != null ? row.title : row.fraTitle;
+            var status = row.status != null ? row.status : row.fraStatus;
+            var category = row.category != null ? row.category : row.categoryName;
+            if ((category == null || category === '') && row.category_id != null) {
+                category = doneeCategoryById[String(row.category_id)] || row.category_id;
+            }
+            if ((category == null || category === '') && row.categoryId != null) {
+                category = doneeCategoryById[String(row.categoryId)] || row.categoryId;
+            }
+            var saved = row.saved === true || row.saved === 'true' || row.saved === 1 || doneeSavedFraIds[String(id)] === true;
             var saveBtn = saved
                 ? '<button type="button" class="btn btn-sm fra-unsave" data-action="unsave" data-id="' + escapeHtml(String(id)) + '" title="Remove from your favourites">Unsave</button>'
                 : '<button type="button" class="btn btn-danger btn-sm" data-action="fav" data-id="' + escapeHtml(String(id)) + '">Save</button>';
             return '<tr>' +
                 '<td>' + escapeHtml(String(id)) + '</td>' +
-                '<td>' + escapeHtml(row.title) + '</td>' +
-                '<td>' + escapeHtml(row.category != null ? row.category : '—') + '</td>' +
-                '<td>' + statusPill(row.status) + '</td>' +
+                '<td>' + escapeHtml(title != null ? title : '—') + '</td>' +
+                '<td>' + escapeHtml(category != null ? category : '—') + '</td>' +
+                '<td>' + statusPill(status != null ? status : '') + '</td>' +
                 '<td><div class="td-actions">' +
                 '<button type="button" class="btn btn-view btn-sm" data-action="view" data-id="' + escapeHtml(String(id)) + '">View</button>' +
                 saveBtn +
@@ -839,6 +894,7 @@
         }
         tbody.innerHTML = rows.map(function (row) {
             var id = row.fra_id;
+            doneeSavedFraIds[String(id)] = true;
             return '<tr>' +
                 '<td>' + escapeHtml(String(id)) + '</td>' +
                 '<td>' + escapeHtml(row.title) + '</td>' +
@@ -860,7 +916,14 @@
             countEl.textContent = '—';
         }
         try {
-            var r = await fetch(buildFavQuery(), fetchOptions());
+            var title = (document.getElementById('fav-search-q').value || '').trim();
+            var fraStatus = (document.getElementById('fav-filter-status').value || 'all').trim();
+            var categoryName = (document.getElementById('fav-filter-category').value || 'all').trim();
+            var r = await fetch(apiUrl('/api/donee/favourites/search'), fetchOptions({
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title: title, fraStatus: fraStatus, categoryName: categoryName })
+            }));
             var data = await r.json();
             if (!r.ok) {
                 if (!silent) {
@@ -889,7 +952,8 @@
                 return;
             }
             renderFavRows(rows);
-            mergeCategoryDropdownsFromRows(rows);
+            resetCategorySelect('fav-filter-category');
+            mergeCategoryDropdownFromRows(rows, 'fav-filter-category');
         } catch (e) {
             if (!silent) {
                 tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">' + escapeHtml(e.message || 'Request failed') + '</td></tr>';
@@ -936,7 +1000,8 @@
                 return;
             }
             renderFraRows(rows);
-            mergeCategoryDropdownsFromRows(rows);
+            resetCategorySelect('fra-filter-category');
+            mergeCategoryDropdownFromRows(rows, 'fra-filter-category');
         } catch (e) {
             if (!silent) {
                 tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">' + escapeHtml(e.message || 'Request failed') + '</td></tr>';
@@ -960,6 +1025,7 @@
             ['Create At', data.createAt],
             ['View count', data.viewCount],
             ['Favourite count', data.favouriteCount],
+            ['Target amount', data.targetAmount != null ? data.targetAmount : data.target_amount],
             ['Current amount', data.currentAmount],
             ['Donee', data.doneeName]
         ];
@@ -977,23 +1043,31 @@
         try {
             var r = await fetch(apiUrl(path + '?fraId=' + encodeURIComponent(fraId)), fetchOptions());
             var data = await r.json();
+            if (Array.isArray(data)) data = data[0] || {};
             openFraViewModal(data);
         } catch (e) {
             showToast(e.message || 'View failed', 'err');
         }
     }
 
-    async function saveFavourite(fraId) {
+    async function saveFavourite(fraId, triggerBtn) {
         try {
             var r = await fetch(apiUrl('/api/donee/favourites/save'), fetchOptions({
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: 'fraId=' + encodeURIComponent(fraId)
             }));
-            var data = await r.json();
-            if (data.success) {
+            var data = null;
+            try { data = await r.json(); } catch (e) { data = null; }
+            if (r.ok && (data === true || (data && data.success === true))) {
+                doneeSavedFraIds[String(fraId)] = true;
+                if (triggerBtn) {
+                    triggerBtn.setAttribute('data-action', 'unsave');
+                    triggerBtn.className = 'btn btn-sm fra-unsave';
+                    triggerBtn.textContent = 'Unsave';
+                    triggerBtn.title = 'Remove from your favourites';
+                }
                 showToast(data.message || 'Saved to your favourites.', 'ok');
-                loadBrowse(true);
                 if (panelFav && !panelFav.hidden) {
                     loadFavourites(true);
                 }
@@ -1001,24 +1075,32 @@
                     loadHistorySearch();
                 }
             } else {
-                showToast(data.error || 'Save failed', 'err');
+                var msg = (data && data.error) ? data.error : 'Save failed';
+                showToast(msg, 'err');
             }
         } catch (e) {
             showToast(e.message || 'Save failed', 'err');
         }
     }
 
-    async function removeFavourite(fraId) {
+    async function removeFavourite(fraId, triggerBtn) {
         try {
             var r = await fetch(apiUrl('/api/donee/favourites/save'), fetchOptions({
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: 'fraId=' + encodeURIComponent(fraId) + '&remove=true'
             }));
-            var data = await r.json();
-            if (data.success) {
+            var data = null;
+            try { data = await r.json(); } catch (e) { data = null; }
+            if (r.ok && (data === true || (data && data.success === true))) {
+                doneeSavedFraIds[String(fraId)] = false;
+                if (triggerBtn) {
+                    triggerBtn.setAttribute('data-action', 'fav');
+                    triggerBtn.className = 'btn btn-danger btn-sm';
+                    triggerBtn.textContent = 'Save';
+                    triggerBtn.removeAttribute('title');
+                }
                 showToast(data.message || 'Removed from your favourites.', 'ok');
-                loadBrowse(true);
                 if (panelFav && !panelFav.hidden) {
                     loadFavourites(true);
                 }
@@ -1026,7 +1108,8 @@
                     loadHistorySearch();
                 }
             } else {
-                showToast(data.error || 'Unsave failed', 'err');
+                var msg = (data && data.error) ? data.error : 'Unsave failed';
+                showToast(msg, 'err');
             }
         } catch (e) {
             showToast(e.message || 'Unsave failed', 'err');
@@ -1059,23 +1142,28 @@
         var tbody = document.getElementById('hist-tbody');
         var countEl = document.getElementById('hist-count');
         if (!rows || !rows.length) {
-            tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">No FRAs in this range.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;">No FRAs in this range.</td></tr>';
             countEl.textContent = '0 FRA';
             return;
         }
         tbody.innerHTML = rows.map(function (row) {
             var id = row.fra_id;
+            var currentAmount = (row.currentAmount == null || row.currentAmount === '') ? '0' : row.currentAmount;
+            var targetAmount = (row.targetAmount == null || row.targetAmount === '') ? '0' : row.targetAmount;
+            var progress = String(currentAmount) + ' / ' + String(targetAmount);
             return '<tr>' +
                 '<td>' + escapeHtml(String(id)) + '</td>' +
                 '<td>' + escapeHtml(row.title) + '</td>' +
                 '<td>' + escapeHtml(row.category != null ? row.category : '—') + '</td>' +
                 '<td>' + statusPill(row.status) + '</td>' +
+                '<td>' + escapeHtml(progress) + '</td>' +
                 '<td><div class="td-actions">' +
                 '<button type="button" class="btn btn-view btn-sm" data-action="view" data-id="' + escapeHtml(String(id)) + '">View</button>' +
                 '</div></td></tr>';
         }).join('');
         countEl.textContent = rows.length + (rows.length === 1 ? ' FRA' : ' FRAs');
-        mergeCategoryDropdownsFromRows(rows);
+        resetCategorySelect('hist-filter-category');
+        mergeCategoryDropdownFromRows(rows, 'hist-filter-category');
     }
     async function loadHistorySearch() {
         var tbody = document.getElementById('hist-tbody');
@@ -1083,7 +1171,16 @@
         tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">Loading…</td></tr>';
         countEl.textContent = '—';
         try {
-            var r = await fetch(buildHistorySearchUrl(), fetchOptions());
+            var title = (document.getElementById('hist-search-q').value || '').trim();
+            var categoryName = (document.getElementById('hist-filter-category').value || 'all').trim();
+            var fraStatus = (document.getElementById('hist-filter-status').value || 'all').trim();
+            var startDate = (document.getElementById('hist-date-from').value || '').trim();
+            var endDate = (document.getElementById('hist-date-to').value || '').trim();
+            var r = await fetch(apiUrl('/api/donee/history/search'), fetchOptions({
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title: title, categoryName: categoryName, fraStatus: fraStatus, startDate: startDate, endDate: endDate })
+            }));
             var data = await r.json();
             if (!r.ok) {
                 tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">HTTP ' + r.status + '</td></tr>';
@@ -1108,6 +1205,8 @@
         document.getElementById('hist-search-q').value = '';
         document.getElementById('hist-filter-category').value = 'all';
         document.getElementById('hist-filter-status').value = 'all';
+        document.getElementById('hist-date-from').value = '';
+        document.getElementById('hist-date-to').value = '';
         loadHistorySearch();
     }
 
@@ -1131,9 +1230,9 @@
         if (act === 'view') {
             viewFra(id, '/api/donee/fra/view');
         } else if (act === 'unsave') {
-            removeFavourite(id);
+            removeFavourite(id, btn);
         } else {
-            saveFavourite(id);
+            saveFavourite(id, btn);
         }
     });
     document.getElementById('fav-search-btn').addEventListener('click', loadFavourites);
@@ -1144,7 +1243,7 @@
     document.getElementById('fav-tbody').addEventListener('click', function (e) {
         var u = e.target.closest('button[data-action="unsave"]');
         if (u) {
-            removeFavourite(u.getAttribute('data-id'));
+            removeFavourite(u.getAttribute('data-id'), u);
             return;
         }
         var v = e.target.closest('button[data-action="view"]');
@@ -1160,6 +1259,7 @@
         if (v) viewFra(v.getAttribute('data-id'), '/api/donee/fra/view');
     });
 
+    loadAllCategories();
     loadBrowse();
 })();
 </script>

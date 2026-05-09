@@ -1,22 +1,25 @@
 package com.uow.donee;
 
-import java.util.Map;
+import java.util.List;
 
+import com.uow.fra.FRA;
+import com.uow.fra.SearchFRAController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import jakarta.servlet.http.HttpSession;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class DoneePage {
 
-    @Autowired private SearchFraController searchFraController;
-    @Autowired private ViewFraController viewFraController;
+    @Autowired private SearchFRAController searchFRAController;
     @Autowired private SaveFavouriteController saveFavouriteController;
     @Autowired private ViewFavouriteController viewFavouriteController;
     @Autowired private SearchFavouriteController searchFavouriteController;
@@ -28,39 +31,39 @@ public class DoneePage {
         return "forward:/DoneePage.html";
     }
 
-    // Search Fra
-    @GetMapping(value = "/api/donee/fra/browse", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public Object onSearchFra(
-            @RequestParam(value = "title", defaultValue = "") String title,
-            @RequestParam(value = "fraStatus", defaultValue = "all") String fraStatus,
-            @RequestParam(value = "categoryName", defaultValue = "all") String categoryName,
-            HttpSession session) {
-        Object _o = session == null ? null : session.getAttribute("userId");
-        int uid = _o instanceof Number n ? n.intValue() : 0;
-        return searchFraController.searchFra(uid, title, fraStatus, categoryName);
+    public String showSaveSuccessMessage() {
+        return "Saved to favourite successfully.";
     }
 
-    // View Fra
+    // Search FRA
+    @GetMapping(value = "/api/donee/fra/search", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public List<FRA> onSearchFRA(@RequestParam(value = "criteria", defaultValue = "") String criteria) {
+        return searchFRAController.searchFRA(criteria);
+    }
+
+    // View FRA
     @GetMapping(value = "/api/donee/fra/view", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Object onViewFra(@RequestParam(value = "fraId", defaultValue = "0") int fraId) {
-        return viewFraController.viewFra(fraId);
+    public Object onViewFRA(@RequestParam(value = "fraId", defaultValue = "0") int fraId) {
+        return viewDonationController.viewDonation(fraId);
     }
 
     // Save Favourite
     @PostMapping(value = "/api/donee/favourites/save", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Object onSaveFavourite(
+    public boolean onSaveFavourite(
             @RequestParam(value = "fraId", defaultValue = "0") int fraId,
+            @RequestParam(value = "userId", defaultValue = "0") int userId,
             @RequestParam(value = "remove", defaultValue = "false") boolean remove,
             HttpSession session) {
-        Object _o = session == null ? null : session.getAttribute("userId");
-        int uid = _o instanceof Number n ? n.intValue() : 0;
-        boolean ok = saveFavouriteController.saveFavourite(uid, fraId, remove);
-        if (ok) return Map.of("success", true, "message", remove ? "Removed from favourites." : "Saved to favourites.");
-        String err = saveFavouriteController.donee.lastErrorMessage;
-        return Map.of("success", false, "error", err == null || err.isBlank() ? "Failed to update favourites." : err);
+        if (userId <= 0 && session != null) {
+            Object sid = session.getAttribute("userId");
+            if (sid instanceof Number n) {
+                userId = n.intValue();
+            }
+        }
+        return saveFavouriteController.saveFavourite(fraId, userId, remove);
     }
 
     // View Favourite
@@ -71,29 +74,43 @@ public class DoneePage {
     }
 
     // Search Favourite
-    @GetMapping(value = "/api/donee/favourites/search", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/api/donee/favourites/search", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Object onSearchFavourite(
-            @RequestParam(value = "title", defaultValue = "") String title,
-            @RequestParam(value = "fraStatus", defaultValue = "all") String fraStatus,
-            @RequestParam(value = "categoryName", defaultValue = "all") String categoryName,
-            HttpSession session) {
-        Object _o = session == null ? null : session.getAttribute("userId");
-        int uid = _o instanceof Number n ? n.intValue() : 0;
-        return searchFavouriteController.searchFavourite(uid, title, fraStatus, categoryName);
+    public Object onSearchFavourite(@RequestBody Object searchFavouriteData, HttpSession session) {
+        if (searchFavouriteData instanceof Map<?, ?> raw) {
+            Map<String, Object> payload = new HashMap<>();
+            for (Map.Entry<?, ?> e : raw.entrySet()) {
+                payload.put(String.valueOf(e.getKey()), e.getValue());
+            }
+            if (!payload.containsKey("userId") && session != null) {
+                Object sid = session.getAttribute("userId");
+                if (sid instanceof Number n) {
+                    payload.put("userId", n.intValue());
+                }
+            }
+            searchFavouriteData = payload;
+        }
+        return searchFavouriteController.searchFavourite(searchFavouriteData);
     }
 
     // Search Donation
-    @GetMapping(value = "/api/donee/history/search", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/api/donee/history/search", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Object onSearchDonation(
-            @RequestParam(value = "title", defaultValue = "") String title,
-            @RequestParam(value = "categoryName", defaultValue = "all") String categoryName,
-            @RequestParam(value = "fraStatus", defaultValue = "all") String fraStatus,
-            HttpSession session) {
-        Object _o = session == null ? null : session.getAttribute("userId");
-        int uid = _o instanceof Number n ? n.intValue() : 0;
-        return searchDonationController.searchDonation(uid, title, categoryName, fraStatus);
+    public Object onSearchDonation(@RequestBody Object searchDonationData, HttpSession session) {
+        if (searchDonationData instanceof Map<?, ?> raw) {
+            Map<String, Object> payload = new HashMap<>();
+            for (Map.Entry<?, ?> e : raw.entrySet()) {
+                payload.put(String.valueOf(e.getKey()), e.getValue());
+            }
+            if (!payload.containsKey("userId") && session != null) {
+                Object sid = session.getAttribute("userId");
+                if (sid instanceof Number n) {
+                    payload.put("userId", n.intValue());
+                }
+            }
+            searchDonationData = payload;
+        }
+        return searchDonationController.searchDonation(searchDonationData);
     }
 
     // View Donation
