@@ -139,7 +139,7 @@
                     <input type="text" id="create-title" class="form-control" placeholder="e.g. Save the Forests">
                 </div>
                 
-                <div class="form-group">
+                <div class="form-group" id="fund-raiser-name-group">
                     <label>Fund Raiser Name</label>
                     <input type="text" id="create-fund-raiser-name" class="form-control" placeholder="Auto from current account" readonly>
                 </div>
@@ -350,19 +350,19 @@
                 fundRaiserId: document.getElementById('create-fund-raiser-id').value,
                 categoryId: document.getElementById('create-category').value,
                 fraTargetAmount: parseFloat(document.getElementById('create-amount').value),
-                createdAt: document.getElementById('create-start-date').value,
+                startedAt: document.getElementById('create-start-date').value,
                 endedAt: document.getElementById('create-end-date').value,
                 fraStatus: id ? document.getElementById('create-status').value : "Pending"
             };
 
             // Frontend validation
-            if(!payload.fraTitle || !payload.doneeId || isNaN(payload.fraTargetAmount) || !payload.createdAt || !payload.endedAt) {
+            if(!payload.fraTitle || !payload.doneeId || isNaN(payload.fraTargetAmount) || !payload.startedAt || !payload.endedAt) {
                 showMessage("Please fill in all required fields.", "error"); return;
             }
             if(!payload.categoryId) { showMessage("Please select a Category.", "error"); return; }
             if(!payload.fundRaiserId) { showMessage("Fund Raiser is required.", "error"); return; }
             if(payload.fraTargetAmount <= 0) { showMessage("Amount must be greater than 0.", "error"); return; }
-            if(new Date(payload.createdAt) > new Date(payload.endedAt)) { showMessage("End Date cannot be earlier than Start Date.", "error"); return; }
+            if(new Date(payload.startedAt) >= new Date(payload.endedAt)) { showMessage("Start Date must be before End Date.", "error"); return; }
 
             // Disable button to prevent repeated clicks
             btn.disabled = true;
@@ -428,7 +428,7 @@
                         const titleOk = !t || (i.fraTitle && i.fraTitle.toLowerCase().includes(t));
                         const statusOk = !s || i.fraStatus === s;
                         const categoryOk = !c || String(i.categoryId ?? '') === String(c);
-                        const rawStart = i.createdAt ?? i.fraCreatedAt;
+                        const rawStart = i.startedAt ?? i.fraStartedAt ?? i.createdAt ?? i.fraCreatedAt;
                         const rawEnd = i.endedAt ?? i.fraEndedAt;
                         const dateOk = isSearchDateWithinFraRange(d, rawStart, rawEnd);
                         return titleOk && statusOk && categoryOk && dateOk;
@@ -459,13 +459,13 @@
                     <td style="color: #3498db; font-weight: bold;">${item.fundRaiserName || 'ID: '+(item.fundRaiserId || '')}</td>
                     <td>$${item.fraTargetAmount}</td>
                     <td>$${item.currentAmount || 0}</td>
-                    <td>${normalizeDateInputValue(item.createdAt) || 'N/A'}</td>
+                    <td>${normalizeDateInputValue(item.startedAt || item.createdAt) || 'N/A'}</td>
                     <td>${normalizeDateInputValue(item.endedAt) || 'N/A'}</td>
                     <td>${item.viewCount || 0}</td>
                     <td>${item.favoriteCount || 0}</td>
                     <td><span style="color:${sColor};font-weight:bold;">${item.fraStatus}</span></td>
                     <td>
-                        <a class="btn-action" onclick="prepareUpdate('${item.fraId}','${safeTitle}','${item.categoryId}',${item.fraTargetAmount},'${item.createdAt}','${item.endedAt}','${item.doneeId || ''}','${item.fundRaiserId || ''}','${item.fundRaiserName || ''}','${item.fraStatus}')">Edit</a>
+                        <a class="btn-action" onclick="prepareUpdate('${item.fraId}','${safeTitle}','${item.categoryId}',${item.fraTargetAmount},'${item.startedAt || item.createdAt}','${item.endedAt}','${item.doneeId || ''}','${item.fundRaiserId || ''}','${item.fundRaiserName || ''}','${item.fraStatus}')">Edit</a>
                         <a class="btn-action btn-delete" onclick="deleteFRA('${item.fraId}')">Delete</a>
                     </td>
                 </tr>`;
@@ -524,7 +524,7 @@
             loadDoneeOptions(doneeId);
             document.getElementById('create-fund-raiser-id').value = frId;
             document.getElementById('create-fund-raiser-name').value = frName;
-            document.getElementById('create-fund-raiser-name').style.display = 'none';
+            document.getElementById('fund-raiser-name-group').style.display = 'none';
             document.getElementById('fund-raiser-select-group').style.display = 'block';
             loadFundRaiserOptions(frId);
             document.getElementById('create-category').value = cat;
@@ -543,7 +543,7 @@
             document.getElementById('create-donee-id').value = "";
             document.getElementById('create-fund-raiser-id').value = "";
             document.getElementById('create-fund-raiser-name').value = "";
-            document.getElementById('create-fund-raiser-name').style.display = 'block';
+            document.getElementById('fund-raiser-name-group').style.display = 'block';
             document.getElementById('fund-raiser-select-group').style.display = 'none';
             document.getElementById('create-fund-raiser-select').value = "";
             document.getElementById('create-amount').value = "";

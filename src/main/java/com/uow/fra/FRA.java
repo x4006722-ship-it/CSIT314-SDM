@@ -1,5 +1,6 @@
 package com.uow.fra;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -14,6 +15,7 @@ public class FRA {
     private Double fraTargetAmount;
     private String fraStatus;
     
+    private String startedAt;
     private String createdAt; 
     private String endedAt;   
     private String doneeId;
@@ -39,6 +41,7 @@ public class FRA {
         this.currentAmount = currentAmount;
         this.viewCount = viewCount;
         this.favoriteCount = favoriteCount;
+        this.startedAt = createdAt;
         this.createdAt = createdAt;
         this.endedAt = endedAt;
         this.doneeId = doneeId;
@@ -65,6 +68,8 @@ public class FRA {
     public void setViewCount(int viewCount) { this.viewCount = viewCount; }
     public int getFavoriteCount() { return favoriteCount; }
     public void setFavoriteCount(int favoriteCount) { this.favoriteCount = favoriteCount; }
+    public String getStartedAt() { return startedAt; }
+    public void setStartedAt(String startedAt) { this.startedAt = startedAt; }
     public String getCreatedAt() { return createdAt; }
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
     public String getEndedAt() { return endedAt; }
@@ -83,7 +88,7 @@ public class FRA {
     public void setUpdatedAt(String updatedAt) { this.updatedAt = updatedAt; }
 
     public FRA saveFRA() {
-        String sql = "INSERT INTO fra (fra_title, fra_targetAmount, category_id, fra_status, current_amount, fra_viewCount, fra_favouriteCount, fra_createdAt, fra_endedAt, donee_id, fundRaiser_id, completed_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO fra (fra_title, fra_targetAmount, category_id, fra_status, current_amount, fra_viewCount, fra_favouriteCount, fra_startedAt, fra_endedAt, donee_id, fundRaiser_id, completed_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBUtils.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 pstmt.setString(1, this.fraTitle);
@@ -93,7 +98,7 @@ public class FRA {
                 pstmt.setDouble(5, 0.0);
                 pstmt.setInt(6, 0);
                 pstmt.setInt(7, 0);
-                pstmt.setString(8, this.createdAt);
+                pstmt.setString(8, this.startedAt);
                 pstmt.setString(9, this.endedAt);
                 pstmt.setString(10, this.doneeId);
                 pstmt.setString(11, this.fundRaiserId);
@@ -127,12 +132,18 @@ public class FRA {
 
     private static FRA fromResultSet(ResultSet rs) throws SQLException {
         int favouriteCount;
+        String startedAt;
         String completedAt;
         String updatedAt;
         try {
             favouriteCount = rs.getInt("fra_favouriteCount");
         } catch (SQLException e) {
             favouriteCount = rs.getInt("fra_favoriteCount");
+        }
+        try {
+            startedAt = rs.getString("fra_startedAt");
+        } catch (SQLException e) {
+            startedAt = rs.getString("fra_createdAt");
         }
         try {
             completedAt = rs.getString("completed_at");
@@ -144,12 +155,14 @@ public class FRA {
         } catch (SQLException e) {
             updatedAt = "";
         }
-        return new FRA(
+        FRA fra = new FRA(
             rs.getString("fra_id"), rs.getString("fra_title"), rs.getDouble("fra_targetAmount"), rs.getString("category_id"),
             rs.getString("fra_status"), rs.getDouble("current_amount"), rs.getInt("fra_viewCount"), favouriteCount,
             rs.getString("fra_createdAt"), rs.getString("fra_endedAt"), rs.getString("donee_id"), rs.getString("donee_name"),
             rs.getString("fundRaiser_id"), rs.getString("fundRaiser_name"), completedAt, updatedAt
         );
+        fra.setStartedAt(startedAt);
+        return fra;
     }
 
     public static List<FRA> findFRAsForViewEngagementReport() {
@@ -325,14 +338,14 @@ public class FRA {
     }
 
     public boolean updateFRAData() {
-        String sql = "UPDATE fra SET fra_title = ?, fra_targetAmount = ?, category_id = ?, fra_status = ?, fra_createdAt = ?, fra_endedAt = ?, donee_id = ?, fundRaiser_id = ?, completed_at = ?, updated_at = ? WHERE fra_id = ?";
+        String sql = "UPDATE fra SET fra_title = ?, fra_targetAmount = ?, category_id = ?, fra_status = ?, fra_startedAt = ?, fra_endedAt = ?, donee_id = ?, fundRaiser_id = ?, completed_at = ?, updated_at = ? WHERE fra_id = ?";
         try (Connection conn = DBUtils.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, this.fraTitle);
             pstmt.setDouble(2, this.fraTargetAmount);
             pstmt.setString(3, this.categoryId);
             pstmt.setString(4, this.fraStatus);
-            pstmt.setString(5, this.createdAt);
+            pstmt.setString(5, this.startedAt == null || this.startedAt.isBlank() ? this.createdAt : this.startedAt);
             pstmt.setString(6, this.endedAt);
             pstmt.setString(7, this.doneeId);
             pstmt.setString(8, this.fundRaiserId);
@@ -360,5 +373,167 @@ public class FRA {
         } catch (SQLException e) { 
             return false; 
         }
+    }
+
+    @JsonIgnore
+    public Object getDailyFraStats() {
+        Map<String, Object> out = new LinkedHashMap<>();
+        out.put("totalFraCount", 0);
+        out.put("completedCount", 0);
+        out.put("pendingCount", 0);
+        out.put("totalViewCount", 0);
+        out.put("totalFavouriteCount", 0);
+        out.put("fraByCategory", new ArrayList<Map<String, Object>>());
+        String filter = "DATE(f.fra_createdAt) = CURDATE()";
+        try (Connection conn = DBUtils.getConnection()) {
+            String summarySql =
+                "SELECT COUNT(*) AS totalFraCount, "
+                    + "SUM(CASE WHEN LOWER(TRIM(f.fra_status))='completed' THEN 1 ELSE 0 END) AS completedCount, "
+                    + "SUM(CASE WHEN LOWER(TRIM(f.fra_status))='pending' THEN 1 ELSE 0 END) AS pendingCount, "
+                    + "SUM(IFNULL(f.fra_viewCount, 0)) AS totalViewCount, "
+                    + "SUM(IFNULL(f.fra_favouriteCount, 0)) AS totalFavouriteCount "
+                    + "FROM fra f WHERE " + filter;
+            try (PreparedStatement ps = conn.prepareStatement(summarySql);
+                 ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    out.put("totalFraCount", rs.getInt("totalFraCount"));
+                    out.put("completedCount", rs.getInt("completedCount"));
+                    out.put("pendingCount", rs.getInt("pendingCount"));
+                    out.put("totalViewCount", rs.getLong("totalViewCount"));
+                    out.put("totalFavouriteCount", rs.getLong("totalFavouriteCount"));
+                }
+            }
+
+            List<Map<String, Object>> byCategory = new ArrayList<>();
+            String categorySql =
+                "SELECT COALESCE(NULLIF(TRIM(fc.category_name),''), 'Uncategorized') AS categoryName, "
+                    + "COUNT(*) AS fraCount "
+                    + "FROM fra f "
+                    + "LEFT JOIN fra_category fc ON f.category_id = fc.category_id "
+                    + "WHERE " + filter + " "
+                    + "GROUP BY COALESCE(NULLIF(TRIM(fc.category_name),''), 'Uncategorized') "
+                    + "ORDER BY fraCount DESC, categoryName ASC";
+            try (PreparedStatement ps = conn.prepareStatement(categorySql);
+                 ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> row = new LinkedHashMap<>();
+                    row.put("categoryName", rs.getString("categoryName"));
+                    row.put("count", rs.getInt("fraCount"));
+                    byCategory.add(row);
+                }
+            }
+            out.put("fraByCategory", byCategory);
+        } catch (SQLException e) {
+            return out;
+        }
+        return out;
+    }
+
+    @JsonIgnore
+    public Object getWeeklyFraStats() {
+        Map<String, Object> out = new LinkedHashMap<>();
+        out.put("totalFraCount", 0);
+        out.put("completedCount", 0);
+        out.put("pendingCount", 0);
+        out.put("totalViewCount", 0);
+        out.put("totalFavouriteCount", 0);
+        out.put("fraByCategory", new ArrayList<Map<String, Object>>());
+        String filter = "YEARWEEK(DATE(f.fra_createdAt), 1) = YEARWEEK(CURDATE(), 1)";
+        try (Connection conn = DBUtils.getConnection()) {
+            String summarySql =
+                "SELECT COUNT(*) AS totalFraCount, "
+                    + "SUM(CASE WHEN LOWER(TRIM(f.fra_status))='completed' THEN 1 ELSE 0 END) AS completedCount, "
+                    + "SUM(CASE WHEN LOWER(TRIM(f.fra_status))='pending' THEN 1 ELSE 0 END) AS pendingCount, "
+                    + "SUM(IFNULL(f.fra_viewCount, 0)) AS totalViewCount, "
+                    + "SUM(IFNULL(f.fra_favouriteCount, 0)) AS totalFavouriteCount "
+                    + "FROM fra f WHERE " + filter;
+            try (PreparedStatement ps = conn.prepareStatement(summarySql);
+                 ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    out.put("totalFraCount", rs.getInt("totalFraCount"));
+                    out.put("completedCount", rs.getInt("completedCount"));
+                    out.put("pendingCount", rs.getInt("pendingCount"));
+                    out.put("totalViewCount", rs.getLong("totalViewCount"));
+                    out.put("totalFavouriteCount", rs.getLong("totalFavouriteCount"));
+                }
+            }
+
+            List<Map<String, Object>> byCategory = new ArrayList<>();
+            String categorySql =
+                "SELECT COALESCE(NULLIF(TRIM(fc.category_name),''), 'Uncategorized') AS categoryName, "
+                    + "COUNT(*) AS fraCount "
+                    + "FROM fra f "
+                    + "LEFT JOIN fra_category fc ON f.category_id = fc.category_id "
+                    + "WHERE " + filter + " "
+                    + "GROUP BY COALESCE(NULLIF(TRIM(fc.category_name),''), 'Uncategorized') "
+                    + "ORDER BY fraCount DESC, categoryName ASC";
+            try (PreparedStatement ps = conn.prepareStatement(categorySql);
+                 ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> row = new LinkedHashMap<>();
+                    row.put("categoryName", rs.getString("categoryName"));
+                    row.put("count", rs.getInt("fraCount"));
+                    byCategory.add(row);
+                }
+            }
+            out.put("fraByCategory", byCategory);
+        } catch (SQLException e) {
+            return out;
+        }
+        return out;
+    }
+
+    @JsonIgnore
+    public Object getMonthlyFraStats() {
+        Map<String, Object> out = new LinkedHashMap<>();
+        out.put("totalFraCount", 0);
+        out.put("completedCount", 0);
+        out.put("pendingCount", 0);
+        out.put("totalViewCount", 0);
+        out.put("totalFavouriteCount", 0);
+        out.put("fraByCategory", new ArrayList<Map<String, Object>>());
+        String filter = "YEAR(DATE(f.fra_createdAt)) = YEAR(CURDATE()) AND MONTH(DATE(f.fra_createdAt)) = MONTH(CURDATE())";
+        try (Connection conn = DBUtils.getConnection()) {
+            String summarySql =
+                "SELECT COUNT(*) AS totalFraCount, "
+                    + "SUM(CASE WHEN LOWER(TRIM(f.fra_status))='completed' THEN 1 ELSE 0 END) AS completedCount, "
+                    + "SUM(CASE WHEN LOWER(TRIM(f.fra_status))='pending' THEN 1 ELSE 0 END) AS pendingCount, "
+                    + "SUM(IFNULL(f.fra_viewCount, 0)) AS totalViewCount, "
+                    + "SUM(IFNULL(f.fra_favouriteCount, 0)) AS totalFavouriteCount "
+                    + "FROM fra f WHERE " + filter;
+            try (PreparedStatement ps = conn.prepareStatement(summarySql);
+                 ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    out.put("totalFraCount", rs.getInt("totalFraCount"));
+                    out.put("completedCount", rs.getInt("completedCount"));
+                    out.put("pendingCount", rs.getInt("pendingCount"));
+                    out.put("totalViewCount", rs.getLong("totalViewCount"));
+                    out.put("totalFavouriteCount", rs.getLong("totalFavouriteCount"));
+                }
+            }
+
+            List<Map<String, Object>> byCategory = new ArrayList<>();
+            String categorySql =
+                "SELECT COALESCE(NULLIF(TRIM(fc.category_name),''), 'Uncategorized') AS categoryName, "
+                    + "COUNT(*) AS fraCount "
+                    + "FROM fra f "
+                    + "LEFT JOIN fra_category fc ON f.category_id = fc.category_id "
+                    + "WHERE " + filter + " "
+                    + "GROUP BY COALESCE(NULLIF(TRIM(fc.category_name),''), 'Uncategorized') "
+                    + "ORDER BY fraCount DESC, categoryName ASC";
+            try (PreparedStatement ps = conn.prepareStatement(categorySql);
+                 ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> row = new LinkedHashMap<>();
+                    row.put("categoryName", rs.getString("categoryName"));
+                    row.put("count", rs.getInt("fraCount"));
+                    byCategory.add(row);
+                }
+            }
+            out.put("fraByCategory", byCategory);
+        } catch (SQLException e) {
+            return out;
+        }
+        return out;
     }
 }

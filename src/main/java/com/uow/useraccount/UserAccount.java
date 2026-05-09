@@ -3,6 +3,7 @@ package com.uow.useraccount;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -156,6 +157,48 @@ public class UserAccount {
         }
     }
 
+    public Object getDoneeOptions() {
+        List<Map<String, Object>> out = new ArrayList<>();
+        try (Connection c = DBUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT user_id, full_name FROM user_account WHERE profile_id = 3 ORDER BY full_name ASC, user_id ASC")) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("userId", rs.getInt("user_id"));
+                    row.put("fullName", rs.getString("full_name"));
+                    out.add(row);
+                }
+            }
+            return out;
+        } catch (Exception e) {
+            return List.of();
+        }
+    }
+
+    public Object getFundRaiserOptions() {
+        List<Map<String, Object>> out = new ArrayList<>();
+        try (Connection c = DBUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT ua.user_id, ua.full_name "
+                             + "FROM user_account ua "
+                             + "JOIN user_profile up ON ua.profile_id = up.profile_id "
+                             + "WHERE LOWER(TRIM(up.role)) = 'fund raiser' "
+                             + "ORDER BY ua.full_name ASC, ua.user_id ASC")) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("userId", rs.getInt("user_id"));
+                    row.put("fullName", rs.getString("full_name"));
+                    out.add(row);
+                }
+            }
+            return out;
+        } catch (Exception e) {
+            return List.of();
+        }
+    }
+
     private String readText(Map<?, ?> data, String key) {
         Object value = data.get(key);
         return value == null ? "" : String.valueOf(value).trim();
@@ -174,5 +217,206 @@ public class UserAccount {
         } catch (NumberFormatException e) {
             return 0;
         }
+    }
+
+    public Object getDailyUserStats() {
+        Map<String, Object> out = new HashMap<>();
+        out.put("totalUserCount", 0);
+        out.put("activeCount", 0);
+        out.put("suspendedCount", 0);
+        out.put("userByRole", new ArrayList<Map<String, Object>>());
+        String createdColumn = "";
+        try (Connection c = DBUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'user_account'")) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String col = rs.getString("COLUMN_NAME");
+                    if ("created_at".equalsIgnoreCase(col) || "createdAt".equalsIgnoreCase(col)
+                            || "user_createdAt".equalsIgnoreCase(col)) {
+                        createdColumn = col;
+                        break;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            return out;
+        }
+
+        String whereClause = createdColumn.isBlank() ? "" : (" WHERE DATE(ua." + createdColumn + ") = CURDATE()");
+
+        try (Connection c = DBUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT COUNT(*) AS totalUserCount, "
+                             + "SUM(CASE WHEN LOWER(TRIM(ua.a_status))='active' THEN 1 ELSE 0 END) AS activeCount, "
+                             + "SUM(CASE WHEN LOWER(TRIM(ua.a_status))='suspended' THEN 1 ELSE 0 END) AS suspendedCount "
+                             + "FROM user_account ua" + whereClause)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    out.put("totalUserCount", rs.getInt("totalUserCount"));
+                    out.put("activeCount", rs.getInt("activeCount"));
+                    out.put("suspendedCount", rs.getInt("suspendedCount"));
+                }
+            }
+        } catch (SQLException e) {
+            return out;
+        }
+
+        List<Map<String, Object>> byRole = new ArrayList<>();
+        try (Connection c = DBUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT COALESCE(NULLIF(TRIM(up.role),''), 'Unknown') AS roleName, COUNT(*) AS userCount "
+                             + "FROM user_account ua "
+                             + "LEFT JOIN user_profile up ON ua.profile_id = up.profile_id"
+                             + whereClause
+                             + " GROUP BY COALESCE(NULLIF(TRIM(up.role),''), 'Unknown') "
+                             + "ORDER BY userCount DESC, roleName ASC")) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("roleName", rs.getString("roleName"));
+                    row.put("count", rs.getInt("userCount"));
+                    byRole.add(row);
+                }
+            }
+            out.put("userByRole", byRole);
+        } catch (SQLException e) {
+            return out;
+        }
+        return out;
+    }
+
+    public Object getWeeklyUserStats() {
+        Map<String, Object> out = new HashMap<>();
+        out.put("totalUserCount", 0);
+        out.put("activeCount", 0);
+        out.put("suspendedCount", 0);
+        out.put("userByRole", new ArrayList<Map<String, Object>>());
+        String createdColumn = "";
+        try (Connection c = DBUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'user_account'")) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String col = rs.getString("COLUMN_NAME");
+                    if ("created_at".equalsIgnoreCase(col) || "createdAt".equalsIgnoreCase(col)
+                            || "user_createdAt".equalsIgnoreCase(col)) {
+                        createdColumn = col;
+                        break;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            return out;
+        }
+
+        String whereClause = createdColumn.isBlank() ? "" : (" WHERE YEARWEEK(DATE(ua." + createdColumn + "), 1) = YEARWEEK(CURDATE(), 1)");
+
+        try (Connection c = DBUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT COUNT(*) AS totalUserCount, "
+                             + "SUM(CASE WHEN LOWER(TRIM(ua.a_status))='active' THEN 1 ELSE 0 END) AS activeCount, "
+                             + "SUM(CASE WHEN LOWER(TRIM(ua.a_status))='suspended' THEN 1 ELSE 0 END) AS suspendedCount "
+                             + "FROM user_account ua" + whereClause)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    out.put("totalUserCount", rs.getInt("totalUserCount"));
+                    out.put("activeCount", rs.getInt("activeCount"));
+                    out.put("suspendedCount", rs.getInt("suspendedCount"));
+                }
+            }
+        } catch (SQLException e) {
+            return out;
+        }
+
+        List<Map<String, Object>> byRole = new ArrayList<>();
+        try (Connection c = DBUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT COALESCE(NULLIF(TRIM(up.role),''), 'Unknown') AS roleName, COUNT(*) AS userCount "
+                             + "FROM user_account ua "
+                             + "LEFT JOIN user_profile up ON ua.profile_id = up.profile_id"
+                             + whereClause
+                             + " GROUP BY COALESCE(NULLIF(TRIM(up.role),''), 'Unknown') "
+                             + "ORDER BY userCount DESC, roleName ASC")) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("roleName", rs.getString("roleName"));
+                    row.put("count", rs.getInt("userCount"));
+                    byRole.add(row);
+                }
+            }
+            out.put("userByRole", byRole);
+        } catch (SQLException e) {
+            return out;
+        }
+        return out;
+    }
+
+    public Object getMonthlyUserStats() {
+        Map<String, Object> out = new HashMap<>();
+        out.put("totalUserCount", 0);
+        out.put("activeCount", 0);
+        out.put("suspendedCount", 0);
+        out.put("userByRole", new ArrayList<Map<String, Object>>());
+        String createdColumn = "";
+        try (Connection c = DBUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'user_account'")) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String col = rs.getString("COLUMN_NAME");
+                    if ("created_at".equalsIgnoreCase(col) || "createdAt".equalsIgnoreCase(col)
+                            || "user_createdAt".equalsIgnoreCase(col)) {
+                        createdColumn = col;
+                        break;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            return out;
+        }
+
+        String whereClause = createdColumn.isBlank() ? "" : (" WHERE YEAR(DATE(ua." + createdColumn + ")) = YEAR(CURDATE()) AND MONTH(DATE(ua." + createdColumn + ")) = MONTH(CURDATE())");
+
+        try (Connection c = DBUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT COUNT(*) AS totalUserCount, "
+                             + "SUM(CASE WHEN LOWER(TRIM(ua.a_status))='active' THEN 1 ELSE 0 END) AS activeCount, "
+                             + "SUM(CASE WHEN LOWER(TRIM(ua.a_status))='suspended' THEN 1 ELSE 0 END) AS suspendedCount "
+                             + "FROM user_account ua" + whereClause)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    out.put("totalUserCount", rs.getInt("totalUserCount"));
+                    out.put("activeCount", rs.getInt("activeCount"));
+                    out.put("suspendedCount", rs.getInt("suspendedCount"));
+                }
+            }
+        } catch (SQLException e) {
+            return out;
+        }
+
+        List<Map<String, Object>> byRole = new ArrayList<>();
+        try (Connection c = DBUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT COALESCE(NULLIF(TRIM(up.role),''), 'Unknown') AS roleName, COUNT(*) AS userCount "
+                             + "FROM user_account ua "
+                             + "LEFT JOIN user_profile up ON ua.profile_id = up.profile_id"
+                             + whereClause
+                             + " GROUP BY COALESCE(NULLIF(TRIM(up.role),''), 'Unknown') "
+                             + "ORDER BY userCount DESC, roleName ASC")) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("roleName", rs.getString("roleName"));
+                    row.put("count", rs.getInt("userCount"));
+                    byRole.add(row);
+                }
+            }
+            out.put("userByRole", byRole);
+        } catch (SQLException e) {
+            return out;
+        }
+        return out;
     }
 }

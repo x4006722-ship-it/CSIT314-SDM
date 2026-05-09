@@ -1,5 +1,6 @@
 package com.uow.fra;
 
+import com.uow.useraccount.UserAccount;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpSession;
@@ -18,6 +19,7 @@ public class FRA_UI {
     private final ViewFRAFavoriteCountController viewFRAFavoriteCountController;
     private final SearchCompletedFRAByCategoryAndDateController searchCompletedFRAByCategoryAndDateController;
     private final ViewCompletedFRAByCategoryAndDateController viewCompletedFRAByCategoryAndDateController;
+    private final UserAccount userAccount = new UserAccount();
 
     @Autowired
     public FRA_UI(CreateFRAController createController, 
@@ -48,6 +50,16 @@ public class FRA_UI {
     @GetMapping("/search")
     public List<FRA> onSearchInput(@RequestParam(value="criteria", required=false) String criteria) {
         return searchController.searchFRA(criteria);
+    }
+
+    @GetMapping("/donee-options")
+    public Object onGetDoneeOptions() {
+        return userAccount.getDoneeOptions();
+    }
+
+    @GetMapping("/fund-raiser-options")
+    public Object onGetFundRaiserOptions() {
+        return userAccount.getFundRaiserOptions();
     }
 
     @PostMapping("/create")

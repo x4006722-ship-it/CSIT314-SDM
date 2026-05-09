@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.uow.fra.FRA;
 import com.uow.fra.SearchFRAController;
-import com.uow.fra.ViewFRAController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -21,7 +20,6 @@ import java.util.Map;
 public class DoneePage {
 
     @Autowired private SearchFRAController searchFRAController;
-    @Autowired private ViewFRAController viewFRAController;
     @Autowired private SaveFavouriteController saveFavouriteController;
     @Autowired private ViewFavouriteController viewFavouriteController;
     @Autowired private SearchFavouriteController searchFavouriteController;
