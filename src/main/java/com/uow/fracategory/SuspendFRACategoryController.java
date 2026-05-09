@@ -7,19 +7,11 @@ public class SuspendFRACategoryController {
 
     private final FRACategory fraCategory = new FRACategory();
 
-    private String errorMessage = "";
-
-    public String getErrorMessage() { return errorMessage; }
-
-    public boolean suspendCategory(int categoryID) {
-        errorMessage = "";
-
-        if (categoryID <= 0) { errorMessage = "Invalid category."; return false; }
-
-        if (!fraCategory.saveSuspendCategory(categoryID)) {
-            errorMessage = fraCategory.lastErrorMessage;
+    public boolean suspendCategory(int categoryId) {
+        Object existing = fraCategory.getViewCategory(categoryId);
+        if (!(existing instanceof java.util.Map<?, ?>)) {
             return false;
         }
-        return true;
+        return fraCategory.saveSuspendCategory(categoryId);
     }
 }

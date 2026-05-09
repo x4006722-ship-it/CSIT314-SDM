@@ -1,7 +1,8 @@
-package com.uow.FRA;
+package com.uow.fra;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpSession;
 import java.util.List;
 
 @RestController
@@ -50,17 +51,17 @@ public class FRA_UI {
     }
 
     @PostMapping("/create")
-    public String submitFRACreationData(@RequestBody FRA fraData) {
+    public FRA submitFRACreationData(@RequestBody FRA fraData, HttpSession session) {
         return createController.createFRA(fraData);
     }
 
     @PostMapping("/update/{fraId}")
-    public String submitFRAUpdateData(@PathVariable String fraId, @RequestBody FRA fraData) {
+    public boolean submitFRAUpdateData(@PathVariable String fraId, @RequestBody FRA fraData) {
         return updateController.updateFRA(fraId, fraData);
     }
 
     @DeleteMapping("/delete/{fraId}")
-    public String confirmFRADeletion(@PathVariable String fraId) {
+    public boolean confirmFRADeletion(@PathVariable String fraId) {
         return removeController.deleteFRA(fraId);
     }
 

@@ -4,55 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Admin - Manage Profile</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700&display=swap" rel="stylesheet">
     <style>
         :root {
             --surface: #ffffff;
             --surface-soft: #f8fafc;
             --surface-tint: #f1f5f9;
-            --border: rgba(99, 102, 241, 0.14);
+            --border: rgba(99, 102, 241, 0.18);
             --border-soft: #e2e8f0;
             --text: #0f172a;
             --text-muted: #64748b;
             --accent: #4f46e5;
             --accent-hover: #4338ca;
-            --accent-bright: #6366f1;
             --accent-light: #eef2ff;
-            --accent-ring: rgba(99, 102, 241, 0.28);
+            --accent-ring: rgba(99, 102, 241, 0.35);
             --danger-soft: #fef2f2;
-            --shadow: 0 20px 50px -12px rgba(15, 23, 42, 0.1);
-            --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 4px 12px -2px rgba(15, 23, 42, 0.06);
-            --head-bg: #f8fafc;
-            --head-fg: #475569;
+            --shadow: 0 10px 40px rgba(30, 27, 75, 0.12);
+            --shadow-sm: 0 4px 20px rgba(30, 27, 75, 0.08);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, -apple-system, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif; }
 
         body {
             min-height: 100vh;
             color: var(--text);
-            position: relative;
             background:
-                radial-gradient(1000px 500px at 0% 0%, rgba(99, 102, 241, 0.06), transparent 55%),
-                radial-gradient(800px 400px at 100% 0%, rgba(139, 92, 246, 0.04), transparent 50%),
-                #f1f5f9;
+                radial-gradient(1200px 600px at 10% -10%, rgba(99, 102, 241, 0.22), transparent 55%),
+                radial-gradient(900px 500px at 100% 20%, rgba(14, 165, 233, 0.12), transparent 50%),
+                linear-gradient(165deg, #dce4f3 0%, #e8edf7 38%, #eef2f9 100%);
         }
 
-        .container { min-height: 100vh; position: relative; z-index: 1; }
+        .container { min-height: 100vh; }
         .main-content { padding: 30px; max-width: 1500px; margin: 0 auto; }
 
         .topbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #fff;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
             padding: 16px 26px;
             border-radius: 14px;
             margin-bottom: 22px;
             box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border-soft);
+            border: 1px solid var(--border);
             border-left: 4px solid var(--accent);
         }
 
@@ -66,34 +59,36 @@
             padding: 12px 24px;
             border-radius: 10px;
             border: 1px solid var(--border-soft);
-            background: #fff;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(6px);
             cursor: pointer;
             font-weight: 600;
             transition: color 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s;
             color: var(--text-muted);
-            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
         }
 
         .tab-btn.active {
             background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
             color: #fff;
-            border-color: #4f46e5;
-            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.28);
+            border-color: transparent;
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35);
         }
 
         .tab-btn:hover:not(.active) {
-            background: #fafafa;
+            background: #fff;
             border-color: #c7d2fe;
             color: var(--accent);
         }
 
         .admin-section {
-            background: #fff;
+            background: var(--surface);
             border-radius: 14px;
             padding: 26px;
             margin-bottom: 28px;
             box-shadow: var(--shadow);
-            border: 1px solid var(--border-soft);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            outline: 1px solid var(--border);
         }
 
         .section-header {
@@ -101,7 +96,7 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-            border-bottom: 1px solid var(--border-soft);
+            border-bottom: 2px solid var(--border-soft);
             padding-bottom: 12px;
             position: relative;
         }
@@ -109,14 +104,14 @@
             content: '';
             position: absolute;
             left: 0;
-            bottom: -1px;
-            width: min(180px, 45%);
-            height: 2px;
-            border-radius: 2px;
-            background: linear-gradient(90deg, #6366f1, #a855f7);
+            bottom: -2px;
+            width: min(160px, 40%);
+            height: 3px;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--accent), #38bdf8);
         }
 
-        h2 { font-size: 20px; color: var(--text); letter-spacing: -0.02em; font-weight: 700; }
+        h2 { font-size: 20px; color: var(--text); letter-spacing: -0.02em; }
 
         .action-bar {
             display: grid;
@@ -137,13 +132,13 @@
         }
         input:focus, select:focus {
             outline: none;
-            border-color: var(--accent-bright);
+            border-color: #a5b4fc;
             box-shadow: 0 0 0 3px var(--accent-ring);
         }
 
         .btn {
             padding: 10px 20px;
-            border-radius: 10px;
+            border-radius: 8px;
             border: none;
             cursor: pointer;
             font-weight: 600;
@@ -153,15 +148,15 @@
         .btn-black {
             background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
             color: #fff;
-            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
         }
         .btn-black:hover {
             background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35);
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
         }
         .btn-view {
             background: var(--accent-light);
-            color: #3730a3;
+            color: #312e81;
             border: 1px solid #c7d2fe;
             font-weight: 600;
             box-shadow: none;
@@ -171,7 +166,7 @@
             border-color: #a5b4fc;
         }
         .logout-btn {
-            border: 1px solid rgba(248, 113, 113, 0.5);
+            border: 1px solid rgba(220, 38, 38, 0.45);
             color: #b91c1c;
             background: var(--danger-soft);
             padding: 10px 18px;
@@ -185,7 +180,7 @@
             background: linear-gradient(135deg, #ef4444, #dc2626);
             color: #fff;
             border-color: transparent;
-            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
+            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.35);
         }
 
         .topbar-user {
@@ -194,31 +189,29 @@
         }
 
         .topbar-user strong {
-            color: #4338ca;
+            color: var(--text);
             font-size: 17px;
-            font-weight: 700;
         }
 
         .card {
             background: var(--surface);
-            border: 1px solid var(--border-soft);
-            border-radius: 12px;
-            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: var(--shadow-sm);
         }
 
         .subsection {
             padding: 18px;
             border: 1px solid var(--border-soft);
             border-radius: 12px;
-            background: #f8fafc;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            background: linear-gradient(180deg, #fafbfc 0%, var(--surface-soft) 100%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
         }
 
         .subsection h3 {
             font-size: 15px;
             margin-bottom: 10px;
-            color: #0f172a;
-            font-weight: 700;
+            color: #1e293b;
         }
 
         .grid-2 {
@@ -234,20 +227,20 @@
         }
 
         .btn-danger {
-            background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
+            background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
             color: #fff;
-            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.38);
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
         }
         .btn-danger:hover {
-            background: linear-gradient(135deg, #fca5a5 0%, #ef4444 100%);
+            background: linear-gradient(135deg, #fca5a5 0%, #f87171 100%);
         }
 
         .btn-muted {
-            background: #e2e8f0;
+            background: var(--surface-tint);
             color: #334155;
-            border: 1px solid #cbd5e1;
+            border: 1px solid var(--border-soft);
         }
-        .btn-muted:hover { background: #cbd5e1; }
+        .btn-muted:hover { background: #e2e8f0; }
 
         .pill {
             display: inline-flex;
@@ -262,15 +255,911 @@
             font-weight: 600;
         }
 
-        .pill.ok { background: #ecfdf5; border-color: #34d399; color: #065f46; }
-        .pill.bad { background: #fef2f2; border-color: #f87171; color: #991b1b; }
+        .pill.ok { background: #ecfdf5; border-color: #6ee7b7; color: #065f46; }
+        .pill.bad { background: #fef2f2; border-color: #fca5a5; color: #991b1b; }
 
         .table-wrap {
             border: 1px solid var(--border-soft);
             border-radius: 12px;
             overflow: hidden;
             background: #fff;
-            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+            box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
+        }
+
+        .table-scroll {
+            max-height: 1000px;
+            overflow: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 980px;
+        }
+
+        #up-table { min-width: 0; }
+
+        #up-table thead th:nth-child(1) { width: 80px; }
+        #up-table thead th:nth-child(2) { width: 200px; }
+        #up-table thead th:nth-child(3) { width: 120px; }
+        #up-table thead th:nth-child(4) { width: 220px; text-align: center; }
+
+        thead th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background: linear-gradient(180deg, #f1f5f9 0%, #e8eef5 100%);
+            border-bottom: 1px solid var(--border-soft);
+            font-size: 12px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #475569;
+            padding: 12px 12px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        tbody td {
+            padding: 12px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+            color: #1e293b;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover td { background: #f5f7ff; }
+
+        .td-actions {
+            display: inline-flex;
+            gap: 6px;
+            flex-wrap: nowrap;
+            align-items: center;
+            justify-content: flex-end;
+            width: 100%;
+        }
+
+        #up-table thead th:last-child { text-align: center; }
+        #up-table tbody td:last-child { text-align: center; vertical-align: middle; }
+        #up-table .td-actions { justify-content: center; align-items: center; }
+
+        #up-table .td-actions button.btn-sm {
+            box-sizing: border-box;
+            min-height: 28px;
+            height: 28px;
+            padding: 0 8px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        #up-table .td-actions button[data-action="toggle"].btn-sm { min-width: 104px; }
+
+        .muted { color: var(--text-muted); font-size: 12px; }
+
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 14px;
+            gap: 12px;
+            border-top: 1px solid var(--border-soft);
+            background: linear-gradient(180deg, #fafbfc 0%, #fff 100%);
+        }
+
+        .drawer-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            display: none;
+            z-index: 999;
+        }
+
+        .drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            height: 100vh;
+            width: min(520px, 92vw);
+            background: #fff;
+            box-shadow: -12px 0 40px rgba(30, 27, 75, 0.18);
+            border-left: 1px solid var(--border);
+            transform: translateX(100%);
+            transition: transform 0.18s ease;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .drawer.open { transform: translateX(0); }
+        .drawer-backdrop.open { display: block; }
+
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--border-soft);
+            background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+        }
+
+        .drawer-title { display: grid; gap: 2px; }
+        .drawer-title strong { font-size: 14px; color: #1e293b; }
+
+        .drawer-body { padding: 18px; overflow: auto; display: grid; gap: 14px; }
+
+        .drawer-footer {
+            padding: 14px 18px;
+            border-top: 1px solid var(--border-soft);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            background: linear-gradient(180deg, #fafbfc 0%, #fff 100%);
+        }
+
+        .kv {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            gap: 10px;
+            align-items: center;
+        }
+        .kv .k { color: var(--text-muted); font-size: 12px; }
+        .kv .v { color: #1e293b; font-size: 14px; }
+
+        /* ========= Enhanced floating notification (Toast) ========= */
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+        .toast-msg { min-width: 250px; padding: 15px 20px; border-radius: 8px; color: white; font-size: 14px; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.15); opacity: 0; transform: translateX(100%); transition: all 0.3s ease-in-out; }
+        .toast-msg.show { opacity: 1; transform: translateX(0); }
+        .toast-success { background-color: #2ecc71; border-left: 6px solid #27ae60; }
+        .toast-error { background-color: #e74c3c; border-left: 6px solid #c0392b; }
+
+        /* ========= Customized advanced modal (replaces native confirm/alert) ========= */
+        .modal-backdrop {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 1300;
+        }
+        .modal-backdrop.open { display: block; }
+
+        .modal {
+            position: fixed; left: 50%; top: 8%; transform: translateX(-50%);
+            width: min(640px, 92vw); max-height: 88vh; background: #fff;
+            border: 1px solid var(--border); border-radius: 16px;
+            box-shadow: 0 24px 64px rgba(30, 27, 75, 0.22);
+            display: none; z-index: 1310; overflow: hidden;
+        }
+        .modal.open { display: block; }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center; padding: 14px 18px;
+            background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%); border-bottom: 1px solid var(--border-soft);
+        }
+        .modal-header strong { font-size: 16px; color: #1e293b; }
+        .modal-body {
+            padding: 16px 18px; font-size: 16px; line-height: 1.5; color: #1e293b;
+            word-break: break-word; overflow: auto; max-height: calc(88vh - 56px - 64px);
+        }
+        #up-note-modal.modal, #up-confirm-modal.modal {
+            top: 18%; width: min(400px, 92vw); max-height: 70vh; text-align: center;
+        }
+        .modal-footer {
+            padding: 14px 18px; border-top: 1px solid var(--border-soft); display: flex;
+            justify-content: center; gap: 10px; background: linear-gradient(180deg, #fafbfc 0%, #fff 100%);
+        }
+
+        #up-edit-form.card {
+            padding: 14px; border-radius: 12px; border: 1px solid var(--border-soft);
+            background: linear-gradient(180deg, #fafbfc 0%, #fff 100%);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Frontend-only notification container -->
+<div id="toast-container"></div>
+
+<div class="container">
+    <main class="main-content">
+        <div class="topbar">
+            <span class="topbar-user">Logged in as: <strong> User Admin</strong></span>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <button type="button" class="btn btn-view" onclick="viewMyAccount()">My Account</button>
+                <a href="/logout" class="logout-btn">Logout</a>
+            </div>
+        </div>
+
+        <div class="tab-bar">
+            <button class="tab-btn active" type="button" onclick="location.href='ManageProfile.html'">Manage Profile</button>
+            <button class="tab-btn" type="button" onclick="location.href='ManageAccount.html'">Manage Account</button>
+        </div>
+
+        <div class="admin-section">
+            <div class="section-header">
+                <h2> Profile Management</h2>
+            </div>
+
+            <div class="action-bar">
+                <form id="up-create-form" class="subsection">
+                    <h3>Create User Profile</h3>
+                    <div class="grid-2" style="margin-top:10px;">
+                        <div class="form-group">
+                            <label>Role Name</label>
+                            <input type="text" id="up-role-name" name="roleName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Initial Status</label>
+                            <select id="up-role-status" name="status">
+                                <option value="">Select a Status</option>
+                                <option value="Active">Active</option>
+                                <option value="Suspended">Suspended</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-black" id="btn-create">Create</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="admin-section">
+            <div class="section-header">
+                <h2> Manage Profiles</h2>
+            </div>
+
+            <div class="action-bar">
+                <div class="subsection">
+                    <h3>Search User Profiles</h3>
+                    <div class="grid-2" style="margin-bottom: 12px;">
+                        <div class="form-group">
+                            <label>Search Role Name</label>
+                            <input id="up-search" type="text" placeholder="e.g. Admin, Fund Raiser">
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select id="up-status">
+                                <option value="all">All</option>
+                                <option value="active">Active</option>
+                                <option value="suspended">Suspended</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="table-wrap">
+                        <div class="table-scroll">
+                            <table id="up-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Role Name</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="up-tbody">
+                                    <tr>
+                                        <td colspan="4" class="muted" style="text-align: center;">Loading…</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="pagination">
+                            <div class="muted" id="up-count">—</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- Right-side drawer -->
+<div id="up-backdrop" class="drawer-backdrop"></div>
+<aside id="up-drawer" class="drawer">
+    <div class="drawer-header">
+        <div class="drawer-title">
+            <strong id="up-drawer-title">Profile Details</strong>
+        </div>
+        <button id="up-close" type="button" class="btn btn-muted btn-sm">Close</button>
+    </div>
+    <div class="drawer-body">
+        <div class="kv">
+            <div class="k">Profile ID</div>
+            <div class="v" id="up-v-id">-</div>
+        </div>
+        <div class="kv">
+            <div class="k">Role Name</div>
+            <div class="v" id="up-v-role">-</div>
+        </div>
+        <div class="kv">
+            <div class="k">Status</div>
+            <div class="v" id="up-v-status">-</div>
+        </div>
+
+        <div id="up-edit-form" class="card" style="display: none;">
+            <div class="muted" style="margin-bottom: 10px;">Update Role Name</div>
+            <div class="form-group">
+                <label>Role Name</label>
+                <input id="up-e-role" type="text" placeholder="Role Name">
+            </div>
+        </div>
+    </div>
+    <div class="drawer-footer">
+        <button id="up-save" type="button" class="btn btn-black" style="display: none;">Save Changes</button>
+        <button id="up-toggle" type="button" class="btn btn-danger">Suspend</button>
+    </div>
+</aside>
+
+<!-- Custom warning modal (replaces alert) -->
+<div id="up-note-backdrop" class="modal-backdrop"></div>
+<div id="up-note-modal" class="modal" role="dialog">
+    <div class="modal-header">
+        <strong id="up-note-title">Notice</strong>
+    </div>
+    <div id="up-note-message" class="modal-body" style="text-align: center;"></div>
+    <div class="modal-footer">
+        <button id="up-note-ok" type="button" class="btn btn-black">OK</button>
+    </div>
+</div>
+
+<!-- Custom confirmation modal (replaces ugly native confirm) -->
+<div id="up-confirm-backdrop" class="modal-backdrop"></div>
+<div id="up-confirm-modal" class="modal" role="dialog">
+    <div class="modal-header">
+        <strong>Confirm Action</strong>
+    </div>
+    <div id="up-confirm-message" class="modal-body" style="text-align: center;">Are you sure?</div>
+    <div class="modal-footer">
+        <button id="up-confirm-cancel" type="button" class="btn btn-muted">Cancel</button>
+        <button id="up-confirm-yes" type="button" class="btn btn-danger">Yes, Proceed</button>
+    </div>
+</div>
+
+<script>
+    // ================= Enhanced Toast =================
+    function showToast(message, type = 'success') {
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            document.body.appendChild(container);
+        }
+        const toast = document.createElement('div');
+        toast.className = `toast-msg toast-${type}`;
+        toast.innerText = message;
+        container.appendChild(toast);
+        
+        setTimeout(() => { toast.classList.add('show'); }, 10);
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => { toast.remove(); }, 300);
+        }, 3000);
+    }
+
+    // ================= Custom Alert / Notice =================
+    function upNoteOpen(message, title = 'Notice') {
+        document.getElementById('up-note-title').textContent = title;
+        document.getElementById('up-note-message').innerHTML = message;
+        document.getElementById('up-note-backdrop').classList.add('open');
+        document.getElementById('up-note-modal').classList.add('open');
+    }
+
+    function upNoteClose() {
+        document.getElementById('up-note-backdrop').classList.remove('open');
+        document.getElementById('up-note-modal').classList.remove('open');
+    }
+    document.getElementById('up-note-backdrop').addEventListener('click', upNoteClose);
+    document.getElementById('up-note-ok').addEventListener('click', upNoteClose);
+
+    // ================= Custom Confirm =================
+    let confirmCallback = null;
+    function upConfirmOpen(message, callback) {
+        document.getElementById('up-confirm-message').textContent = message;
+        confirmCallback = callback;
+        document.getElementById('up-confirm-backdrop').classList.add('open');
+        document.getElementById('up-confirm-modal').classList.add('open');
+    }
+
+    function upConfirmClose() {
+        document.getElementById('up-confirm-backdrop').classList.remove('open');
+        document.getElementById('up-confirm-modal').classList.remove('open');
+        confirmCallback = null;
+    }
+    document.getElementById('up-confirm-cancel').addEventListener('click', upConfirmClose);
+    document.getElementById('up-confirm-yes').addEventListener('click', () => {
+        if (confirmCallback) confirmCallback();
+        upConfirmClose();
+    });
+
+    // ================= Basic utilities and loading logic =================
+    function upEscapeHtml(s) {
+        return String(s ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+    }
+
+    function normalizeRoleKey(s) {
+        return String(s || '').replace(/\s+/g, '').toLowerCase();
+    }
+
+    function profileIsUserAdminRole(roleText) {
+        return normalizeRoleKey(roleText) === 'useradmin';
+    }
+
+    function loadProfilesFromDatabase() {
+        fetch('/api/profiles/list')
+            .then(res => res.json())
+            .then(profiles => {
+                if (profiles && profiles.length > 0) displayProfiles(profiles);
+                else displayDefaultProfiles();
+            }).catch(() => displayDefaultProfiles());
+    }
+
+    function displayDefaultProfiles() {
+        document.getElementById('up-tbody').innerHTML = '<tr><td colspan="4" class="muted" style="text-align: center;">Could not load profiles.</td></tr>';
+        document.getElementById('up-count').textContent = 'Showing 0 roles';
+    }
+
+    function filterTable() {
+        const keyword = document.getElementById('up-search').value.trim();
+        const status = document.getElementById('up-status').value;
+        
+        if (keyword) {
+            const params = new URLSearchParams();
+            params.append('keyword', keyword);
+            if (status && status !== 'all') params.append('status', status);
+            
+            fetch(`/api/profiles/search?${params.toString()}`)
+                .then(r => r.json())
+                .then(profiles => displayProfiles(profiles))
+                .catch(() => showToast("Search failed", "error"));
+        } else {
+            loadProfilesFromDatabase();
+        }
+    }
+
+    function displayProfiles(profiles) {
+        const tbody = document.getElementById('up-tbody');
+        const statusFilter = document.getElementById('up-status').value;
+        tbody.innerHTML = '';
+        
+        let filteredProfiles = profiles;
+        if (statusFilter && statusFilter !== 'all') {
+            filteredProfiles = profiles.filter(p => p.status && p.status.toLowerCase() === statusFilter.toLowerCase());
+        }
+        
+        if (!filteredProfiles || filteredProfiles.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No profiles found.</td></tr>`;
+            document.getElementById('up-count').textContent = `Showing 0 roles`;
+            return;
+        }
+
+        filteredProfiles.forEach(profile => {
+            const isSuspended = profile.status && profile.status.toLowerCase() === 'suspended';
+            const tr = document.createElement('tr');
+            tr.setAttribute('data-status', isSuspended ? 'suspended' : 'active');
+            
+            tr.innerHTML = `
+                <td>${profile.profileId}</td>
+                <td>${upEscapeHtml(profile.roleName)}</td>
+                <td><span class="${isSuspended ? 'pill bad' : 'pill ok'}">${isSuspended ? 'Suspended' : 'Active'}</span></td>
+                <td>
+                    <div class="td-actions">
+                        <button type="button" class="btn btn-view btn-sm" data-action="edit">Update</button>
+                        <button type="button" class="btn ${isSuspended ? 'btn-muted' : 'btn-danger'} btn-sm" data-action="toggle">
+                            ${isSuspended ? 'Re-activate' : 'Suspend'}
+                        </button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+        document.getElementById('up-count').textContent = `Showing ${filteredProfiles.length} roles`;
+    }
+
+    // ================= Drawer interaction logic =================
+    function openDrawer(mode, row) {
+        const cells = row.querySelectorAll('td');
+        const id = cells[0].textContent;
+        const role = cells[1].textContent;
+        const status = row.getAttribute('data-status');
+
+        document.getElementById('up-drawer-title').textContent = mode === 'edit' ? 'Update Profile' : 'View Profile';
+        document.getElementById('up-v-id').textContent = id;
+        document.getElementById('up-v-role').textContent = role;
+        document.getElementById('up-v-status').textContent = status === 'active' ? 'Active' : 'Suspended';
+        
+        document.getElementById('up-e-role').value = role;
+        document.getElementById('up-edit-form').style.display = mode === 'edit' ? 'block' : 'none';
+        document.getElementById('up-save').style.display = mode === 'edit' ? 'inline-flex' : 'none';
+
+        const toggleBtn = document.getElementById('up-toggle');
+        const isSusp = status === 'suspended';
+        toggleBtn.textContent = isSusp ? 'Re-activate' : 'Suspend';
+        toggleBtn.className = isSusp ? 'btn btn-muted' : 'btn btn-danger';
+
+        document.getElementById('up-backdrop').classList.add('open');
+        document.getElementById('up-drawer').classList.add('open');
+    }
+
+    function closeDrawer() {
+        document.getElementById('up-backdrop').classList.remove('open');
+        document.getElementById('up-drawer').classList.remove('open');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadProfilesFromDatabase();
+        
+        // --- 1. Create anti-double-click logic ---
+        document.getElementById('up-create-form')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-create');
+            const roleName = document.getElementById('up-role-name').value.trim();
+            const status = document.getElementById('up-role-status').value;
+            
+            if (!roleName) { showToast("Role name cannot be empty", "error"); return; }
+            
+            btn.disabled = true; btn.innerText = "Processing...";
+            
+            const params = new URLSearchParams();
+            params.append('roleName', roleName);
+            params.append('status', status);
+            
+            fetch('/api/profiles/create', { method: 'POST', body: params })
+            .then(r => r.text())
+            .then(res => {
+                if (res === 'true') {
+                    showToast('Profile created successfully!', 'success');
+                    this.reset();
+                    loadProfilesFromDatabase();
+                } else if (res === 'duplicate') {
+                    upNoteOpen('Role already exists! Please try another name.', 'Notice');
+                } else {
+                    showToast('Failed to create profile.', 'error');
+                }
+            }).finally(() => { btn.disabled = false; btn.innerText = "Create"; });
+        });
+        
+        document.getElementById('up-search').addEventListener('input', () => {
+            clearTimeout(window.searchTimeout);
+            window.searchTimeout = setTimeout(filterTable, 300); 
+        });
+        document.getElementById('up-status').addEventListener('change', filterTable);
+
+        document.getElementById('up-close').addEventListener('click', closeDrawer);
+        document.getElementById('up-backdrop').addEventListener('click', closeDrawer);
+
+        // --- 2. Status toggle logic (with custom secondary confirmation modal) ---
+        document.getElementById('up-tbody').addEventListener('click', (e) => {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+            const row = btn.closest('tr');
+            if (btn.getAttribute('data-action') === 'edit') openDrawer('edit', row);
+            
+            if (btn.getAttribute('data-action') === 'toggle') {
+                const roleName = row.querySelector('td:nth-child(2)')?.textContent?.trim() ?? '';
+                const isSusp = row.getAttribute('data-status') === 'suspended';
+                
+                if (!isSusp && profileIsUserAdminRole(roleName)) {
+                    upNoteOpen('Error: User Admin profiles cannot be suspended.', 'Warning');
+                    return;
+                }
+                
+                // Completely replace ugly native confirm with a custom modal
+                const actionText = isSusp ? 'REACTIVATE' : 'SUSPEND';
+                upConfirmOpen(`Are you sure you want to ${actionText} the role "${roleName}"?`, () => {
+                    
+                    const profileId = row.querySelector('td:first-child').textContent;
+                    const apiEndpoint = isSusp ? `/api/profiles/reactivate/${profileId}` : `/api/profiles/suspend/${profileId}`;
+                    
+                    fetch(apiEndpoint, { method: 'POST' }).then(r => r.text()).then(res => {
+                        if (res === 'true') {
+                            showToast(isSusp ? 'Profile reactivated!' : 'Profile suspended!', 'success');
+                            loadProfilesFromDatabase();
+                        } else {
+                            showToast('Failed to update profile status', 'error');
+                        }
+                    });
+                });
+            }
+        });
+
+        // --- 3. Update-save logic ---
+        document.getElementById('up-save').addEventListener('click', () => {
+            const profileId = document.getElementById('up-v-id').textContent.trim();
+            const newRoleName = document.getElementById('up-e-role').value.trim();
+            const btn = document.getElementById('up-save');
+
+            if (!newRoleName) { showToast('Role name cannot be empty', 'error'); return; }
+
+            btn.disabled = true; btn.innerText = "Saving...";
+
+            const params = new URLSearchParams();
+            params.append('newRoleName', newRoleName);
+
+            fetch(`/api/profiles/update-role/${encodeURIComponent(profileId)}`, { method: 'POST', body: params })
+            .then(r => r.text())
+            .then(res => {
+                if (res === 'true') {
+                    showToast('Role name updated!', 'success');
+                    closeDrawer();
+                    loadProfilesFromDatabase();
+                } else if (res === 'duplicate') {
+                    upNoteOpen('Role name already exists! Please choose another.', 'Notice');
+                } else {
+                    showToast('Failed to update role.', 'error');
+                }
+            }).finally(() => { btn.disabled = false; btn.innerText = "Save Changes"; });
+        });
+    });
+</script>
+</body>
+</html>
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Admin - Manage Profile</title>
+    <style>
+        :root {
+            --surface: #ffffff;
+            --surface-soft: #f8fafc;
+            --surface-tint: #f1f5f9;
+            --border: rgba(99, 102, 241, 0.18);
+            --border-soft: #e2e8f0;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --accent: #4f46e5;
+            --accent-hover: #4338ca;
+            --accent-light: #eef2ff;
+            --accent-ring: rgba(99, 102, 241, 0.35);
+            --danger-soft: #fef2f2;
+            --shadow: 0 10px 40px rgba(30, 27, 75, 0.12);
+            --shadow-sm: 0 4px 20px rgba(30, 27, 75, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif; }
+
+        body {
+            min-height: 100vh;
+            color: var(--text);
+            background:
+                radial-gradient(1200px 600px at 10% -10%, rgba(99, 102, 241, 0.22), transparent 55%),
+                radial-gradient(900px 500px at 100% 20%, rgba(14, 165, 233, 0.12), transparent 50%),
+                linear-gradient(165deg, #dce4f3 0%, #e8edf7 38%, #eef2f9 100%);
+        }
+
+        .container { min-height: 100vh; }
+        .main-content { padding: 30px; max-width: 1500px; margin: 0 auto; }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            padding: 16px 26px;
+            border-radius: 14px;
+            margin-bottom: 22px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--accent);
+        }
+
+        .tab-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 26px;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            border: 1px solid var(--border-soft);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(6px);
+            cursor: pointer;
+            font-weight: 600;
+            transition: color 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s;
+            color: var(--text-muted);
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: #fff;
+            border-color: #c7d2fe;
+            color: var(--accent);
+        }
+
+        .admin-section {
+            background: var(--surface);
+            border-radius: 14px;
+            padding: 26px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            outline: 1px solid var(--border);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-soft);
+            padding-bottom: 12px;
+            position: relative;
+        }
+        .section-header::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -2px;
+            width: min(160px, 40%);
+            height: 3px;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--accent), #38bdf8);
+        }
+
+        h2 { font-size: 20px; color: var(--text); letter-spacing: -0.02em; }
+
+        .action-bar {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 18px;
+        }
+
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-soft);
+            border-radius: 8px;
+            font-size: 14px;
+            background: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #a5b4fc;
+            box-shadow: 0 0 0 3px var(--accent-ring);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+        }
+        .btn:active { transform: translateY(1px); }
+        .btn-black {
+            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+        }
+        .btn-black:hover {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+        }
+        .btn-view {
+            background: var(--accent-light);
+            color: #312e81;
+            border: 1px solid #c7d2fe;
+            font-weight: 600;
+            box-shadow: none;
+        }
+        .btn-view:hover {
+            background: #e0e7ff;
+            border-color: #a5b4fc;
+        }
+        .logout-btn {
+            border: 1px solid rgba(220, 38, 38, 0.45);
+            color: #b91c1c;
+            background: var(--danger-soft);
+            padding: 10px 18px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 600;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+        }
+        .logout-btn:hover {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.35);
+        }
+
+        .topbar-user {
+            font-size: 16px;
+            color: var(--text-muted);
+        }
+
+        .topbar-user strong {
+            color: var(--text);
+            font-size: 17px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .subsection {
+            padding: 18px;
+            border: 1px solid var(--border-soft);
+            border-radius: 12px;
+            background: linear-gradient(180deg, #fafbfc 0%, var(--surface-soft) 100%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        .subsection h3 {
+            font-size: 15px;
+            margin-bottom: 10px;
+            color: #1e293b;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .btn-sm {
+            padding: 8px 12px;
+            font-size: 13px;
+            border-radius: 8px;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+        }
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #fca5a5 0%, #f87171 100%);
+        }
+
+        .btn-muted {
+            background: var(--surface-tint);
+            color: #334155;
+            border: 1px solid var(--border-soft);
+        }
+        .btn-muted:hover { background: #e2e8f0; }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            border: 1px solid var(--border-soft);
+            background: #fff;
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .pill.ok { background: #ecfdf5; border-color: #6ee7b7; color: #065f46; }
+        .pill.bad { background: #fef2f2; border-color: #fca5a5; color: #991b1b; }
+
+        .table-wrap {
+            border: 1px solid var(--border-soft);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
         }
 
         .table-scroll {
@@ -298,14 +1187,13 @@
             position: sticky;
             top: 0;
             z-index: 1;
-            background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+            background: linear-gradient(180deg, #f1f5f9 0%, #e8eef5 100%);
             border-bottom: 1px solid var(--border-soft);
-            font-size: 11px;
-            letter-spacing: 0.05em;
+            font-size: 12px;
+            letter-spacing: 0.04em;
             text-transform: uppercase;
-            color: var(--head-fg);
-            font-weight: 600;
-            padding: 13px 12px;
+            color: #475569;
+            padding: 12px 12px;
             text-align: left;
             white-space: nowrap;
         }
@@ -316,10 +1204,9 @@
             font-size: 14px;
             color: #1e293b;
             vertical-align: middle;
-            background: #fff;
         }
 
-        tbody tr:hover td { background: #f5f3ff; }
+        tbody tr:hover td { background: #f5f7ff; }
 
         .td-actions {
             display: inline-flex;
@@ -374,13 +1261,13 @@
             padding: 12px 14px;
             gap: 12px;
             border-top: 1px solid var(--border-soft);
-            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+            background: linear-gradient(180deg, #fafbfc 0%, #fff 100%);
         }
 
         .drawer-backdrop {
             position: fixed;
             inset: 0;
-            background: rgba(15, 23, 42, 0.4);
+            background: rgba(15, 23, 42, 0.45);
             display: none;
             z-index: 999;
         }
@@ -392,10 +1279,10 @@
             height: 100vh;
             width: min(520px, 92vw);
             background: #fff;
-            box-shadow: -20px 0 50px -12px rgba(15, 23, 42, 0.15);
-            border-left: 3px solid var(--accent);
+            box-shadow: -12px 0 40px rgba(30, 27, 75, 0.18);
+            border-left: 1px solid var(--border);
             transform: translateX(100%);
-            transition: transform 0.2s ease;
+            transition: transform 0.18s ease;
             z-index: 1000;
             display: flex;
             flex-direction: column;
@@ -408,9 +1295,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 16px 20px;
+            padding: 16px 18px;
             border-bottom: 1px solid var(--border-soft);
-            background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+            background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
         }
 
         .drawer-title {
@@ -418,23 +1305,22 @@
             gap: 2px;
         }
 
-        .drawer-title strong { font-size: 14px; color: #0f172a; }
+        .drawer-title strong { font-size: 14px; color: #1e293b; }
 
         .drawer-body {
             padding: 18px;
             overflow: auto;
             display: grid;
             gap: 14px;
-            background: #fff;
         }
 
         .drawer-footer {
-            padding: 14px 20px;
+            padding: 14px 18px;
             border-top: 1px solid var(--border-soft);
             display: flex;
             justify-content: flex-end;
             gap: 10px;
-            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+            background: linear-gradient(180deg, #fafbfc 0%, #fff 100%);
         }
 
         .kv {
@@ -452,22 +1338,21 @@
             left: 50%;
             bottom: 18px;
             transform: translateX(-50%);
-            background: #1e1b4b;
+            background: linear-gradient(135deg, #312e81 0%, #1e1b4b 100%);
             color: #fff;
-            padding: 12px 18px;
+            padding: 10px 16px;
             border-radius: 10px;
             font-size: 13px;
-            font-weight: 500;
             display: none;
             z-index: 1100;
-            box-shadow: 0 10px 40px rgba(15, 23, 42, 0.2);
+            box-shadow: 0 12px 32px rgba(30, 27, 75, 0.35);
             border: 1px solid rgba(165, 180, 252, 0.35);
         }
 
         .modal-backdrop {
             position: fixed;
             inset: 0;
-            background: rgba(15, 23, 42, 0.45);
+            background: rgba(0,0,0,0.5);
             display: none;
             z-index: 1300;
         }
@@ -482,9 +1367,9 @@
             width: min(640px, 92vw);
             max-height: 88vh;
             background: #fff;
-            border: 1px solid var(--border-soft);
-            border-radius: 14px;
-            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 24px 64px rgba(30, 27, 75, 0.22);
             display: none;
             z-index: 1310;
             overflow: hidden;
@@ -496,26 +1381,24 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 16px 20px;
-            background: #fafafa;
+            padding: 14px 18px;
+            background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
             border-bottom: 1px solid var(--border-soft);
         }
 
         .modal-header strong {
             font-size: 16px;
-            color: #0f172a;
-            font-weight: 700;
+            color: #1e293b;
         }
 
         .modal-body {
-            padding: 18px 20px;
-            font-size: 15px;
-            line-height: 1.55;
+            padding: 16px 18px;
+            font-size: 16px;
+            line-height: 1.5;
             color: #1e293b;
             word-break: break-word;
             overflow: auto;
             max-height: calc(88vh - 56px - 64px);
-            background: #fff;
         }
 
         #up-note-modal.modal {
@@ -525,19 +1408,19 @@
         }
 
         .modal-footer {
-            padding: 14px 20px;
+            padding: 14px 18px;
             border-top: 1px solid var(--border-soft);
             display: flex;
             justify-content: flex-end;
             gap: 10px;
-            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+            background: linear-gradient(180deg, #fafbfc 0%, #fff 100%);
         }
 
         #up-edit-form.card {
             padding: 14px;
             border-radius: 12px;
-            border: 1px solid rgba(148, 163, 184, 0.35);
-            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+            border: 1px solid var(--border-soft);
+            background: linear-gradient(180deg, #fafbfc 0%, #fff 100%);
         }
 
         @media (max-width: 980px) {
@@ -1295,4 +2178,4 @@
 </script>
 
 </body>
-</html>
+</html> -->

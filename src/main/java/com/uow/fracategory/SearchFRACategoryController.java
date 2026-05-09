@@ -7,7 +7,7 @@ public class SearchFRACategoryController {
 
     private final FRACategory fraCategory = new FRACategory();
 
-    public Object searchCategory(String keyword, String status) {
-        return fraCategory.getSearchCategory(keyword, status);
+    public Object searchCategory(Object searchCategoryData) {
+        return fraCategory.getSearchCategory(searchCategoryData);
     }
 }

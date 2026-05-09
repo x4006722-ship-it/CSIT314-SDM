@@ -1,17 +1,12 @@
 package com.uow.donee;
 
+import com.uow.fra.FRA;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ViewDonationController {
 
-    private final Donee donee = new Donee();
-
     public Object viewDonation(int fraId) {
-        Object data = donee.getViewDonation(fraId);
-        if (data == null) {
-            return java.util.Map.of("error", "FRA not found.");
-        }
-        return data;
+        return FRA.getViewDonation(fraId);
     }
 }

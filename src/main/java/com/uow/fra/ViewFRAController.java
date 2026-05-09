@@ -1,4 +1,4 @@
-package com.uow.FRA;
+package com.uow.fra;
 import org.springframework.stereotype.Service;
 import java.util.List;
 @Service

@@ -5,12 +5,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class SearchFavouriteController {
 
-    private final Donee donee = new Donee();
+    private final Favourite favourite = new Favourite();
 
-    public Object searchFavourite(int userId, String title, String fraStatus, String categoryName) {
-        if (userId <= 0) {
-            return java.util.Map.of("error", "Not logged in.");
-        }
-        return donee.getSearchFavourite(userId, title, fraStatus, categoryName);
+    public Object searchFavourite(Object searchFavouriteData) {
+        return favourite.getSearchFavourite(searchFavouriteData);
     }
 }

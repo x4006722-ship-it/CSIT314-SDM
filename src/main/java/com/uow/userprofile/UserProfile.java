@@ -14,32 +14,24 @@ public class UserProfile {
     private String roleName;
     private String status;
 
-    // Default constructor required by frameworks
     public UserProfile() {}
 
-    // Constructor for creating new profiles
     public UserProfile(String roleName, String status) {
         this.roleName = roleName;
         this.status = status;
     }
 
-    // Full constructor for retrieving records from the database
     public UserProfile(String profileId, String roleName, String status) {
         this.profileId = profileId;
         this.roleName = roleName;
         this.status = status;
     }
 
-    // Getters for Spring Boot JSON serialization
     public String getProfileId() { return profileId; } 
     public String getRoleName() { return roleName; }
     public String getStatus() { return status; }
 
-    // ==========================================
-    // Database Operations (High Cohesion: All DB logic stays here)
-    // ==========================================
-
-    public Boolean save() {
+    public boolean save() {
         String sql = "INSERT INTO user_profile (role, p_status) VALUES (?, ?)";
         try (Connection conn = DBUtils.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -47,7 +39,6 @@ public class UserProfile {
             pstmt.setString(2, this.status);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) { 
-            System.err.println("[ENTITY ERROR] Database insert failed: " + e.getMessage());
             return false; 
         }
     }
@@ -62,9 +53,7 @@ public class UserProfile {
                     return new UserProfile(rs.getString("profile_id"), rs.getString("role"), rs.getString("p_status"));
                 }
             }
-        } catch (SQLException e) { 
-            System.err.println("[ENTITY ERROR] Database query failed: " + e.getMessage());
-        }
+        } catch (SQLException e) { }
         return null;
     }
 
@@ -85,33 +74,31 @@ public class UserProfile {
             while (rs.next()) {
                 list.add(new UserProfile(rs.getString("profile_id"), rs.getString("role"), rs.getString("p_status")));
             }
-        } catch (SQLException e) { 
-            System.err.println("[ENTITY ERROR] Database list retrieval failed: " + e.getMessage());
-        }
+        } catch (SQLException e) { }
         return list;
     }
 
-    public void updateRoleName(String newRoleName) {
+    public boolean updateRoleName(String newRoleName) {
         String sql = "UPDATE user_profile SET role = ? WHERE profile_id = ?";
         try (Connection conn = DBUtils.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, newRoleName);
             pstmt.setString(2, this.profileId);
-            pstmt.executeUpdate();
+            return pstmt.executeUpdate() > 0;
         } catch (SQLException e) { 
-            System.err.println("[ENTITY ERROR] Failed to update role name: " + e.getMessage());
+            return false;
         }
     }
 
-    public void updateStatus(String newStatus) {
+    public boolean updateStatus(String newStatus) {
         String sql = "UPDATE user_profile SET p_status = ? WHERE profile_id = ?";
         try (Connection conn = DBUtils.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, newStatus);
             pstmt.setString(2, this.profileId);
-            pstmt.executeUpdate();
+            return pstmt.executeUpdate() > 0;
         } catch (SQLException e) { 
-            System.err.println("[ENTITY ERROR] Failed to update status: " + e.getMessage());
+            return false;
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.uow.FRA;
+package com.uow.fra;
 
 import java.util.List;
 

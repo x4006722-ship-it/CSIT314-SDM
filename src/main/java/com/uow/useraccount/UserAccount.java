@@ -3,75 +3,48 @@ package com.uow.useraccount;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.uow.util.DBUtils;
 
 public class UserAccount {
 
-    public int userID;
-    public String username;
-    public String password;
-    public String fullName;
-    public String email;
-    public String phoneNumber;
-    public String status;
-    public int profileID;
-    public String lastErrorMessage = "";
-
     //Create Account
-    public boolean saveCreateAccount() {
-        lastErrorMessage = "";
-        userID = 0;
-        try (Connection c = DBUtils.getConnection();
-             PreparedStatement ps = c.prepareStatement(
-                     "SELECT COUNT(*) FROM user_account WHERE (username=? OR email=? OR phone_number=?) AND user_id<>?")) {
-            ps.setString(1, username);
-            ps.setString(2, email);
-            ps.setString(3, phoneNumber);
-            ps.setInt(4, userID);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next() || rs.getInt(1) != 0) {
-                    lastErrorMessage = "Duplicate username, email, or phone number.";
-                    return false;
-                }
-            }
-        } catch (Exception e) {
-            lastErrorMessage = "Duplicate username, email, or phone number.";
+    public boolean saveCreateAccount(Object newAccountData) {
+        if (!(newAccountData instanceof Map<?, ?> data)) {
             return false;
         }
         try (Connection c = DBUtils.getConnection();
              PreparedStatement ps = c.prepareStatement(
                      "INSERT INTO user_account (username,password,full_name,email,phone_number,a_status,profile_id) VALUES (?,?,?,?,?,?,?)")) {
-            ps.setString(1, username);
-            ps.setString(2, password);
-            ps.setString(3, fullName);
-            ps.setString(4, email);
-            ps.setString(5, phoneNumber);
-            ps.setString(6, status);
-            ps.setInt(7, profileID);
-            boolean ok = ps.executeUpdate() > 0;
-            if (!ok) {
-                lastErrorMessage = "Could not create account.";
-            }
-            return ok;
+            ps.setString(1, readText(data, "username"));
+            ps.setString(2, readText(data, "password"));
+            ps.setString(3, readText(data, "fullName"));
+            ps.setString(4, readText(data, "email"));
+            ps.setString(5, readText(data, "phoneNumber"));
+            ps.setString(6, readText(data, "accountStatus"));
+            ps.setInt(7, readInt(data, "profileId"));
+            return ps.executeUpdate() > 0;
         } catch (Exception e) {
-            lastErrorMessage = "Could not create account.";
             return false;
         }
     }
 
     //View Account
-    public Object getViewAccount(int userID) {
+    public Object getViewAccount(int userId) {
         try (Connection c = DBUtils.getConnection();
              PreparedStatement ps = c.prepareStatement(
                      "SELECT ua.user_id,ua.username,ua.full_name,ua.email,ua.phone_number,ua.password,ua.a_status,ua.profile_id,up.role AS roleName " +
                              "FROM user_account ua JOIN user_profile up ON ua.profile_id=up.profile_id WHERE ua.user_id=?")) {
-            ps.setInt(1, userID);
+            ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (!rs.next()) {
                     return null;
                 }
-                return java.util.Map.of(
+                return Map.of(
                         "user_id", rs.getInt("user_id"),
                         "username", rs.getString("username"),
                         "full_name", rs.getString("full_name"),
@@ -89,81 +62,57 @@ public class UserAccount {
     }
 
     //Update Account
-    public boolean saveUpdateAccount(int userID) {
-        lastErrorMessage = "";
-        this.userID = userID;
-        try (Connection c = DBUtils.getConnection();
-             PreparedStatement ps = c.prepareStatement(
-                     "SELECT COUNT(*) FROM user_account WHERE (username=? OR email=? OR phone_number=?) AND user_id<>?")) {
-            ps.setString(1, username);
-            ps.setString(2, email);
-            ps.setString(3, phoneNumber);
-            ps.setInt(4, userID);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next() || rs.getInt(1) != 0) {
-                    lastErrorMessage = "Duplicate username, email, or phone number.";
-                    return false;
-                }
-            }
-        } catch (Exception e) {
-            lastErrorMessage = "Duplicate username, email, or phone number.";
+    public boolean saveUpdateAccount(Object updatedAccountData) {
+        if (!(updatedAccountData instanceof Map<?, ?> data)) {
             return false;
         }
         try (Connection c = DBUtils.getConnection();
              PreparedStatement ps = c.prepareStatement(
                      "UPDATE user_account SET username=?, full_name=?, email=?, phone_number=?, password=?, a_status=?, profile_id=? WHERE user_id=?")) {
-            ps.setString(1, username);
-            ps.setString(2, fullName);
-            ps.setString(3, email);
-            ps.setString(4, phoneNumber);
-            ps.setString(5, password);
-            ps.setString(6, status);
-            ps.setInt(7, profileID);
-            ps.setInt(8, userID);
-            boolean ok = ps.executeUpdate() > 0;
-            if (!ok) {
-                lastErrorMessage = "Update failed.";
-            }
-            return ok;
+            ps.setString(1, readText(data, "username"));
+            ps.setString(2, readText(data, "fullName"));
+            ps.setString(3, readText(data, "email"));
+            ps.setString(4, readText(data, "phoneNumber"));
+            ps.setString(5, readText(data, "password"));
+            ps.setString(6, readText(data, "accountStatus"));
+            ps.setInt(7, readInt(data, "profileId"));
+            ps.setInt(8, readInt(data, "userId"));
+            return ps.executeUpdate() > 0;
         } catch (Exception e) {
-            lastErrorMessage = "Update failed.";
             return false;
         }
     }
 
     //Suspend Account
     public boolean saveSuspendAccount(int targetUserId, int currentUserId) {
-        lastErrorMessage = "";
-        Object detail = getViewAccount(targetUserId);
-        if (detail == null) {
-            lastErrorMessage = "Account not found.";
-            return false;
-        }
-        if (detail instanceof java.util.Map<?, ?> m) {
-            Object role = m.get("roleName");
-            if (role != null && "User Admin".equalsIgnoreCase(String.valueOf(role).trim())) {
-                lastErrorMessage = "Cannot suspend User Admin account.";
-                return false;
-            }
-        }
-
         try (Connection c = DBUtils.getConnection();
              PreparedStatement ps = c.prepareStatement(
                      "UPDATE user_account SET a_status = CASE WHEN LOWER(TRIM(a_status))='suspended' THEN 'Active' ELSE 'Suspended' END WHERE user_id=?")) {
             ps.setInt(1, targetUserId);
-            boolean ok = ps.executeUpdate() > 0;
-            if (!ok) {
-                lastErrorMessage = "Suspend failed.";
-            }
-            return ok;
+            return ps.executeUpdate() > 0;
         } catch (Exception e) {
-            lastErrorMessage = "Suspend failed.";
             return false;
         }
     }
 
     //Search Account
-    public Object getSearchAccount(String username, String fullName, String email, int phoneNumber, String status, int profileID) {
+    public Object getSearchAccount(Object searchData) {
+        String username = "";
+        String fullName = "";
+        String email = "";
+        String phoneNumber = "";
+        String status = "";
+        int profileId = 0;
+
+        if (searchData instanceof Map<?, ?> data) {
+            username = readText(data, "username");
+            fullName = readText(data, "fullName");
+            email = readText(data, "email");
+            phoneNumber = readText(data, "phoneNumber");
+            status = readText(data, "status");
+            profileId = readInt(data, "profileID");
+        }
+
         try (Connection c = DBUtils.getConnection();
              PreparedStatement ps = c.prepareStatement(
                      "SELECT ua.user_id,ua.username,ua.full_name,ua.email,ua.phone_number,ua.a_status,ua.profile_id,up.role AS roleName " +
@@ -171,7 +120,7 @@ public class UserAccount {
                              "WHERE (? = '' OR ua.username LIKE ?) " +
                              "AND (? = '' OR ua.full_name LIKE ?) " +
                              "AND (? = '' OR ua.email LIKE ?) " +
-                             "AND (? = 0 OR ua.phone_number LIKE ?) " +
+                             "AND (? = '' OR ua.phone_number LIKE ?) " +
                              "AND (? = '' OR ua.a_status = ?) " +
                              "AND (? = 0 OR ua.profile_id = ?)")) {
             ps.setString(1, username);
@@ -180,31 +129,50 @@ public class UserAccount {
             ps.setString(4, "%" + fullName + "%");
             ps.setString(5, email);
             ps.setString(6, "%" + email + "%");
-            ps.setInt(7, phoneNumber);
-            ps.setString(8, "%" + (phoneNumber == 0 ? "" : String.valueOf(phoneNumber)) + "%");
-            String st = status == null ? "" : status;
-            ps.setString(9, st);
-            ps.setString(10, st);
-            ps.setInt(11, profileID);
-            ps.setInt(12, profileID);
+            ps.setString(7, phoneNumber);
+            ps.setString(8, "%" + phoneNumber + "%");
+            ps.setString(9, status);
+            ps.setString(10, status);
+            ps.setInt(11, profileId);
+            ps.setInt(12, profileId);
             try (ResultSet rs = ps.executeQuery()) {
-                java.util.List<java.util.Map<String, Object>> out = new java.util.ArrayList<>();
+                List<Map<String, Object>> out = new ArrayList<>();
                 while (rs.next()) {
-                    out.add(java.util.Map.of(
-                            "userId", rs.getInt("user_id"),
-                            "username", rs.getString("username"),
-                            "fullName", rs.getString("full_name"),
-                            "email", rs.getString("email"),
-                            "phoneNumber", rs.getString("phone_number"),
-                            "accountStatus", rs.getString("a_status"),
-                            "profileID", rs.getInt("profile_id"),
-                            "roleName", rs.getString("roleName")
-                    ));
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("userId", rs.getInt("user_id"));
+                    row.put("username", rs.getString("username"));
+                    row.put("fullName", rs.getString("full_name"));
+                    row.put("email", rs.getString("email"));
+                    row.put("phoneNumber", rs.getString("phone_number"));
+                    row.put("accountStatus", rs.getString("a_status"));
+                    row.put("profileID", rs.getInt("profile_id"));
+                    row.put("roleName", rs.getString("roleName"));
+                    out.add(row);
                 }
                 return out;
             }
         } catch (Exception e) {
-            return java.util.List.of();
+            return List.of();
+        }
+    }
+
+    private String readText(Map<?, ?> data, String key) {
+        Object value = data.get(key);
+        return value == null ? "" : String.valueOf(value).trim();
+    }
+
+    private int readInt(Map<?, ?> data, String key) {
+        Object value = data.get(key);
+        if (value instanceof Number number) {
+            return number.intValue();
+        }
+        if (value == null || String.valueOf(value).isBlank()) {
+            return 0;
+        }
+        try {
+            return Integer.parseInt(String.valueOf(value).trim());
+        } catch (NumberFormatException e) {
+            return 0;
         }
     }
 }
