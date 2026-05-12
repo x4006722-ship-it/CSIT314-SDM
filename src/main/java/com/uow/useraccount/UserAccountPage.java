@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class UserAccountPage {
@@ -87,7 +88,22 @@ public class UserAccountPage {
     //View Account
     @GetMapping("/api/accounts/view")
     @ResponseBody
-    public Object onViewAccount(@RequestParam("userId") int userId) {
+    public Object onViewAccount(@RequestParam(value = "userId", required = false) Integer userId, HttpSession session) {
+        // 如果未提供 userId，从 Session 中获取当前登录用户的 userId
+        if (userId == null || userId <= 0) {
+            Object sessionUserId = session.getAttribute("userId");
+            if (sessionUserId instanceof Integer) {
+                userId = (Integer) sessionUserId;
+            } else if (sessionUserId instanceof String) {
+                try {
+                    userId = Integer.parseInt((String) sessionUserId);
+                } catch (NumberFormatException e) {
+                    return Map.of("error", "User not logged in.");
+                }
+            } else {
+                return Map.of("error", "User not logged in.");
+            }
+        }
         if (userId <= 0) {
             return Map.of("error", "Empty field detected.");
         }

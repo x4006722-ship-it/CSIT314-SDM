@@ -88,7 +88,7 @@ public class FRA {
     public void setUpdatedAt(String updatedAt) { this.updatedAt = updatedAt; }
 
     public FRA saveFRA() {
-        String sql = "INSERT INTO fra (fra_title, fra_targetAmount, category_id, fra_status, current_amount, fra_viewCount, fra_favouriteCount, fra_startedAt, fra_endedAt, donee_id, fundRaiser_id, completed_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO fra (fra_title, fra_targetAmount, category_id, fra_status, current_amount, fra_viewCount, fra_favouriteCount, fra_startedAt, fra_endedAt, donee_id, fundRaiser_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBUtils.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 pstmt.setString(1, this.fraTitle);
@@ -102,16 +102,18 @@ public class FRA {
                 pstmt.setString(9, this.endedAt);
                 pstmt.setString(10, this.doneeId);
                 pstmt.setString(11, this.fundRaiserId);
-                pstmt.setString(12, this.completedAt);
-                pstmt.setString(13, this.updatedAt);
             if (pstmt.executeUpdate() > 0) {
                 ResultSet rs = pstmt.getGeneratedKeys();
                 if (rs.next()) this.fraId = String.valueOf(rs.getInt(1));
+                System.out.println("[FRA.saveFRA] FRA created successfully with ID: " + this.fraId);
                 return this; 
             }
+            System.err.println("[FRA.saveFRA] Insert failed - no rows updated");
             return null;
         } catch (SQLException e) { 
-            return null; // Silent handling: return null to be handled by upper layer
+            System.err.println("[FRA.saveFRA] Database error: " + e.getMessage());
+            e.printStackTrace();
+            return null;
         }
     }
 

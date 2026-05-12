@@ -64,16 +64,28 @@ public class FRA_UI {
 
     @PostMapping("/create")
     public FRA submitFRACreationData(@RequestBody FRA fraData, HttpSession session) {
+    // 1. 从 Session 中获取当前登录用户的 ID
+    // （注意：这里的 "userId" 必须与你登录时存入 Session 的键名一致，有可能是 Integer 或者 String，根据你的实际情况强转）
+        Object userIdObj = session.getAttribute("userId");
+    
+    // 2. 安全校验：如果用户没登录，直接拒绝创建
+        if (userIdObj == null) {
+            return null; // 或者抛出个异常，前端会收到错误
+        }
+    
+        fraData.setFundRaiserId(String.valueOf(userIdObj));
+    
+    // 4. 保存到数据库
         return createController.createFRA(fraData);
     }
 
     @PostMapping("/update/{fraId}")
-    public boolean submitFRAUpdateData(@PathVariable String fraId, @RequestBody FRA fraData) {
+    public boolean submitFRAUpdateData(@PathVariable("fraId") String fraId, @RequestBody FRA fraData) {
         return updateController.updateFRA(fraId, fraData);
     }
 
     @DeleteMapping("/delete/{fraId}")
-    public boolean confirmFRADeletion(@PathVariable String fraId) {
+    public boolean confirmFRADeletion(@PathVariable("fraId") String fraId) {
         return removeController.deleteFRA(fraId);
     }
 
