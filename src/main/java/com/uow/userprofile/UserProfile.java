@@ -101,4 +101,30 @@ public class UserProfile {
             return false;
         }
     }
+
+    // 在 UserProfile.java 中加入此方法
+    public static boolean isDuplicateRole(String roleName, String excludeProfileId) {
+        String sql = "SELECT COUNT(*) FROM user_profile WHERE LOWER(role) = LOWER(?)";
+        if (excludeProfileId != null) {
+            sql += " AND profile_id != ?";
+        }
+        
+        try (Connection conn = DBUtils.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             
+            pstmt.setString(1, roleName.trim());
+            if (excludeProfileId != null) {
+                pstmt.setString(2, excludeProfileId);
+            }
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0; // 如果数量 > 0，说明数据库里有重名
+                }
+            }
+        } catch (SQLException e) { 
+            // 数据库异常静默处理或打印日志
+        }
+        return false;
+    }
 }

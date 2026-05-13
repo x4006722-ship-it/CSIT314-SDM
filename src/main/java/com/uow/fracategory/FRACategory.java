@@ -81,10 +81,9 @@ public class FRACategory {
     public Object getSearchCategory(Object searchCategoryData) {
         String name = "";
         String status = "";
-        if (searchCategoryData instanceof Map<?, ?> data) {
-            name = readText(data.get("categoryName"));
-            status = readText(data.get("categoryStatus"));
-        }
+        if (!(searchCategoryData instanceof Map<?, ?> data)) {
+        return new ArrayList<>(); 
+    }
 
         StringBuilder sql = new StringBuilder(
                 "SELECT category_id, category_name, category_status FROM fra_category WHERE 1=1 ");

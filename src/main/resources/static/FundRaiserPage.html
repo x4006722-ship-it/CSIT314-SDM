@@ -238,16 +238,37 @@
         async function loadCurrentAccount() {
             try {
                 const r = await fetch('/api/accounts/view');
-                if (!r.ok) return;
+                if (!r.ok) {
+                    console.error("Failed to fetch account:", r.status);
+                    return;
+                }
                 const data = await r.json();
-                const fullName = data.full_name || '';
-                const userId = data.user_id ? String(data.user_id) : '';
+        
+                // Check for error response
+                if (data.error) {
+                    console.error("Server error:", data.error);
+                    return;
+                }
+        
+                // 兼容后端的驼峰命名 (fullName) 和 下划线命名 (full_name)
+                const fullName = data.fullName || data.full_name || '';
+                const userId = (data.userId || data.user_id) ? String(data.userId || data.user_id) : '';
+        
+                if (!fullName || !userId) {
+                    console.warn("Missing fullName or userId:", {fullName, userId, data});
+                    return;
+                }
+        
                 document.getElementById('login-full-name').innerText = fullName || 'Fund Raiser';
                 document.getElementById('create-fund-raiser-name').value = fullName;
+        
                 if (!document.getElementById('current-fra-id').value) {
                     document.getElementById('create-fund-raiser-id').value = userId;
                 }
-            } catch (e) { console.error(e); }
+                console.log("Account loaded successfully:", {fullName, userId});
+            } catch (e) { 
+                console.error("Failed to load current account:", e); 
+            }
         }
 
         async function loadDoneeOptions(selectedId = "") {
@@ -356,23 +377,56 @@
                 fraStatus: id ? document.getElementById('create-status').value : "Pending"
             };
 
-            // Frontend validation
+            // ================= 1. 基础空值校验 =================
             if(!payload.fraTitle || !payload.doneeId || isNaN(payload.fraTargetAmount) || !payload.startedAt || !payload.endedAt) {
                 showMessage("Please fill in all required fields.", "error"); return;
             }
             if(!payload.categoryId) { showMessage("Please select a Category.", "error"); return; }
             if(!payload.fundRaiserId) { showMessage("Fund Raiser is required.", "error"); return; }
-            if(payload.fraTargetAmount <= 0) { showMessage("Amount must be greater than 0.", "error"); return; }
-            if(new Date(payload.startedAt) >= new Date(payload.endedAt)) { showMessage("Start Date must be before End Date.", "error"); return; }
+    
+            // ================= 2. 数值与日期逻辑校验 =================
+            if(payload.fraTargetAmount <= 0) { 
+                showMessage("Amount must be greater than 0.", "error"); return; 
+            }
+            if(new Date(payload.startedAt) >= new Date(payload.endedAt)) { 
+                showMessage("Start Date must be before End Date.", "error"); return; 
+            }
+
+            // ================= 3. 业务查重校验 (精准匹配 Controller 逻辑) =================
+            const inputTitle = payload.fraTitle.trim().toLowerCase();
+            let isDuplicate = false;
+    
+            // 遍历当前 Dashboard 表格中已有的数据行
+            const rows = document.querySelectorAll('#fra-table-body tr');
+            for (let row of rows) {
+                if (row.cells.length < 2) continue; // 跳过 "Loading data..." 等非数据行
+        
+                const rowId = row.cells[0].innerText.trim();
+                const rowTitle = row.cells[1].innerText.trim().toLowerCase();
+        
+                // 如果标题相同，且不是当前正在修改的活动（排除自身）
+                if (rowTitle === inputTitle && rowId !== id) {
+                    isDuplicate = true;
+                    break;
+                }
+            }
+
+            if (isDuplicate) {
+                showMessage("Campaign title already exists. Please choose a different name.", "error"); 
+                return; // 直接拦截，不向后端发送无效请求
+            }
+            // =====================================================================
 
             // Disable button to prevent repeated clicks
             btn.disabled = true;
             btn.innerText = "Processing...";
 
+            // 发送 Fetch 请求...
             fetch(id ? `${API_BASE_URL}/update/${id}` : `${API_BASE_URL}/create`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
-            }).then(async r => {
+        }).then(async r => {
+                // ... 原有的后续逻辑 ...
                 const res = await r.text();
                 // Treat as success unless backend explicitly rejects (false / null)
                 if (r.ok && res && res.trim() !== "false" && res.trim() !== "null" && res.trim() !== "") {
