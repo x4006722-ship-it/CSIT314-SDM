@@ -286,7 +286,8 @@
 
         async function loadCategoryOptions() {
             try {
-                const r = await fetch('/api/fra-categories/list');
+                const qs = new URLSearchParams({ categoryName: '', categoryStatus: 'Active' });
+                const r = await fetch('/api/fra-categories/search?' + qs.toString());
                 if (!r.ok) return;
                 const list = await r.json();
                 const createSelect = document.getElementById('create-category');

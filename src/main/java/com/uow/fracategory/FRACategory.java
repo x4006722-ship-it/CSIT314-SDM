@@ -90,7 +90,7 @@ public class FRACategory {
                 "SELECT category_id, category_name, category_status FROM fra_category WHERE 1=1 ");
         if (!name.isEmpty()) sql.append("AND category_name LIKE ? ");
         if (!status.isEmpty()) sql.append("AND category_status = ? ");
-        sql.append("ORDER BY category_id LIMIT 2000");
+        sql.append("ORDER BY category_id LIMIT 500");
 
         try (Connection c = DBUtils.getConnection();
              PreparedStatement ps = c.prepareStatement(sql.toString())) {

@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import jakarta.servlet.http.HttpSession;
+
 @Controller
 public class UserAccountPage {
 
@@ -84,14 +86,58 @@ public class UserAccountPage {
         return result;
     }
 
-    //View Account
+    //View Account (userId optional: when omitted, uses logged-in user from session — e.g. "My Account")
     @GetMapping("/api/accounts/view")
     @ResponseBody
-    public Object onViewAccount(@RequestParam("userId") int userId) {
-        if (userId <= 0) {
-            return Map.of("error", "Empty field detected.");
+    public Object onViewAccount(
+            @RequestParam(value = "userId", required = false) Integer userId,
+            HttpSession session) {
+        int resolved = userId != null && userId > 0 ? userId : 0;
+        if (resolved <= 0) {
+            resolved = resolveUserIdFromSession(session);
         }
-        return viewUserAccountController.viewAccount(userId);
+        if (resolved <= 0 && session != null) {
+            String un = readText(session.getAttribute("username"));
+            if (!un.isBlank()) {
+                resolved = new UserAccount().findUserIdByUsername(un);
+            }
+        }
+        if (resolved <= 0) {
+            return Map.of("error", "Not signed in or missing user id.");
+        }
+        Object body = viewUserAccountController.viewAccount(resolved);
+        if (body == null) {
+            return Map.of("error", "Account not found.");
+        }
+        return body;
+    }
+
+    private static int resolveUserIdFromSession(HttpSession session) {
+        if (session == null) {
+            return 0;
+        }
+        Object sid = session.getAttribute("userId");
+        if (sid == null) {
+            return 0;
+        }
+        if (sid instanceof Number n) {
+            int v = n.intValue();
+            return v > 0 ? v : 0;
+        }
+        String s = readTextStatic(sid);
+        if (s.isBlank()) {
+            return 0;
+        }
+        try {
+            int v = Integer.parseInt(s);
+            return v > 0 ? v : 0;
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    private static String readTextStatic(Object value) {
+        return value == null ? "" : String.valueOf(value).trim();
     }
 
     //Update Account

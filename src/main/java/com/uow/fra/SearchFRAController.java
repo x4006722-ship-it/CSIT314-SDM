@@ -5,6 +5,10 @@ import java.util.List;
 @Service
 public class SearchFRAController {
     public List<FRA> searchFRA(String criteria) {
-        return FRA.findFRAsByCriteria(criteria);
+        return FRA.findFRAsByCriteria(criteria, "all", "all");
+    }
+
+    public List<FRA> searchFRA(String criteria, String categoryName, String fraStatus) {
+        return FRA.findFRAsByCriteria(criteria, categoryName, fraStatus);
     }
 }

@@ -1,6 +1,7 @@
 package com.uow.donee;
 
 import java.util.List;
+import java.util.Map;
 
 import com.uow.fra.FRA;
 import com.uow.fra.SearchFRAController;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import jakarta.servlet.http.HttpSession;
 import java.util.HashMap;
-import java.util.Map;
 
 @Controller
 public class DoneePage {
@@ -35,11 +35,21 @@ public class DoneePage {
         return "Saved to favourite successfully.";
     }
 
+    /** Active categories from {@code fra_category} (same list as Platform) — for search dropdowns. */
+    @GetMapping(value = "/api/donee/fra/category-options", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public List<Map<String, Object>> onFraCategoryOptions() {
+        return FRA.findAllActiveFraCategoriesForDropdown();
+    }
+
     // Search FRA
     @GetMapping(value = "/api/donee/fra/search", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public List<FRA> onSearchFRA(@RequestParam(value = "criteria", defaultValue = "") String criteria) {
-        return searchFRAController.searchFRA(criteria);
+    public List<FRA> onSearchFRA(
+            @RequestParam(value = "criteria", defaultValue = "") String criteria,
+            @RequestParam(value = "categoryName", defaultValue = "all") String categoryName,
+            @RequestParam(value = "fraStatus", defaultValue = "all") String fraStatus) {
+        return searchFRAController.searchFRA(criteria, categoryName, fraStatus);
     }
 
     // View FRA

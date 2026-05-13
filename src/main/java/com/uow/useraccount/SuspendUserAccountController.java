@@ -22,11 +22,28 @@ public class SuspendUserAccountController {
             return false;
         }
 
-        Object roleName = targetMap.get("roleName");
-        if (roleName != null && "User Admin".equalsIgnoreCase(String.valueOf(roleName).trim())) {
+        // User Admin accounts must not be suspended (active → suspended). Re-activate is still allowed.
+        if (isUserAdminRole(targetMap) && isActiveAccount(targetMap)) {
             return false;
         }
 
         return userAccount.saveSuspendAccount(targetUserId, currentUserId);
+    }
+
+    private static boolean isUserAdminRole(java.util.Map<?, ?> account) {
+        Object r = account.get("roleName");
+        if (r == null) {
+            r = account.get("role");
+        }
+        String role = r == null ? "" : String.valueOf(r).trim().replaceAll("\\s+", " ");
+        return "User Admin".equalsIgnoreCase(role);
+    }
+
+    private static boolean isActiveAccount(java.util.Map<?, ?> account) {
+        Object st = account.get("a_status");
+        if (st == null) {
+            return true;
+        }
+        return !"suspended".equalsIgnoreCase(String.valueOf(st).trim());
     }
 }
