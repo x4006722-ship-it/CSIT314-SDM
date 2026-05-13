@@ -79,16 +79,19 @@ public class FRACategory {
 
     //Search Category
     public Object getSearchCategory(Object searchCategoryData) {
-        String name = "";
-        String status = "";
         if (!(searchCategoryData instanceof Map<?, ?> data)) {
-        return new ArrayList<>(); 
-    }
+            return new ArrayList<>();
+        }
+
+        String name = readText(data.get("categoryName"));
+        String status = readText(data.get("categoryStatus"));
 
         StringBuilder sql = new StringBuilder(
                 "SELECT category_id, category_name, category_status FROM fra_category WHERE 1=1 ");
         if (!name.isEmpty()) sql.append("AND category_name LIKE ? ");
-        if (!status.isEmpty()) sql.append("AND category_status = ? ");
+        if (!status.isEmpty()) {
+            sql.append("AND LOWER(TRIM(category_status)) = LOWER(?) ");
+        }
         sql.append("ORDER BY category_id LIMIT 500");
 
         try (Connection c = DBUtils.getConnection();
