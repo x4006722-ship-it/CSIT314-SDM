@@ -64,7 +64,7 @@ public class LoginPage {
             HttpSession session = attributes.getRequest().getSession();
             session.setAttribute("username", username);
             session.setAttribute("role", readText(sessionMap.get("role")));
-            session.setAttribute("userId", parseInt(sessionMap.get("userId")));
+            session.setAttribute("userId", Integer.valueOf(parseInt(sessionMap.get("userId"))));
         }
         return redirectPage(readText(sessionMap.get("role")));
     }

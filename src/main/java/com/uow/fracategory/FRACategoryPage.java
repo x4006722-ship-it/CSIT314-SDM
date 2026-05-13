@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -46,14 +47,20 @@ public class FRACategoryPage {
         return categoryMessage.isBlank() ? "Category operation failed." : categoryMessage;
     }
 
-    //Create Category
-    @PostMapping("/api/fra-categories/create")
+    //Create Category (HTML form → urlencoded; API → JSON)
+    @PostMapping(value = "/api/fra-categories/create", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public boolean onCreateCategory(@RequestBody(required = false) Object newCategoryData,
-                                    @RequestParam Map<String, String> formData) {
-        if (!(newCategoryData instanceof Map<?, ?>) || ((Map<?, ?>) newCategoryData).isEmpty()) {
-            newCategoryData = formData;
-        }
+    public boolean onCreateCategoryJson(@RequestBody Object newCategoryData) {
+        return performCreateCategory(newCategoryData);
+    }
+
+    @PostMapping(value = "/api/fra-categories/create", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    @ResponseBody
+    public boolean onCreateCategoryForm(@RequestParam Map<String, String> formData) {
+        return performCreateCategory(formData);
+    }
+
+    private boolean performCreateCategory(Object newCategoryData) {
         if (!(newCategoryData instanceof Map<?, ?> data)) {
             categoryMessage = "Type mismatch detected.";
             return false;

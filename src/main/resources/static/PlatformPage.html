@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <style>
         :root {
             --surface: #ffffff;
@@ -439,7 +439,7 @@
             <div class="cm-grid">
                 <div class="subsection">
                     <h3>Create Category</h3>
-                    <form id="fra-create-form" action="/api/fra-categories/create" method="POST" novalidate>
+                    <form id="fra-create-form" action="#" method="post" novalidate>
                         <div class="cm-card-body">
                             <div class="cm-form-grid" style="margin-top:10px;">
                                 <div class="form-group">
@@ -741,8 +741,9 @@
                 method: 'POST',
                 credentials: 'same-origin'
             });
-            const resp = await r.json().catch(() => ({}));
-            if (!r.ok || resp?.success === false) throw new Error(resp?.error || 'Update failed');
+            const resp = await r.json().catch(() => null);
+            if (!r.ok) throw new Error((resp && typeof resp === 'object' && resp.error) ? resp.error : `HTTP ${r.status}`);
+            if (resp !== true) throw new Error('Update failed.');
             fraCloseModal();
             await loadFraCategories();
             fraToast('Category updated.', 'ok');
@@ -976,6 +977,35 @@
         fraShowToastFromQuery();
         loadFraCategories();
 
+        document.getElementById('fra-create-form')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const fd = new FormData(form);
+            const body = new URLSearchParams(fd);
+            try {
+                const r = await fetch('/api/fra-categories/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                    credentials: 'same-origin',
+                    body: body.toString()
+                });
+                const raw = await r.text();
+                let ok = false;
+                try {
+                    ok = JSON.parse(raw) === true;
+                } catch (_) { /* ignore */ }
+                if (r.ok && ok) {
+                    fraToast('Category created.', 'ok');
+                    form.reset();
+                    await loadFraCategories();
+                } else {
+                    fraToast('Create failed.', 'bad');
+                }
+            } catch (err) {
+                fraToast(String(err?.message || 'Create failed'), 'bad');
+            }
+        });
+
         document.getElementById('fra-search-btn')?.addEventListener('click', async () => {
             fraState.searchQuery = (document.getElementById('fra-search-q')?.value || '').trim();
             fraState.searchStatus = (document.getElementById('fra-filter-status')?.value || '').trim();
@@ -1011,8 +1041,9 @@
                     method: 'POST',
                     credentials: 'same-origin'
                 });
-                const resp = await r.json().catch(() => ({}));
-                if (!r.ok || resp?.success === false) throw new Error(resp?.error || 'Update failed');
+                const resp = await r.json().catch(() => null);
+                if (!r.ok) throw new Error((resp && typeof resp === 'object' && resp.error) ? resp.error : `HTTP ${r.status}`);
+                if (resp !== true) throw new Error('Update failed.');
 
                 if (row) {
                     row.setAttribute('data-status', isSusp ? 'active' : 'suspended');
