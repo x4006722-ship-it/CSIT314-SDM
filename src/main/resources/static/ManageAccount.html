@@ -447,12 +447,17 @@
                 const userId = a.userId ?? '';
                 const username = uaEscapeHtml(a.username ?? '');
                 const phoneNumber = uaEscapeHtml(a.phoneNumber ?? '');
-                const roleName = uaEscapeHtml(a.roleName ?? '');
+                const roleRaw = String(a.roleName ?? a.role ?? '').trim().replace(/\s+/g, ' ');
+                const roleName = uaEscapeHtml(roleRaw);
                 const rawStatus = String(a.accountStatus ?? '');
                 const isSuspended = rawStatus.toLowerCase() === 'suspended';
                 const statusPillClass = isSuspended ? 'pill bad' : 'pill ok';
                 const toggleLabel = isSuspended ? 'Re-activate' : 'Suspend';
                 const toggleClass = isSuspended ? 'btn-muted' : 'btn-danger';
+                const isUserAdminRole = roleRaw.toLowerCase() === 'user admin';
+                const statusActionHtml = isUserAdminRole
+                    ? ''
+                    : `<button type="button" class="btn btn-sm ${toggleClass}" data-action="toggle-status" data-user-id="${uaEscapeHtml(userId)}">${uaEscapeHtml(toggleLabel)}</button>`;
 
                 return `
                     <tr data-status="${isSuspended ? 'suspended' : 'active'}">
@@ -677,6 +682,55 @@
             } catch (err) {
                 document.getElementById('btn-create-submit').disabled = false;
                 uaModalOpen("Server error occurred.", "Error");
+            }
+
+            if (email && email.value && !UA_CREATE_EMAIL_RE.test(email.value)) {
+                uaModalOpen('Invalid email format.', 'Notice');
+                email.focus();
+                return;
+            }
+
+            const payload = {
+                username: username?.value ?? '',
+                password: password?.value ?? '',
+                fullName: fullName?.value ?? '',
+                email: email?.value ?? '',
+                phoneNumber: phone?.value ?? '',
+                profileId: profileId?.value ?? '',
+                accountStatus: accountStatus?.value ?? ''
+            };
+
+            try {
+                const r = await fetch('/api/accounts/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify(payload)
+                });
+                const rawText = await r.text();
+                let parsed = rawText;
+                try {
+                    parsed = JSON.parse(rawText);
+                } catch (_) { /* leave as string */ }
+
+                if (r.ok && parsed === true) {
+                    showUaToast('Account created successfully.');
+                    createForm.reset();
+                    await loadProfilesIntoCreateSelect();
+                    await loadAccountSummaries();
+                    return;
+                }
+                if (r.status === 415) {
+                    uaModalOpen('Unsupported request format (415). Use the Create button on this page, not the browser address bar.', 'Notice');
+                    return;
+                }
+                if (!r.ok) {
+                    uaModalOpen(`Create failed (HTTP ${r.status}).`, 'Notice');
+                    return;
+                }
+                uaModalOpen('Account create failed. Username, email, or phone number may already exist.', 'Notice');
+            } catch (err) {
+                uaModalOpen(`Error: ${err?.message || 'Request failed'}`, 'Notice');
             }
         });
 

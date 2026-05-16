@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.uow.fra.FRA;
 import com.uow.util.DBUtils;
 
 public class Favourite {
@@ -63,7 +64,7 @@ public class Favourite {
         String categoryName = readText(data.get("categoryName"));
 
         StringBuilder sql = new StringBuilder(
-                "SELECT f.fra_id, f.fra_title, f.fra_status, IFNULL(TRIM(fc.category_name),'') AS category_name "
+                "SELECT f.fra_id, f.fra_title, f.fra_status, f.category_id, IFNULL(TRIM(fc.category_name),'') AS category_name "
                         + "FROM fra f "
                         + "INNER JOIN fra_favourite ff ON ff.fra_id = f.fra_id AND ff.user_id = ? "
                         + "LEFT JOIN fra_category fc ON f.category_id = fc.category_id "
@@ -100,6 +101,7 @@ public class Favourite {
                     row.put("fra_id", rs.getInt("fra_id"));
                     row.put("title", rs.getString("fra_title"));
                     row.put("status", rs.getString("fra_status"));
+                    row.put("categoryId", rs.getObject("category_id"));
                     row.put("category", rs.getString("category_name"));
                     out.add(row);
                 }
@@ -129,7 +131,13 @@ public class Favourite {
                 out.put("status", rs.getString("fra_status"));
                 out.put("createAt", rs.getString("fra_startedAt"));
                 out.put("viewCount", rs.getObject("fra_viewCount"));
-                out.put("favouriteCount", rs.getObject("fra_favouriteCount"));
+                int favCount;
+                try {
+                    favCount = rs.getInt("fra_favouriteCount");
+                } catch (SQLException e) {
+                    favCount = rs.getInt("fra_favoriteCount");
+                }
+                out.put("favouriteCount", favCount);
                 out.put("currentAmount", rs.getObject("current_amount"));
                 out.put("targetAmount", rs.getObject("target_amount"));
                 out.put("doneeName", rs.getString("doneeName"));

@@ -63,21 +63,45 @@ public class UserAccount {
                 if (!rs.next()) {
                     return null;
                 }
-                return Map.of(
-                        "user_id", rs.getInt("user_id"),
-                        "username", rs.getString("username"),
-                        "full_name", rs.getString("full_name"),
-                        "email", rs.getString("email"),
-                        "phone_number", rs.getString("phone_number"),
-                        "password", rs.getString("password"),
-                        "a_status", rs.getString("a_status"),
-                        "profile_id", rs.getInt("profile_id"),
-                        "roleName", rs.getString("roleName")
-                );
+                Map<String, Object> row = new HashMap<>();
+                row.put("user_id", rs.getInt("user_id"));
+                row.put("username", blankToEmpty(rs.getString("username")));
+                row.put("full_name", blankToEmpty(rs.getString("full_name")));
+                row.put("email", blankToEmpty(rs.getString("email")));
+                row.put("phone_number", blankToEmpty(rs.getString("phone_number")));
+                row.put("password", blankToEmpty(rs.getString("password")));
+                row.put("a_status", blankToEmpty(rs.getString("a_status")));
+                row.put("profile_id", rs.getInt("profile_id"));
+                row.put("roleName", blankToEmpty(rs.getString("roleName")));
+                return row;
             }
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /** Used when session has username but userId is missing or unparsable (e.g. "My Account"). */
+    public int findUserIdByUsername(String username) {
+        if (username == null || username.isBlank()) {
+            return 0;
+        }
+        try (Connection c = DBUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT user_id FROM user_account WHERE TRIM(LOWER(username)) = TRIM(LOWER(?)) LIMIT 1")) {
+            ps.setString(1, username.trim());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("user_id");
+                }
+            }
+        } catch (Exception e) {
+            return 0;
+        }
+        return 0;
+    }
+
+    private static String blankToEmpty(String s) {
+        return s == null ? "" : s;
     }
 
     //Update Account

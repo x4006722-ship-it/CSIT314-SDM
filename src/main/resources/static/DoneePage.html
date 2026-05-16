@@ -776,19 +776,16 @@
         sel.value = found ? keep : 'all';
     }
 
-    function addCategoryOption(id, name) {
-        if (!name || name === '—') return;
-        var v = String(name).trim();
-        if (!v) return;
-        var sel = document.getElementById(id);
-        if (!sel) return;
-        for (var i = 0; i < sel.options.length; i++) {
-            if (sel.options[i].value === v) return;
+    /** Display label for one favourite/history/browse row (for dropdowns + cells). */
+    function rowCategoryLabel(row) {
+        if (!row) return null;
+        var cat = row.category != null && String(row.category).trim() !== '' ? String(row.category).trim() : null;
+        if (!cat && row.categoryName != null && String(row.categoryName).trim() !== '') {
+            cat = String(row.categoryName).trim();
         }
-        var o = document.createElement('option');
-        o.value = v;
-        o.textContent = v;
-        sel.appendChild(o);
+        if (!cat && row.categoryId != null) cat = doneeCategoryById[String(row.categoryId)] || null;
+        if (!cat && row.category_id != null) cat = doneeCategoryById[String(row.category_id)] || null;
+        return cat && cat !== '—' ? cat : null;
     }
 
     function resetCategorySelect(id) {
@@ -836,12 +833,14 @@
         }
     }
 
+    /** Full Active category list for Browse FRA only; fills doneeCategoryById for name lookups. */
     async function loadAllCategories() {
         try {
-            var r = await fetch(apiUrl('/api/fra-categories/list'), fetchOptions());
+            var r = await fetch(apiUrl('/api/donee/fra/category-options'), fetchOptions());
             if (!r.ok) return;
             var data = await r.json();
             var rows = Array.isArray(data) ? data : [];
+            var names = [];
             rows.forEach(function (c) {
                 var cid = c.categoryID != null ? c.categoryID : c.categoryId;
                 var cname = c.categoryName != null ? String(c.categoryName).trim() : '';
@@ -852,8 +851,11 @@
                     addCategoryOption('hist-filter-category', cname);
                 }
             });
+            names = names.filter(function (n, i, a) { return n && a.indexOf(n) === i; });
+            names.sort(function (a, b) { return a.localeCompare(b); });
+            fillFilterSelect('fra-filter-category', names);
         } catch (e) {
-            // keep existing fallback behavior
+            // keep Browse All-only
         }
     }
 
@@ -880,12 +882,14 @@
             var id = row.fra_id != null ? row.fra_id : row.fraId;
             var title = row.title != null ? row.title : row.fraTitle;
             var status = row.status != null ? row.status : row.fraStatus;
-            var category = row.category != null ? row.category : row.categoryName;
+            var category = (row.categoryName != null && String(row.categoryName).trim() !== '')
+                ? String(row.categoryName).trim()
+                : (row.category != null && String(row.category).trim() !== '' ? String(row.category).trim() : null);
             if ((category == null || category === '') && row.category_id != null) {
-                category = doneeCategoryById[String(row.category_id)] || row.category_id;
+                category = doneeCategoryById[String(row.category_id)] || null;
             }
             if ((category == null || category === '') && row.categoryId != null) {
-                category = doneeCategoryById[String(row.categoryId)] || row.categoryId;
+                category = doneeCategoryById[String(row.categoryId)] || null;
             }
             var saved = row.saved === true || row.saved === 'true' || row.saved === 1 || doneeSavedFraIds[String(id)] === true;
             var saveBtn = saved
@@ -916,10 +920,11 @@
         tbody.innerHTML = rows.map(function (row) {
             var id = row.fra_id;
             doneeSavedFraIds[String(id)] = true;
+            var favCat = rowCategoryLabel(row);
             return '<tr>' +
                 '<td>' + escapeHtml(String(id)) + '</td>' +
                 '<td>' + escapeHtml(row.title) + '</td>' +
-                '<td>' + escapeHtml(row.category != null ? row.category : '—') + '</td>' +
+                '<td>' + escapeHtml(favCat != null ? favCat : '—') + '</td>' +
                 '<td>' + statusPill(row.status) + '</td>' +
                 '<td><div class="td-actions">' +
                 '<button type="button" class="btn btn-view btn-sm" data-action="view" data-id="' + escapeHtml(String(id)) + '">View</button>' +
@@ -973,8 +978,7 @@
                 return;
             }
             renderFavRows(rows);
-            resetCategorySelect('fav-filter-category');
-            mergeCategoryDropdownFromRows(rows, 'fav-filter-category');
+            fillFilterSelect('fav-filter-category', distinctRowCategories(rows));
         } catch (e) {
             if (!silent) {
                 tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">' + escapeHtml(e.message || 'Request failed') + '</td></tr>';
@@ -1021,8 +1025,6 @@
                 return;
             }
             renderFraRows(rows);
-            resetCategorySelect('fra-filter-category');
-            mergeCategoryDropdownFromRows(rows, 'fra-filter-category');
         } catch (e) {
             if (!silent) {
                 tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">' + escapeHtml(e.message || 'Request failed') + '</td></tr>';
@@ -1043,12 +1045,13 @@
         var rows = [
             ['Title', data.title],
             ['Status', data.status],
-            ['Create At', data.createAt],
+            ['Start from', data.startedAt != null ? data.startedAt : data.startFrom],
+            ['End at', data.endedAt != null ? data.endedAt : data.endAt],
             ['View count', data.viewCount],
-            ['Favourite count', data.favouriteCount],
+            ['Favourite count', data.favouriteCount != null ? data.favouriteCount : data.favourite_count],
             ['Target amount', data.targetAmount != null ? data.targetAmount : data.target_amount],
-            ['Current amount', data.currentAmount],
-            ['Donee', data.doneeName]
+            ['Current amount', data.currentAmount != null ? data.currentAmount : data.current_amount],
+            ['Donee', data.doneeName != null ? data.doneeName : data.donee]
         ];
         body.innerHTML = '<div class="fra-view-detail">' + rows.map(function (r) {
             var v = r[1];
@@ -1173,10 +1176,11 @@
             var currentAmount = (row.currentAmount == null || row.currentAmount === '') ? '0' : row.currentAmount;
             var targetAmount = (row.targetAmount == null || row.targetAmount === '') ? '0' : row.targetAmount;
             var progress = String(currentAmount) + ' / ' + String(targetAmount);
+            var histCat = rowCategoryLabel(row);
             return '<tr>' +
                 '<td>' + escapeHtml(String(id)) + '</td>' +
                 '<td>' + escapeHtml(row.title) + '</td>' +
-                '<td>' + escapeHtml(row.category != null ? row.category : '—') + '</td>' +
+                '<td>' + escapeHtml(histCat != null ? histCat : '—') + '</td>' +
                 '<td>' + statusPill(row.status) + '</td>' +
                 '<td>' + escapeHtml(progress) + '</td>' +
                 '<td><div class="td-actions">' +
@@ -1184,8 +1188,6 @@
                 '</div></td></tr>';
         }).join('');
         countEl.textContent = rows.length + (rows.length === 1 ? ' FRA' : ' FRAs');
-        resetCategorySelect('hist-filter-category');
-        mergeCategoryDropdownFromRows(rows, 'hist-filter-category');
     }
     
     // async function loadHistorySearch() {
@@ -1348,8 +1350,10 @@
         if (v) viewFra(v.getAttribute('data-id'), '/api/donee/fra/view');
     });
 
-    loadAllCategories();
-    loadBrowse();
+    (async function () {
+        await loadAllCategories();
+        loadBrowse();
+    })();
 })();
 </script>
 </body>
