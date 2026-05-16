@@ -27,7 +27,7 @@ public class UpdateUserAccountControllerTest {
         String uniqueName = TEST_PREFIX + "Update_" + System.currentTimeMillis();
         Map<String, Object> newAcc = new HashMap<>();
         newAcc.put("username", uniqueName);
-        newAcc.put("password", "123");
+        newAcc.put("password", "123456");
         newAcc.put("fullName", "To Update");
         newAcc.put("email", uniqueName + "@test.com");
         newAcc.put("phoneNumber", "88888888");
@@ -61,10 +61,37 @@ public class UpdateUserAccountControllerTest {
     }
 
     @Test
+    public void test_Update_fails_when_input_is_not_a_map() {
+        assertFalse(updateController.updateAccount("Invalid String"));
+    }
+
+    @Test
+    public void test_Update_fails_when_input_is_null() {
+        assertFalse(updateController.updateAccount(null));
+    }
+
+    @Test
+    public void test_Update_fails_when_user_id_is_missing() {
+        Map<String, Object> updateData = new HashMap<>();
+        updateData.put("fullName", "Updated Name");
+        
+        assertFalse(updateController.updateAccount(updateData));
+    }
+
+    @Test
     public void test_Update_fails_when_user_id_is_invalid() {
         Map<String, Object> updateData = new HashMap<>();
         updateData.put("userId", -999); // Invalid ID
         
         assertFalse("Should return false for invalid ID", updateController.updateAccount(updateData));
+    }
+
+    @Test
+    public void test_Update_fails_when_user_does_not_exist() {
+        Map<String, Object> updateData = new HashMap<>();
+        updateData.put("userId", 999999); // Non-existent ID
+        updateData.put("fullName", "Updated Name");
+        
+        assertFalse("Should return false if user not found", updateController.updateAccount(updateData));
     }
 }

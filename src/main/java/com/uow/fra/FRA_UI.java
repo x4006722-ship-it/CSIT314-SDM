@@ -77,12 +77,16 @@ public class FRA_UI {
             @RequestParam(value="criteria", required=false) String criteria,
             @RequestParam(value="categoryId", required=false) String categoryId,
             @RequestParam(value="status", required=false) String status,
+            @RequestParam(value="startDate", required=false) String startDate, // 【新增】接收前端传来的 startDate
             HttpSession session) {
+    
         Object userIdObj = session.getAttribute("userId");
         String userId = userIdObj != null ? String.valueOf(userIdObj) : "";
-        // 标记角色为 fundRaiser，调用底层 SQL
-        return searchController.searchFRA(criteria, categoryId, status, "fundRaiser", userId);
+    
+        // 【修改】把 startDate 作为第 6 个参数传给 searchController
+        return searchController.searchFRA(criteria, categoryId, status, "fundRaiser", userId, startDate);
     }
+    
 
     @GetMapping("/donee-options")
     public Object onGetDoneeOptions() {

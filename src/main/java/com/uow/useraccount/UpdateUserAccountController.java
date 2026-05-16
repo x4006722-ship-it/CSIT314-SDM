@@ -30,20 +30,9 @@ public class UpdateUserAccountController {
         String accountStatus = nonBlankOrDefault(m.get("accountStatus"), currentMap.get("a_status"));
         int profileId = parseInt(nonBlankOrDefault(m.get("profileId"), currentMap.get("profile_id")));
 
-        java.util.Map<String, Object> checkData = new java.util.HashMap<>();
-        checkData.put("username", username);
-        checkData.put("email", email);
-        checkData.put("phoneNumber", phoneNumber);
-        Object duplicateRows = userAccount.getSearchAccount(checkData);
-        if (duplicateRows instanceof java.util.List<?> rows) {
-            for (Object row : rows) {
-                if (row instanceof java.util.Map<?, ?> each) {
-                    int foundUserId = parseInt(each.get("userId"));
-                    if (foundUserId != userId) {
-                        return false;
-                    }
-                }
-            }
+        // 【核心修复】：更新时查重，必须排除当前正在编辑的账号ID
+        if (userAccount.isDuplicateAccount(username, email, phoneNumber, userId)) {
+            return false;
         }
 
         java.util.Map<String, Object> updateData = new java.util.HashMap<>();

@@ -114,7 +114,7 @@ public class Favourite {
     public Object getViewFavourite(int fraId) {
         try (Connection c = DBUtils.getConnection();
              PreparedStatement ps = c.prepareStatement(
-                     "SELECT f.fra_title, f.fra_status, f.fra_createdAt, f.fra_viewCount, f.fra_favouriteCount, "
+                     "SELECT f.fra_title, f.fra_status, f.fra_startedAt, f.fra_viewCount, f.fra_favouriteCount, "
                             + "f.current_amount AS current_amount, f.fra_targetAmount AS target_amount, COALESCE(NULLIF(TRIM(ua.full_name),''), ua.username, '-') AS doneeName "
                              + "FROM fra f "
                              + "LEFT JOIN user_account ua ON f.donee_id = ua.user_id "
@@ -127,7 +127,7 @@ public class Favourite {
                 Map<String, Object> out = new LinkedHashMap<>();
                 out.put("title", rs.getString("fra_title"));
                 out.put("status", rs.getString("fra_status"));
-                out.put("createAt", rs.getString("fra_createdAt"));
+                out.put("createAt", rs.getString("fra_startedAt"));
                 out.put("viewCount", rs.getObject("fra_viewCount"));
                 out.put("favouriteCount", rs.getObject("fra_favouriteCount"));
                 out.put("currentAmount", rs.getObject("current_amount"));

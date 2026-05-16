@@ -790,60 +790,17 @@
         o.textContent = v;
         sel.appendChild(o);
     }
-    // function resetCategorySelect(id) {
-    //     var sel = document.getElementById(id);
-    //     if (!sel) return;
-    //     while (sel.options.length > 1) {
-    //         sel.remove(1);
-    //     }
-    //     sel.value = 'all';
-    // }
-    // function mergeCategoryDropdownFromRows(rows, selectId) {
-    //     if (!rows || !rows.length) return;
-    //     rows.forEach(function (row) {
-    //         var category = row && (row.category != null ? row.category : row.categoryName);
-    //         if ((category == null || category === '') && row) {
-    //             var cid = row.category_id != null ? row.category_id : row.categoryId;
-    //             if (cid != null && doneeCategoryById[String(cid)]) {
-    //                 category = doneeCategoryById[String(cid)];
-    //             }
-    //         }
-    //         if (category != null && category !== '—') {
-    //             addCategoryOption(selectId, category);
-    //         }
-    //     });
-    // }
 
-    // async function loadAllCategories() {
-    //     try {
-    //         var r = await fetch(apiUrl('/api/fra-categories/list'), fetchOptions());
-    //         if (!r.ok) return;
-    //         var data = await r.json();
-    //         var rows = Array.isArray(data) ? data : [];
-    //         rows.forEach(function (c) {
-    //             var cid = c.categoryID != null ? c.categoryID : c.categoryId;
-    //             var cname = c.categoryName != null ? String(c.categoryName).trim() : '';
-    //             if (cid != null && cname) {
-    //                 doneeCategoryById[String(cid)] = cname;
-    //                 addCategoryOption('fra-filter-category', cname);
-    //             }
-    //         });
-    //     } catch (e) {
-    //         // keep existing fallback behavior
-    //     }
-    // }
     function resetCategorySelect(id) {
         var sel = document.getElementById(id);
         if (!sel) return;
         
-        // 1. 【核心修复】在清空选项前，记住当前用户选中的值！
         var keepVal = sel.value; 
         
         while (sel.options.length > 1) {
             sel.remove(1);
         }
         
-        // 2. 不要像以前那样写 sel.value = 'all'，而是把刚才的值先存起来
         sel.setAttribute('data-keep-value', keepVal);
     }
 
@@ -862,7 +819,6 @@
             }
         });
 
-        // 3. 【核心修复】选项重建完成后，把刚才记住的值恢复回去！
         var sel = document.getElementById(selectId);
         if (sel) {
             var keepVal = sel.getAttribute('data-keep-value');
@@ -874,9 +830,8 @@
                         break; 
                     }
                 }
-                // 如果选项还在就恢复，不在了才退回 'all'
                 sel.value = found ? keepVal : 'all';
-                sel.removeAttribute('data-keep-value'); // 用完即焚
+                sel.removeAttribute('data-keep-value');
             }
         }
     }
@@ -892,7 +847,6 @@
                 var cname = c.categoryName != null ? String(c.categoryName).trim() : '';
                 if (cid != null && cname) {
                     doneeCategoryById[String(cid)] = cname;
-                    // 【优化】同步给 Browse, Favourites, History 三个选项卡的搜索框都加上全部分类
                     addCategoryOption('fra-filter-category', cname);
                     addCategoryOption('fav-filter-category', cname);
                     addCategoryOption('hist-filter-category', cname);
@@ -903,39 +857,16 @@
         }
     }
 
-    // function buildFavQuery() {
-    //     var title = (document.getElementById('fav-search-q').value || '').trim();
-    //     var fraStatus = (document.getElementById('fav-filter-status').value || 'all').trim();
-    //     var categoryName = (document.getElementById('fav-filter-category').value || 'all').trim();
-    //     return apiUrl('/api/donee/favourites/search?title=' + encodeURIComponent(title)
-    //         + '&fraStatus=' + encodeURIComponent(fraStatus)
-    //         + '&categoryName=' + encodeURIComponent(categoryName));
-    // }
-    // function buildBrowseQuery() {
-    //     var title = (document.getElementById('fra-search-q').value || '').trim();
-    //     var category = (document.getElementById('fra-filter-category').value || 'all').trim();
-    //     var status = (document.getElementById('fra-filter-status').value || 'all').trim();
-        
-    //     // 【修复】将 categoryId 和 status 拼接到 URL 传给后端
-    //     return apiUrl('/api/donee/fra/search?criteria=' + encodeURIComponent(title) 
-    //                 + '&categoryId=' + encodeURIComponent(category) 
-    //                 + '&status=' + encodeURIComponent(status));
-    // }
     function buildBrowseQuery() {
         var title = (document.getElementById('fra-search-q').value || '').trim();
         var category = (document.getElementById('fra-filter-category').value || 'all').trim();
         var status = (document.getElementById('fra-filter-status').value || 'all').trim();
 
-        // 修复：必须把 category 和 status 参数一起通过 URL 发送给后端控制器
         return apiUrl('/api/donee/fra/search?criteria=' + encodeURIComponent(title) 
                     + '&categoryId=' + encodeURIComponent(category) 
                     + '&status=' + encodeURIComponent(status));
     }
 
-    // function buildBrowseQuery() {
-    //     var title = (document.getElementById('fra-search-q').value || '').trim();
-    //     return apiUrl('/api/donee/fra/search?criteria=' + encodeURIComponent(title));
-    // }
 
     function renderFraRows(rows) {
         var tbody = document.getElementById('fra-tbody');
@@ -1228,6 +1159,7 @@
             + '&categoryName=' + encodeURIComponent(categoryName)
             + '&fraStatus=' + encodeURIComponent(fraStatus));
     }
+    
     function renderHistRows(rows) {
         var tbody = document.getElementById('hist-tbody');
         var countEl = document.getElementById('hist-count');
@@ -1255,42 +1187,90 @@
         resetCategorySelect('hist-filter-category');
         mergeCategoryDropdownFromRows(rows, 'hist-filter-category');
     }
+    
+    // async function loadHistorySearch() {
+    //     var tbody = document.getElementById('hist-tbody');
+    //     var countEl = document.getElementById('hist-count');
+    //     tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;">Loading…</td></tr>';
+    //     countEl.textContent = '—';
+    //     try {
+    //         var title = (document.getElementById('hist-search-q').value || '').trim();
+    //         var categoryName = (document.getElementById('hist-filter-category').value || 'all').trim();
+    //         var fraStatus = (document.getElementById('hist-filter-status').value || 'all').trim();
+    //         var startDate = (document.getElementById('hist-date-from').value || '').trim();
+    //         var endDate = (document.getElementById('hist-date-to').value || '').trim();
+    //         var r = await fetch(apiUrl('/api/donee/history/search'), fetchOptions({
+    //             method: 'POST',
+    //             headers: { 'Content-Type': 'application/json' },
+    //             body: JSON.stringify({ title: title, categoryName: categoryName, fraStatus: fraStatus, startDate: startDate, endDate: endDate })
+    //         }));
+    //         var data = await r.json();
+    //         if (!r.ok) {
+    //             tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;">HTTP ' + r.status + '</td></tr>';
+    //             return;
+    //         }
+    //         if (data && data.error) {
+    //             tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;">' + escapeHtml(String(data.error)) + '</td></tr>';
+    //             countEl.textContent = '—';
+    //             return;
+    //         }
+    //         var rows = Array.isArray(data) ? data : (data && data.rows);
+    //         if (!Array.isArray(rows)) {
+    //             tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;">Unexpected response.</td></tr>';
+    //             return;
+    //         }
+    //         renderHistRows(rows);
+    //     } catch (e) {
+    //         tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;">' + escapeHtml(e.message || 'Request failed') + '</td></tr>';
+    //     }
+    // }
     async function loadHistorySearch() {
         var tbody = document.getElementById('hist-tbody');
         var countEl = document.getElementById('hist-count');
-        tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">Loading…</td></tr>';
+
+        tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;">Loading…</td></tr>';
         countEl.textContent = '—';
+
         try {
             var title = (document.getElementById('hist-search-q').value || '').trim();
             var categoryName = (document.getElementById('hist-filter-category').value || 'all').trim();
             var fraStatus = (document.getElementById('hist-filter-status').value || 'all').trim();
             var startDate = (document.getElementById('hist-date-from').value || '').trim();
             var endDate = (document.getElementById('hist-date-to').value || '').trim();
+
             var r = await fetch(apiUrl('/api/donee/history/search'), fetchOptions({
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title: title, categoryName: categoryName, fraStatus: fraStatus, startDate: startDate, endDate: endDate })
+                body: JSON.stringify({ 
+                    title: title, 
+                    categoryName: categoryName, 
+                    fraStatus: fraStatus, 
+                    startDate: startDate, 
+                    endDate: endDate 
+                })
             }));
+            
             var data = await r.json();
-            if (!r.ok) {
-                tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">HTTP ' + r.status + '</td></tr>';
-                return;
-            }
+
+            // ================= 处理来自 Control Layer 的业务规则拦截 =================
             if (data && data.error) {
-                tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">' + escapeHtml(String(data.error)) + '</td></tr>';
-                countEl.textContent = '—';
+                showToast(data.error, "err"); // 弹出漂亮的红色 Toast
+                tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center; color:#b91c1c;">' + escapeHtml(data.error) + '</td></tr>';
+                countEl.textContent = '0 FRA';
                 return;
             }
-            var rows = Array.isArray(data) ? data : (data && data.rows);
-            if (!Array.isArray(rows)) {
-                tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">Unexpected response.</td></tr>';
-                return;
-            }
-            renderHistRows(rows);
+
+            // 数据正常，渲染表格
+            renderHistRows(data);
         } catch (e) {
-            tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">' + escapeHtml(e.message || 'Request failed') + '</td></tr>';
+            showToast("Network or server error occurred.", "err");
+            tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;">Request failed.</td></tr>';
         }
     }
+
+    // 搜索按钮依然保留
+    document.getElementById('hist-search-btn').addEventListener('click', loadHistorySearch);
+    
     function clearHistFilters() {
         document.getElementById('hist-search-q').value = '';
         document.getElementById('hist-filter-category').value = 'all';
@@ -1299,6 +1279,22 @@
         document.getElementById('hist-date-to').value = '';
         loadHistorySearch();
     }
+
+    // ================= 【核心修改】：专门处理历史搜索的验证逻辑 =================
+    function validateAndSearchHistory() {
+        var startDate = document.getElementById('hist-date-from').value;
+        var endDate = document.getElementById('hist-date-to').value;
+        
+        // 拦截点：如果起始时间大于结束时间，直接拦截
+        if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+            showToast("Date From cannot be later than Date To.", "err");
+            return; // 终止函数，不再调用底层搜索
+        }
+        
+        // 校验通过，放行搜索
+        loadHistorySearch();
+    }
+    // =========================================================================
 
     document.getElementById('fra-search-btn').addEventListener('click', runSearch);
     document.getElementById('fra-search-clear').addEventListener('click', clearAllFilters);
@@ -1339,11 +1335,14 @@
         var v = e.target.closest('button[data-action="view"]');
         if (v) viewFra(v.getAttribute('data-id'), '/api/donee/favourites/view');
     });
-    document.getElementById('hist-search-btn').addEventListener('click', loadHistorySearch);
+    
+    // 【修改点】：将原先绑定 loadHistorySearch 的地方全部换成 validateAndSearchHistory
+    document.getElementById('hist-search-btn').addEventListener('click', validateAndSearchHistory);
     document.getElementById('hist-clear-btn').addEventListener('click', clearHistFilters);
     document.getElementById('hist-search-q').addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') { e.preventDefault(); loadHistorySearch(); }
+        if (e.key === 'Enter') { e.preventDefault(); validateAndSearchHistory(); }
     });
+    
     document.getElementById('hist-tbody').addEventListener('click', function (e) {
         var v = e.target.closest('button[data-action="view"]');
         if (v) viewFra(v.getAttribute('data-id'), '/api/donee/fra/view');
