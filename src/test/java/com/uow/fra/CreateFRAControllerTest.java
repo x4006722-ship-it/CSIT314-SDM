@@ -13,8 +13,7 @@ public class CreateFRAControllerTest {
     public void setUp() {
         controller = new CreateFRAController();
         validFraData = new FRA();
-        // 【修改点】加上时间戳，防止因为数据库已存在同名标题而导致查重拦截
-        validFraData.setFraTitle("Test Fundraiser " + System.currentTimeMillis());
+        validFraData.setFraTitle("Test Fundraiser " + System.nanoTime()); // 使用nanoTime减少冲突概率
         validFraData.setFraTargetAmount(5000.0);
         validFraData.setCategoryId("1"); 
         validFraData.setDoneeId("1");
@@ -28,6 +27,35 @@ public class CreateFRAControllerTest {
         FRA result = controller.createFRA(validFraData);
         assertNotNull("Should return FRA object on success", result);
         assertNotNull("FRA ID should be set", result.getFraId());
+    }
+
+    // --- 新增：金额有效性的极值下边界 ---
+    @Test
+    public void test_Creation_succeeds_with_minimum_valid_amount() {
+        validFraData.setFraTargetAmount(0.01); 
+        FRA result = controller.createFRA(validFraData);
+        assertNotNull("Should succeed with boundary amount strictly > 0", result);
+    }
+
+    // --- 新增：重名拦截逻辑 ---
+    @Test
+    public void test_Creation_fails_when_title_is_duplicate() {
+        String sharedTitle = "Duplicate Title " + System.nanoTime();
+        validFraData.setFraTitle(sharedTitle);
+        // 第一次创建成功
+        assertNotNull(controller.createFRA(validFraData));
+        
+        // 试图用相同的Title再次创建
+        FRA duplicateFra = new FRA();
+        duplicateFra.setFraTitle(sharedTitle);
+        duplicateFra.setFraTargetAmount(1000.0);
+        duplicateFra.setCategoryId("1"); 
+        duplicateFra.setDoneeId("1");
+        duplicateFra.setFundRaiserId("2");
+        duplicateFra.setStartedAt("2026-06-01");
+        duplicateFra.setEndedAt("2026-12-31");
+        
+        assertNull("Should fail due to duplicate title", controller.createFRA(duplicateFra));
     }
     
     @Test
@@ -49,19 +77,25 @@ public class CreateFRAControllerTest {
     }
 
     @Test
-    public void test_Creation_fails_when_category_id_is_empty() {
+    public void test_Creation_fails_when_category_id_is_null_or_empty() {
+        validFraData.setCategoryId(null);
+        assertNull(controller.createFRA(validFraData));
         validFraData.setCategoryId("");
         assertNull(controller.createFRA(validFraData));
     }
 
     @Test
-    public void test_Creation_fails_when_donee_id_is_empty() {
+    public void test_Creation_fails_when_donee_id_is_null_or_empty() {
+        validFraData.setDoneeId(null);
+        assertNull(controller.createFRA(validFraData));
         validFraData.setDoneeId("");
         assertNull(controller.createFRA(validFraData));
     }
 
     @Test
-    public void test_Creation_fails_when_fund_raiser_id_is_empty() {
+    public void test_Creation_fails_when_fund_raiser_id_is_null_or_empty() {
+        validFraData.setFundRaiserId(null);
+        assertNull(controller.createFRA(validFraData));
         validFraData.setFundRaiserId("");
         assertNull(controller.createFRA(validFraData));
     }

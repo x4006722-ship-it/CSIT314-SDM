@@ -51,6 +51,23 @@ public class DoneePage {
     //     // 传入 5 个参数，并标记角色为 "donee"
     //     return searchFRAController.searchFRA(criteria, categoryId, status, "donee", userId);
     // }
+    // // Search FRA
+    // @GetMapping(value = "/api/donee/fra/search", produces = MediaType.APPLICATION_JSON_VALUE)
+    // @ResponseBody
+    // public List<FRA> onSearchFRA(
+    //         @RequestParam(value = "criteria", defaultValue = "") String criteria,
+    //         @RequestParam(value = "categoryId", defaultValue = "all") String categoryId,
+    //         @RequestParam(value = "status", defaultValue = "all") String status,
+    //         @RequestParam(value = "startDate", defaultValue = "") String startDate, // 【新增】接收 startDate
+    //         HttpSession session) {
+    
+    //     // 获取当前受赠人ID（即使没登录也允许搜索，只是 userId 传空字符串）
+    //     Object sid = session.getAttribute("userId");
+    //     String userId = sid != null ? String.valueOf(sid) : "";
+    
+    //     // 【修改】传入 6 个参数，把 startDate 补在最后
+    //     return searchFRAController.searchFRA(criteria, categoryId, status, "donee", userId, startDate);
+    // }
     // Search FRA
     @GetMapping(value = "/api/donee/fra/search", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -58,14 +75,13 @@ public class DoneePage {
             @RequestParam(value = "criteria", defaultValue = "") String criteria,
             @RequestParam(value = "categoryId", defaultValue = "all") String categoryId,
             @RequestParam(value = "status", defaultValue = "all") String status,
-            @RequestParam(value = "startDate", defaultValue = "") String startDate, // 【新增】接收 startDate
+            @RequestParam(value = "startDate", defaultValue = "") String startDate, 
             HttpSession session) {
     
-        // 获取当前受赠人ID（即使没登录也允许搜索，只是 userId 传空字符串）
-        Object sid = session.getAttribute("userId");
+        // 【核心修改】：加上 (session != null) 的判断，防止测试报错
+        Object sid = (session != null) ? session.getAttribute("userId") : null;
         String userId = sid != null ? String.valueOf(sid) : "";
     
-        // 【修改】传入 6 个参数，把 startDate 补在最后
         return searchFRAController.searchFRA(criteria, categoryId, status, "donee", userId, startDate);
     }
 

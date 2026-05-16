@@ -13,12 +13,31 @@ public class RemoveFRAControllerTest {
         controller = new RemoveFRAController();
     }
 
+    // --- 新增：真实的成功删除逻辑 ---
     @Test
-    public void test_Deletion_executes_safely() {
-        // Note: Using a non-existent ID to test graceful handling
-        boolean result = controller.deleteFRA("999");
-        // Just verify it doesn't crash
-        assertNotNull(result);
+    public void test_Deletion_succeeds_with_existing_id() {
+        // 先创建一个真实记录用来测试删除
+        CreateFRAController setupCreateCtrl = new CreateFRAController();
+        FRA setupData = new FRA();
+        setupData.setFraTitle("To Be Deleted " + System.nanoTime());
+        setupData.setFraTargetAmount(100.0);
+        setupData.setCategoryId("1");
+        setupData.setDoneeId("1");
+        setupData.setFundRaiserId("2");
+        setupData.setStartedAt("2026-01-01");
+        setupData.setEndedAt("2026-05-01");
+        FRA savedFra = setupCreateCtrl.createFRA(setupData);
+        assertNotNull(savedFra);
+
+        // 测试删除刚创建的真实记录
+        boolean result = controller.deleteFRA(savedFra.getFraId());
+        assertTrue("Should successfully delete existing FRA", result);
+    }
+
+    @Test
+    public void test_Deletion_executes_safely_on_nonexistent_id() {
+        boolean result = controller.deleteFRA("9999999");
+        assertFalse("Should return false because record doesn't exist", result); // 修改：对于不存在的数据，executeUpdate 应该返回 false
     }
 
     @Test

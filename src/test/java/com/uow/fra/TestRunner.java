@@ -68,8 +68,6 @@ class PytestStyleListener extends RunListener {
         }
 
         System.out.println("TEST " + status + ": " + className + " - " + readableName);
-        System.out.println(status); // 这里去掉了格式化对齐和百分比，只输出 PASSED/FAILED
-        System.out.println("tests/" + className + ".java::" + methodName);
-        System.out.println("-------------------------------- live log call ---------------------------------");
+        System.out.println("-----------------------------------------------------------------");
     }
 }

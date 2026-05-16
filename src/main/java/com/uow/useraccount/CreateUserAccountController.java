@@ -24,9 +24,12 @@ public class CreateUserAccountController {
         String password = text(map.get("password"));
         String email = text(map.get("email"));
         String phoneNumber = text(map.get("phoneNumber"));
+        String accountStatus = text(map.get("accountStatus"));
+        String profileIdText = text(map.get("profileId"));
 
-        // 边界验证：各字段不能为空
-        if (username.isBlank() || password.isBlank() || email.isBlank() || phoneNumber.isBlank()) {
+        // 完整的边界验证
+        if (username.isBlank() || password.isBlank() || email.isBlank() || phoneNumber.isBlank() 
+                || accountStatus.isBlank() || profileIdText.isBlank()) {
             return false;
         }
 

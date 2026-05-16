@@ -36,19 +36,25 @@ public class ReportPageTest {
         Object result = reportPage.onGetDailyReport();
         assertNotNull(result);
         assertTrue(result instanceof Map);
+        // 统一使用 assertEquals 以获得更好的错误报告
+        assertEquals("daily", ((Map<?, ?>)result).get("period"));
     }
 
     @Test
     public void test_Weekly_report_api_endpoint_executes_safely() {
         Object result = reportPage.onGetWeeklyReport();
         assertNotNull(result);
-        assertTrue(((Map<?, ?>)result).get("period").equals("weekly"));
+        assertTrue(result instanceof Map);
+        // 替换了原来的 assertTrue(....equals(...))
+        assertEquals("weekly", ((Map<?, ?>)result).get("period"));
     }
 
     @Test
     public void test_Monthly_report_api_endpoint_executes_safely() {
         Object result = reportPage.onGetMonthlyReport();
         assertNotNull(result);
-        assertTrue(((Map<?, ?>)result).get("period").equals("monthly"));
+        assertTrue(result instanceof Map);
+        // 替换了原来的 assertTrue(....equals(...))
+        assertEquals("monthly", ((Map<?, ?>)result).get("period"));
     }
 }

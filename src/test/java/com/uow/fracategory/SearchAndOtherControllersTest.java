@@ -1,11 +1,27 @@
 package com.uow.fracategory;
 
+import org.junit.After;
 import org.junit.Test;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import com.uow.util.DBUtils;
 import static org.junit.Assert.*;
 
 public class SearchAndOtherControllersTest {
+
+    private final String TEST_PREFIX = "PragmaticTest_Other_";
+
+    @After
+    public void tearDown() {
+        try (Connection c = DBUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement("DELETE FROM fra_category WHERE category_name LIKE ?")) {
+            ps.setString(1, TEST_PREFIX + "%");
+            ps.executeUpdate();
+        } catch (Exception e) {}
+    }
 
     @Test
     public void test_Search_executes_safely_and_returns_list() {
@@ -16,6 +32,14 @@ public class SearchAndOtherControllersTest {
 
         Object result = controller.searchCategory(searchParams);
         assertNotNull(result);
+    }
+
+    // --- 新增：容错测试（传入 null）---
+    @Test
+    public void test_Search_executes_safely_with_null_or_invalid_type() {
+        SearchFRACategoryController controller = new SearchFRACategoryController();
+        Object result = controller.searchCategory(null);
+        assertNotNull("Should safely return an empty list or execute without crashing", result);
     }
 
     @Test
@@ -36,7 +60,6 @@ public class SearchAndOtherControllersTest {
     @Test
     public void test_View_executes_safely() {
         ViewFRACategoryController controller = new ViewFRACategoryController();
-        // Just verify it doesn't crash on non-existent IDs
         assertNull(controller.viewCategory(-9999));
     }
 
@@ -44,5 +67,30 @@ public class SearchAndOtherControllersTest {
     public void test_Suspend_returns_false_for_invalid_id() {
         SuspendFRACategoryController controller = new SuspendFRACategoryController();
         assertFalse(controller.suspendCategory(-9999));
+    }
+
+    // --- 新增：真实的 Suspend 成功测试 ---
+    @Test
+    public void test_Suspend_succeeds_for_valid_id() {
+        // 先在数据库里造一条真实的数据
+        CreateFRACategoryController createController = new CreateFRACategoryController();
+        String catName = TEST_PREFIX + "ToSuspend";
+        Map<String, String> newCat = new HashMap<>();
+        newCat.put("categoryName", catName);
+        newCat.put("categoryStatus", "Active");
+        createController.createCategory(newCat);
+
+        // 查出它的 ID
+        SearchFRACategoryController searchController = new SearchFRACategoryController();
+        Map<String, String> searchParam = new HashMap<>();
+        searchParam.put("categoryName", catName);
+        searchParam.put("categoryStatus", "");
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> results = (List<Map<String, Object>>) searchController.searchCategory(searchParam);
+        int validId = (Integer) results.get(0).get("categoryID");
+
+        // 测试执行挂起
+        SuspendFRACategoryController suspendController = new SuspendFRACategoryController();
+        assertTrue("Suspend should succeed for a valid existing ID", suspendController.suspendCategory(validId));
     }
 }
