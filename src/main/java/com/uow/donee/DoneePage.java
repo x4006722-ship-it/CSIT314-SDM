@@ -38,8 +38,18 @@ public class DoneePage {
     // Search FRA
     @GetMapping(value = "/api/donee/fra/search", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public List<FRA> onSearchFRA(@RequestParam(value = "criteria", defaultValue = "") String criteria) {
-        return searchFRAController.searchFRA(criteria);
+    public List<FRA> onSearchFRA(
+            @RequestParam(value = "criteria", defaultValue = "") String criteria,
+            @RequestParam(value = "categoryId", defaultValue = "all") String categoryId,
+            @RequestParam(value = "status", defaultValue = "all") String status,
+            HttpSession session) {
+        
+        // 获取当前受赠人ID（即使没登录也允许搜索，只是 userId 传空字符串）
+        Object sid = session.getAttribute("userId");
+        String userId = sid != null ? String.valueOf(sid) : "";
+        
+        // 传入 5 个参数，并标记角色为 "donee"
+        return searchFRAController.searchFRA(criteria, categoryId, status, "donee", userId);
     }
 
     // View FRA

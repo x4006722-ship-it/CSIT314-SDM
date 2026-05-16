@@ -2,6 +2,8 @@ package com.uow.report;
 
 import org.junit.Before;
 import org.junit.Test;
+import java.lang.reflect.Field;
+import java.util.Map;
 import static org.junit.Assert.*;
 
 public class ReportPageTest {
@@ -9,16 +11,44 @@ public class ReportPageTest {
     private ReportPage reportPage;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         reportPage = new ReportPage();
+        
+        // 使用反射手动注入依赖，防止 @Autowired 导致的 NPE (空指针异常)
+        injectField("dailyReportController", new DailyReportController());
+        injectField("weeklyReportController", new WeeklyReportController());
+        injectField("monthlyReportController", new MonthlyReportController());
+    }
+
+    private void injectField(String fieldName, Object value) throws Exception {
+        Field field = ReportPage.class.getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.set(reportPage, value);
     }
 
     @Test
-    public void testShowReportPage_ReturnsCorrectForwardRoute() {
-        // Execution
-        String route = reportPage.showReportPage();
-        
-        // Verification: Ensure it routes to the correct Platform Page HTML
-        assertEquals("Should forward the user to the PlatformPage.html", "forward:/PlatformPage.html", route);
+    public void test_Report_page_forwarding_path_is_correct() {
+        assertEquals("forward:/PlatformPage.html", reportPage.showReportPage());
+    }
+
+    @Test
+    public void test_Daily_report_api_endpoint_executes_safely() {
+        Object result = reportPage.onGetDailyReport();
+        assertNotNull(result);
+        assertTrue(result instanceof Map);
+    }
+
+    @Test
+    public void test_Weekly_report_api_endpoint_executes_safely() {
+        Object result = reportPage.onGetWeeklyReport();
+        assertNotNull(result);
+        assertTrue(((Map<?, ?>)result).get("period").equals("weekly"));
+    }
+
+    @Test
+    public void test_Monthly_report_api_endpoint_executes_safely() {
+        Object result = reportPage.onGetMonthlyReport();
+        assertNotNull(result);
+        assertTrue(((Map<?, ?>)result).get("period").equals("monthly"));
     }
 }

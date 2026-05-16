@@ -465,33 +465,73 @@
             });
         }
 
+        // function searchFRAs() {
+        //     const t = document.getElementById('search-title').value.toLowerCase();
+        //     const s = document.getElementById('search-status').value;
+        //     const c = document.getElementById('search-category').value;
+        //     const dRaw = document.getElementById('search-start-date').value;
+        //     const d = normalizeDateSearchValue(dRaw);
+        //     fetch(`${API_BASE_URL}/view`)
+        //         .then(r => {
+        //             if (!r.ok) throw new Error('HTTP ' + r.status);
+        //             return r.json();
+        //         })
+        //         .then(data => {
+        //             const rows = Array.isArray(data) ? data : [];
+        //             let filtered = rows.filter(i => {
+        //                 const titleOk = !t || (i.fraTitle && i.fraTitle.toLowerCase().includes(t));
+        //                 const statusOk = !s || i.fraStatus === s;
+        //                 const categoryOk = !c || String(i.categoryId ?? '') === String(c);
+        //                 const rawStart = i.startedAt ?? i.fraStartedAt ?? i.createdAt ?? i.fraCreatedAt;
+        //                 const rawEnd = i.endedAt ?? i.fraEndedAt;
+        //                 const dateOk = isSearchDateWithinFraRange(d, rawStart, rawEnd);
+        //                 return titleOk && statusOk && categoryOk && dateOk;
+        //             });
+        //             renderTable(filtered, 'fra-table-body', true);
+        //             updateStats(filtered);
+        //             fetchEngagementTotals();
+        //         })
+        //         .catch(e => { document.getElementById('fra-table-body').innerHTML = '<tr><td colspan="12" style="text-align:center;">Search failed.</td></tr>'; });
+        // }
         function searchFRAs() {
-            const t = document.getElementById('search-title').value.toLowerCase();
+            const t = document.getElementById('search-title').value.trim();
             const s = document.getElementById('search-status').value;
             const c = document.getElementById('search-category').value;
-            const dRaw = document.getElementById('search-start-date').value;
-            const d = normalizeDateSearchValue(dRaw);
-            fetch(`${API_BASE_URL}/view`)
-                .then(r => {
-                    if (!r.ok) throw new Error('HTTP ' + r.status);
-                    return r.json();
-                })
+            const startDate = document.getElementById('search-start-date').value;
+
+            // ================= 修复 Story #8 =================
+            // 如果明确选了 Completed 状态，且带有分类或日期条件，调用专门的历史复盘接口
+            if (s === 'Completed') {
+                let url = `${API_BASE_URL}/completed/search?`;
+                if (c) url += `categoryId=${encodeURIComponent(c)}&`;
+                if (startDate) url += `startDate=${encodeURIComponent(startDate)}&`; 
+
+                fetch(url)
+                    .then(r => r.json())
+                    .then(data => {
+                        const rows = Array.isArray(data) ? data : [];
+                        renderTable(rows, 'fra-table-body', true);
+                        updateStats(rows);
+                        fetchEngagementTotals();
+                    }).catch(e => console.error("History search failed", e));
+                return;
+            }
+
+            // ================= 修复 Story #5 =================
+            // 日常管理搜索：把条件传给后端进行真实数据库查询，而不是在前端做伪过滤
+            let url = `${API_BASE_URL}/search?criteria=${encodeURIComponent(t)}&categoryId=${encodeURIComponent(c)}&status=${encodeURIComponent(s)}`;
+            
+            fetch(url)
+                .then(r => r.json())
                 .then(data => {
                     const rows = Array.isArray(data) ? data : [];
-                    let filtered = rows.filter(i => {
-                        const titleOk = !t || (i.fraTitle && i.fraTitle.toLowerCase().includes(t));
-                        const statusOk = !s || i.fraStatus === s;
-                        const categoryOk = !c || String(i.categoryId ?? '') === String(c);
-                        const rawStart = i.startedAt ?? i.fraStartedAt ?? i.createdAt ?? i.fraCreatedAt;
-                        const rawEnd = i.endedAt ?? i.fraEndedAt;
-                        const dateOk = isSearchDateWithinFraRange(d, rawStart, rawEnd);
-                        return titleOk && statusOk && categoryOk && dateOk;
-                    });
-                    renderTable(filtered, 'fra-table-body', true);
-                    updateStats(filtered);
+                    renderTable(rows, 'fra-table-body', true);
+                    updateStats(rows);
                     fetchEngagementTotals();
                 })
-                .catch(e => { document.getElementById('fra-table-body').innerHTML = '<tr><td colspan="12" style="text-align:center;">Search failed.</td></tr>'; });
+                .catch(e => { 
+                    document.getElementById('fra-table-body').innerHTML = '<tr><td colspan="12" style="text-align:center;">Search failed.</td></tr>'; 
+                });
         }
 
         function clearSearch() {

@@ -790,14 +790,63 @@
         o.textContent = v;
         sel.appendChild(o);
     }
+    // function resetCategorySelect(id) {
+    //     var sel = document.getElementById(id);
+    //     if (!sel) return;
+    //     while (sel.options.length > 1) {
+    //         sel.remove(1);
+    //     }
+    //     sel.value = 'all';
+    // }
+    // function mergeCategoryDropdownFromRows(rows, selectId) {
+    //     if (!rows || !rows.length) return;
+    //     rows.forEach(function (row) {
+    //         var category = row && (row.category != null ? row.category : row.categoryName);
+    //         if ((category == null || category === '') && row) {
+    //             var cid = row.category_id != null ? row.category_id : row.categoryId;
+    //             if (cid != null && doneeCategoryById[String(cid)]) {
+    //                 category = doneeCategoryById[String(cid)];
+    //             }
+    //         }
+    //         if (category != null && category !== '—') {
+    //             addCategoryOption(selectId, category);
+    //         }
+    //     });
+    // }
+
+    // async function loadAllCategories() {
+    //     try {
+    //         var r = await fetch(apiUrl('/api/fra-categories/list'), fetchOptions());
+    //         if (!r.ok) return;
+    //         var data = await r.json();
+    //         var rows = Array.isArray(data) ? data : [];
+    //         rows.forEach(function (c) {
+    //             var cid = c.categoryID != null ? c.categoryID : c.categoryId;
+    //             var cname = c.categoryName != null ? String(c.categoryName).trim() : '';
+    //             if (cid != null && cname) {
+    //                 doneeCategoryById[String(cid)] = cname;
+    //                 addCategoryOption('fra-filter-category', cname);
+    //             }
+    //         });
+    //     } catch (e) {
+    //         // keep existing fallback behavior
+    //     }
+    // }
     function resetCategorySelect(id) {
         var sel = document.getElementById(id);
         if (!sel) return;
+        
+        // 1. 【核心修复】在清空选项前，记住当前用户选中的值！
+        var keepVal = sel.value; 
+        
         while (sel.options.length > 1) {
             sel.remove(1);
         }
-        sel.value = 'all';
+        
+        // 2. 不要像以前那样写 sel.value = 'all'，而是把刚才的值先存起来
+        sel.setAttribute('data-keep-value', keepVal);
     }
+
     function mergeCategoryDropdownFromRows(rows, selectId) {
         if (!rows || !rows.length) return;
         rows.forEach(function (row) {
@@ -812,6 +861,24 @@
                 addCategoryOption(selectId, category);
             }
         });
+
+        // 3. 【核心修复】选项重建完成后，把刚才记住的值恢复回去！
+        var sel = document.getElementById(selectId);
+        if (sel) {
+            var keepVal = sel.getAttribute('data-keep-value');
+            if (keepVal) {
+                var found = false;
+                for (var i = 0; i < sel.options.length; i++) {
+                    if (sel.options[i].value === keepVal) { 
+                        found = true; 
+                        break; 
+                    }
+                }
+                // 如果选项还在就恢复，不在了才退回 'all'
+                sel.value = found ? keepVal : 'all';
+                sel.removeAttribute('data-keep-value'); // 用完即焚
+            }
+        }
     }
 
     async function loadAllCategories() {
@@ -825,7 +892,10 @@
                 var cname = c.categoryName != null ? String(c.categoryName).trim() : '';
                 if (cid != null && cname) {
                     doneeCategoryById[String(cid)] = cname;
+                    // 【优化】同步给 Browse, Favourites, History 三个选项卡的搜索框都加上全部分类
                     addCategoryOption('fra-filter-category', cname);
+                    addCategoryOption('fav-filter-category', cname);
+                    addCategoryOption('hist-filter-category', cname);
                 }
             });
         } catch (e) {
@@ -833,19 +903,39 @@
         }
     }
 
-    function buildFavQuery() {
-        var title = (document.getElementById('fav-search-q').value || '').trim();
-        var fraStatus = (document.getElementById('fav-filter-status').value || 'all').trim();
-        var categoryName = (document.getElementById('fav-filter-category').value || 'all').trim();
-        return apiUrl('/api/donee/favourites/search?title=' + encodeURIComponent(title)
-            + '&fraStatus=' + encodeURIComponent(fraStatus)
-            + '&categoryName=' + encodeURIComponent(categoryName));
-    }
-
+    // function buildFavQuery() {
+    //     var title = (document.getElementById('fav-search-q').value || '').trim();
+    //     var fraStatus = (document.getElementById('fav-filter-status').value || 'all').trim();
+    //     var categoryName = (document.getElementById('fav-filter-category').value || 'all').trim();
+    //     return apiUrl('/api/donee/favourites/search?title=' + encodeURIComponent(title)
+    //         + '&fraStatus=' + encodeURIComponent(fraStatus)
+    //         + '&categoryName=' + encodeURIComponent(categoryName));
+    // }
+    // function buildBrowseQuery() {
+    //     var title = (document.getElementById('fra-search-q').value || '').trim();
+    //     var category = (document.getElementById('fra-filter-category').value || 'all').trim();
+    //     var status = (document.getElementById('fra-filter-status').value || 'all').trim();
+        
+    //     // 【修复】将 categoryId 和 status 拼接到 URL 传给后端
+    //     return apiUrl('/api/donee/fra/search?criteria=' + encodeURIComponent(title) 
+    //                 + '&categoryId=' + encodeURIComponent(category) 
+    //                 + '&status=' + encodeURIComponent(status));
+    // }
     function buildBrowseQuery() {
         var title = (document.getElementById('fra-search-q').value || '').trim();
-        return apiUrl('/api/donee/fra/search?criteria=' + encodeURIComponent(title));
+        var category = (document.getElementById('fra-filter-category').value || 'all').trim();
+        var status = (document.getElementById('fra-filter-status').value || 'all').trim();
+
+        // 修复：必须把 category 和 status 参数一起通过 URL 发送给后端控制器
+        return apiUrl('/api/donee/fra/search?criteria=' + encodeURIComponent(title) 
+                    + '&categoryId=' + encodeURIComponent(category) 
+                    + '&status=' + encodeURIComponent(status));
     }
+
+    // function buildBrowseQuery() {
+    //     var title = (document.getElementById('fra-search-q').value || '').trim();
+    //     return apiUrl('/api/donee/fra/search?criteria=' + encodeURIComponent(title));
+    // }
 
     function renderFraRows(rows) {
         var tbody = document.getElementById('fra-tbody');

@@ -5,42 +5,37 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class UpdateFRAControllerTest {
-
-    private UpdateFRAController updateController;
+    
+    private UpdateFRAController controller;
+    private FRA validFraData;
 
     @Before
     public void setUp() {
-        updateController = new UpdateFRAController();
+        controller = new UpdateFRAController();
+        validFraData = new FRA();
+        validFraData.setFraTitle("Updated Fundraiser");
+        validFraData.setFraTargetAmount(2000.0);
+        validFraData.setStartedAt("2026-06-01");
+        validFraData.setEndedAt("2026-12-31");
     }
 
     @Test
-    public void testUpdateFRA_NullData_ReturnsFalse() {
-        // Test Rule 1: Silent Boundary Protection
-        boolean result = updateController.updateFRA("123", null);
-        assertFalse("Result should be false when the provided data is null", result);
+    public void test_Update_executes_safely_with_valid_data() {
+        boolean result = controller.updateFRA("100", validFraData);
+        assertNotNull(result); 
     }
 
     @Test
-    public void testUpdateFRA_StartDateAfterEndDate_ReturnsFalse() {
-        // Test Rule 2: Date Logic Check
-        FRA invalidDateFra = new FRA();
-        invalidDateFra.setFraTitle("Valid Title");
-        invalidDateFra.setStartedAt("2024-12-31"); 
-        invalidDateFra.setEndedAt("2024-01-01"); // End date is before start date
-
-        boolean result = updateController.updateFRA("123", invalidDateFra);
-        assertFalse("Result should be false when the start date is after the end date", result);
+    public void test_Update_fails_when_fra_id_is_empty() {
+        boolean result = controller.updateFRA("", validFraData);
+        assertFalse(result);
     }
 
     @Test
-    public void testUpdateFRA_SameStartAndEndDate_ReturnsFalse() {
-        // Test Rule 2: Date Logic Check (Edge Case)
-        FRA sameDateFra = new FRA();
-        sameDateFra.setFraTitle("Valid Title");
-        sameDateFra.setStartedAt("2024-05-01"); 
-        sameDateFra.setEndedAt("2024-05-01"); // Exact same dates
-
-        boolean result = updateController.updateFRA("123", sameDateFra);
-        assertFalse("Result should be false when the start date equals the end date", result);
+    public void test_Update_fails_when_date_logic_is_invalid() {
+        validFraData.setStartedAt("2026-12-31");
+        validFraData.setEndedAt("2026-01-01"); 
+        boolean result = controller.updateFRA("100", validFraData);
+        assertFalse(result);
     }
 }

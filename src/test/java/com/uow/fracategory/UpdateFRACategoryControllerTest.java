@@ -1,54 +1,90 @@
 package com.uow.fracategory;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import com.uow.util.DBUtils;
 import static org.junit.Assert.*;
 
 public class UpdateFRACategoryControllerTest {
 
     private UpdateFRACategoryController updateController;
+    private CreateFRACategoryController createController;
+    private SearchFRACategoryController searchController;
+    private final String TEST_PREFIX = "PragmaticTest_";
+    private int existingCategoryId;
+    private String existingCategoryName;
 
     @Before
     public void setUp() {
         updateController = new UpdateFRACategoryController();
+        createController = new CreateFRACategoryController();
+        searchController = new SearchFRACategoryController();
+
+        // Dynamically create a real category to test the update logic
+        existingCategoryName = TEST_PREFIX + "ToUpdate_" + System.currentTimeMillis();
+        Map<String, String> newCat = new HashMap<>();
+        newCat.put("categoryName", existingCategoryName);
+        newCat.put("categoryStatus", "Active");
+        createController.createCategory(newCat);
+
+        // Fetch its ID
+        Map<String, String> searchParam = new HashMap<>();
+        searchParam.put("categoryName", existingCategoryName);
+        searchParam.put("categoryStatus", "");
+        List<Map<String, Object>> results = (List<Map<String, Object>>) searchController.searchCategory(searchParam);
+        existingCategoryId = (Integer) results.get(0).get("categoryID");
+    }
+
+    @After
+    public void tearDown() {
+        try (Connection c = DBUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement("DELETE FROM fra_category WHERE category_name LIKE ?")) {
+            ps.setString(1, TEST_PREFIX + "%");
+            ps.executeUpdate();
+        } catch (Exception e) {}
     }
 
     @Test
-    public void testUpdateCategory_WithNullData_ReturnsFalse() {
-        boolean result = updateController.updateCategory(null);
-        assertFalse("Result should be false when the input data is null", result);
+    public void test_Update_succeeds_with_valid_data() {
+        Map<String, Object> updateData = new HashMap<>();
+        updateData.put("categoryId", existingCategoryId);
+        updateData.put("categoryName", existingCategoryName + "_Updated");
+        updateData.put("categoryStatus", "Suspended");
+
+        assertTrue(updateController.updateCategory(updateData));
     }
 
     @Test
-    public void testUpdateCategory_WithMissingId_ReturnsFalse() {
-        // Provide a Map, but intentionally leave out the "categoryId"
-        Map<String, Object> incompleteData = new HashMap<>();
-        incompleteData.put("categoryName", "Education");
+    public void test_Update_throws_exception_when_category_id_is_invalid() {
+        Map<String, Object> updateData = new HashMap<>();
+        updateData.put("categoryId", -999); // Invalid ID
         
-        boolean result = updateController.updateCategory(incompleteData);
-        assertFalse("Result should be false when categoryId is missing or 0", result);
+        try {
+            updateController.updateCategory(updateData);
+            fail("Expected exception for invalid ID");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Invalid category ID.", e.getMessage());
+        }
     }
 
     @Test
-    public void testUpdateCategory_WithNegativeId_ReturnsFalse() {
-        Map<String, Object> badIdData = new HashMap<>();
-        badIdData.put("categoryId", -5); // Invalid ID
+    public void test_Update_throws_exception_when_status_is_missing() {
+        Map<String, Object> updateData = new HashMap<>();
+        updateData.put("categoryId", existingCategoryId);
+        updateData.put("categoryName", "Valid Name");
+        updateData.put("categoryStatus", ""); // Missing status
         
-        boolean result = updateController.updateCategory(badIdData);
-        assertFalse("Result should be false when categoryId is less than or equal to 0", result);
-    }
-
-    @Test
-    public void testUpdateCategory_WithNonExistentId_ReturnsFalse() {
-        Map<String, Object> fakeIdData = new HashMap<>();
-        fakeIdData.put("categoryId", 999999); // An ID that definitely does not exist
-        fakeIdData.put("categoryName", "Healthcare");
-
-        // The controller will call fraCategory.getViewCategory(), which will return null,
-        // causing the controller to safely abort and return false.
-        boolean result = updateController.updateCategory(fakeIdData);
-        assertFalse("Result should be false when the target category does not exist in the database", result);
+        try {
+            updateController.updateCategory(updateData);
+            fail("Expected exception for empty status");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Category status cannot be empty.", e.getMessage());
+        }
     }
 }

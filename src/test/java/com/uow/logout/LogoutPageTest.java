@@ -14,10 +14,14 @@ public class LogoutPageTest {
     }
 
     @Test
-    public void testUserLogout_WithNullSession_ReturnsRedirect() {
-        // 直接传 null，测试它能不能安全地把用户踢回登录页
-        String viewName = logoutPage.userLogout(null);
-        
-        assertEquals("Should redirect to login page even if session is null", "redirect:/LoginPage.html", viewName);
+    public void test_User_logout_returns_redirect_to_login_page() {
+        // 即使传入 null，也应该优雅地跳转回登录页
+        String result = logoutPage.userLogout(null);
+        assertEquals("redirect:/LoginPage.html", result);
+    }
+
+    @Test
+    public void test_Show_login_page_returns_correct_path() {
+        assertEquals("redirect:/LoginPage.html", logoutPage.showLoginPage());
     }
 }

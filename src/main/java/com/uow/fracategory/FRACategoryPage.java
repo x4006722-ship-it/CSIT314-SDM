@@ -46,33 +46,33 @@ public class FRACategoryPage {
         return categoryMessage.isBlank() ? "Category operation failed." : categoryMessage;
     }
 
-    //Create Category
-    @PostMapping("/api/fra-categories/create")
-    @ResponseBody
-    public boolean onCreateCategory(@RequestBody(required = false) Object newCategoryData,
-                                    @RequestParam Map<String, String> formData) {
-        if (!(newCategoryData instanceof Map<?, ?>) || ((Map<?, ?>) newCategoryData).isEmpty()) {
-            newCategoryData = formData;
-        }
-        if (!(newCategoryData instanceof Map<?, ?> data)) {
-            categoryMessage = "Type mismatch detected.";
-            return false;
-        }
-        String categoryName = readText(data.get("categoryName"));
-        String categoryStatus = readText(data.get("categoryStatus"));
-        if (categoryName.isBlank() || categoryStatus.isBlank()) {
-            categoryMessage = "Empty field detected.";
-            return false;
-        }
-        if (!isValidStatus(categoryStatus)) {
-            categoryMessage = "Invalid status format.";
-            return false;
-        }
+    // //Create Category
+    // @PostMapping("/api/fra-categories/create")
+    // @ResponseBody
+    // public boolean onCreateCategory(@RequestBody(required = false) Object newCategoryData,
+    //                                 @RequestParam Map<String, String> formData) {
+    //     if (!(newCategoryData instanceof Map<?, ?>) || ((Map<?, ?>) newCategoryData).isEmpty()) {
+    //         newCategoryData = formData;
+    //     }
+    //     if (!(newCategoryData instanceof Map<?, ?> data)) {
+    //         categoryMessage = "Type mismatch detected.";
+    //         return false;
+    //     }
+    //     String categoryName = readText(data.get("categoryName"));
+    //     String categoryStatus = readText(data.get("categoryStatus"));
+    //     if (categoryName.isBlank() || categoryStatus.isBlank()) {
+    //         categoryMessage = "Empty field detected.";
+    //         return false;
+    //     }
+    //     if (!isValidStatus(categoryStatus)) {
+    //         categoryMessage = "Invalid status format.";
+    //         return false;
+    //     }
 
-        boolean result = createFRACategoryController.createCategory(newCategoryData);
-        categoryMessage = result ? "Category created successfully." : "Category create failed.";
-        return result;
-    }
+    //     boolean result = createFRACategoryController.createCategory(newCategoryData);
+    //     categoryMessage = result ? "Category created successfully." : "Category create failed.";
+    //     return result;
+    // }
 
     //View Category
     @GetMapping("/api/fra-categories/view")
@@ -86,11 +86,68 @@ public class FRACategoryPage {
         return viewFRACategoryController.viewCategory(resolvedCategoryId);
     }
 
-    //Update Category
+    // //Update Category
+    // @PostMapping("/api/fra-categories/update")
+    // @ResponseBody
+    // public boolean onUpdateCategory(@RequestBody(required = false) Object updatedCategoryData,
+    //                                 @RequestParam Map<String, String> queryData) {
+    //     if (!(updatedCategoryData instanceof Map<?, ?>) || ((Map<?, ?>) updatedCategoryData).isEmpty()) {
+    //         java.util.Map<String, Object> normalized = new java.util.HashMap<>();
+    //         normalized.put("categoryId", readText(queryData.get("categoryId")));
+    //         if (readText(normalized.get("categoryId")).isBlank()) {
+    //             normalized.put("categoryId", readText(queryData.get("categoryID")));
+    //         }
+    //         normalized.put("categoryName", readText(queryData.get("categoryName")));
+    //         normalized.put("categoryStatus", readText(queryData.get("categoryStatus")));
+    //         updatedCategoryData = normalized;
+    //     }
+    //     if (!(updatedCategoryData instanceof Map<?, ?> data)) {
+    //         categoryMessage = "Type mismatch detected.";
+    //         return false;
+    //     }
+    //     String categoryIdText = readText(data.get("categoryId"));
+    //     if (categoryIdText.isBlank() || !ID_PATTERN.matcher(categoryIdText).matches()) {
+    //         categoryMessage = "Type mismatch detected.";
+    //         return false;
+    //     }
+    //     String categoryStatus = readText(data.get("categoryStatus"));
+    //     if (!categoryStatus.isBlank() && !isValidStatus(categoryStatus)) {
+    //         categoryMessage = "Invalid status format.";
+    //         return false;
+    //     }
+
+    //     boolean result = updateFRACategoryController.updateCategory(updatedCategoryData);
+    //     categoryMessage = result ? "Category updated successfully." : "Category update failed.";
+    //     return result;
+    // }
+
+    // Create Category
+    @PostMapping("/api/fra-categories/create")
+    @ResponseBody
+    public Object onCreateCategory(@RequestBody(required = false) Object newCategoryData,
+                                   @RequestParam Map<String, String> formData) {
+        if (!(newCategoryData instanceof Map<?, ?>) || ((Map<?, ?>) newCategoryData).isEmpty()) {
+            newCategoryData = formData;
+        }
+
+        try {
+            // 调用业务逻辑，依然返回 boolean
+            boolean result = createFRACategoryController.createCategory(newCategoryData);
+            if (result) {
+                return true; 
+            }
+            return Map.of("error", "Database save failed.");
+        } catch (IllegalArgumentException e) {
+            // 完美接住你的 "Category already exists."，发给前端！
+            return Map.of("error", e.getMessage());
+        }
+    }
+
+    // Update Category
     @PostMapping("/api/fra-categories/update")
     @ResponseBody
-    public boolean onUpdateCategory(@RequestBody(required = false) Object updatedCategoryData,
-                                    @RequestParam Map<String, String> queryData) {
+    public Object onUpdateCategory(@RequestBody(required = false) Object updatedCategoryData,
+                                   @RequestParam Map<String, String> queryData) {
         if (!(updatedCategoryData instanceof Map<?, ?>) || ((Map<?, ?>) updatedCategoryData).isEmpty()) {
             java.util.Map<String, Object> normalized = new java.util.HashMap<>();
             normalized.put("categoryId", readText(queryData.get("categoryId")));
@@ -101,24 +158,16 @@ public class FRACategoryPage {
             normalized.put("categoryStatus", readText(queryData.get("categoryStatus")));
             updatedCategoryData = normalized;
         }
-        if (!(updatedCategoryData instanceof Map<?, ?> data)) {
-            categoryMessage = "Type mismatch detected.";
-            return false;
-        }
-        String categoryIdText = readText(data.get("categoryId"));
-        if (categoryIdText.isBlank() || !ID_PATTERN.matcher(categoryIdText).matches()) {
-            categoryMessage = "Type mismatch detected.";
-            return false;
-        }
-        String categoryStatus = readText(data.get("categoryStatus"));
-        if (!categoryStatus.isBlank() && !isValidStatus(categoryStatus)) {
-            categoryMessage = "Invalid status format.";
-            return false;
-        }
 
-        boolean result = updateFRACategoryController.updateCategory(updatedCategoryData);
-        categoryMessage = result ? "Category updated successfully." : "Category update failed.";
-        return result;
+        try {
+            boolean result = updateFRACategoryController.updateCategory(updatedCategoryData);
+            if (result) {
+                return true;
+            }
+            return Map.of("error", "Database update failed.");
+        } catch (IllegalArgumentException e) {
+            return Map.of("error", e.getMessage());
+        }
     }
 
     //Suspend Category
@@ -146,6 +195,33 @@ public class FRACategoryPage {
         return searchFRACategoryController.searchCategory(searchData);
     }
 
+    // @GetMapping("/api/fra-categories/search")
+    // @ResponseBody
+    // public Object onSearchCategoryGet(@RequestParam Map<String, String> queryData) {
+    //     java.util.Map<String, Object> searchData = new java.util.HashMap<>();
+    //     searchData.put("categoryName", readText(queryData.get("categoryName")));
+    //     searchData.put("categoryStatus", readText(queryData.get("categoryStatus")));
+
+    //     String categoryStatus = readText(searchData.get("categoryStatus"));
+    //     if (!categoryStatus.isBlank() && !isValidStatus(categoryStatus)) {
+    //         return Map.of("error", "Invalid status format.");
+    //     }
+    //     return searchFRACategoryController.searchCategory(searchData);
+    // }
+
+    // @PostMapping({"/api/fra-categories/search", "/api/fra-categories/list"})
+    // @ResponseBody
+    // public Object onSearchCategory(@RequestBody Object searchCategoryData) {
+    //     if (!(searchCategoryData instanceof Map<?, ?> data)) {
+    //         return Map.of("error", "Type mismatch detected.");
+    //     }
+    //     String categoryStatus = readText(data.get("categoryStatus"));
+    //     if (!categoryStatus.isBlank() && !isValidStatus(categoryStatus)) {
+    //         return Map.of("error", "Invalid status format.");
+    //     }
+    //     return searchFRACategoryController.searchCategory(searchCategoryData);
+    // }
+    // Search Category (GET)
     @GetMapping("/api/fra-categories/search")
     @ResponseBody
     public Object onSearchCategoryGet(@RequestParam Map<String, String> queryData) {
@@ -153,31 +229,37 @@ public class FRACategoryPage {
         searchData.put("categoryName", readText(queryData.get("categoryName")));
         searchData.put("categoryStatus", readText(queryData.get("categoryStatus")));
 
-        String categoryStatus = readText(searchData.get("categoryStatus"));
-        if (!categoryStatus.isBlank() && !isValidStatus(categoryStatus)) {
-            return Map.of("error", "Invalid status format.");
+        try {
+            // 直接扔给业务层
+            return searchFRACategoryController.searchCategory(searchData);
+        } catch (IllegalArgumentException e) {
+            // 接住异常，给前端返回漂亮的 JSON
+            return Map.of("error", e.getMessage());
         }
-        return searchFRACategoryController.searchCategory(searchData);
     }
 
+    // Search Category (POST)
     @PostMapping({"/api/fra-categories/search", "/api/fra-categories/list"})
     @ResponseBody
     public Object onSearchCategory(@RequestBody Object searchCategoryData) {
         if (!(searchCategoryData instanceof Map<?, ?> data)) {
             return Map.of("error", "Type mismatch detected.");
         }
-        String categoryStatus = readText(data.get("categoryStatus"));
-        if (!categoryStatus.isBlank() && !isValidStatus(categoryStatus)) {
-            return Map.of("error", "Invalid status format.");
+        
+        try {
+            // 直接扔给业务层
+            return searchFRACategoryController.searchCategory(searchCategoryData);
+        } catch (IllegalArgumentException e) {
+            // 接住异常，给前端返回漂亮的 JSON
+            return Map.of("error", e.getMessage());
         }
-        return searchFRACategoryController.searchCategory(searchCategoryData);
     }
 
     private String readText(Object value) {
         return value == null ? "" : String.valueOf(value).trim();
     }
 
-    private boolean isValidStatus(String status) {
-        return "Active".equalsIgnoreCase(status) || "Suspended".equalsIgnoreCase(status);
-    }
+//     private boolean isValidStatus(String status) {
+//         return "Active".equalsIgnoreCase(status) || "Suspended".equalsIgnoreCase(status);
+//     }
 }

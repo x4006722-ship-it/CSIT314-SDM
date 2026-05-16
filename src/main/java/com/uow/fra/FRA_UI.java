@@ -42,14 +42,46 @@ public class FRA_UI {
         this.viewCompletedFRAByCategoryAndDateController = viewCompletedFRAByCategoryAndDateController;
     }
 
+    // @GetMapping("/view")
+    // public List<FRA> onViewAll() {
+    //     return viewController.viewAllFRAs();
+    // }
+
+    // @GetMapping("/search")
+    // public List<FRA> onSearchInput(@RequestParam(value="criteria", required=false) String criteria) {
+    //     return searchController.searchFRA(criteria);
+    // }
+    // @GetMapping("/view")
+    // public List<FRA> onViewAll(HttpSession session) {
+    //     // 修复：必须传入当前登录的 fundraiser ID，防止越权看到别人的数据
+    //     Object userIdObj = session.getAttribute("userId");
+    //     if (userIdObj == null) return List.of(); 
+    //     return FRA.findAllFRAs(String.valueOf(userIdObj));
+    // }
     @GetMapping("/view")
-    public List<FRA> onViewAll() {
-        return viewController.viewAllFRAs();
+    public List<FRA> onViewAll(HttpSession session) {
+        // 1. 从 Session 获取当前登录的筹款人 ID
+        Object userIdObj = session.getAttribute("userId");
+        
+        // 2. 如果没登录，返回空列表（安全兜底）
+        if (userIdObj == null) {
+            return List.of(); 
+        }
+        
+        // 3. 将 ID 传给你刚修改好的 viewController
+        return viewController.viewAllFRAs(String.valueOf(userIdObj));
     }
 
     @GetMapping("/search")
-    public List<FRA> onSearchInput(@RequestParam(value="criteria", required=false) String criteria) {
-        return searchController.searchFRA(criteria);
+    public List<FRA> onSearchInput(
+            @RequestParam(value="criteria", required=false) String criteria,
+            @RequestParam(value="categoryId", required=false) String categoryId,
+            @RequestParam(value="status", required=false) String status,
+            HttpSession session) {
+        Object userIdObj = session.getAttribute("userId");
+        String userId = userIdObj != null ? String.valueOf(userIdObj) : "";
+        // 标记角色为 fundRaiser，调用底层 SQL
+        return searchController.searchFRA(criteria, categoryId, status, "fundRaiser", userId);
     }
 
     @GetMapping("/donee-options")

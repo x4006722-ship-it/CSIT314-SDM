@@ -117,17 +117,123 @@ public class FRA {
         }
     }
 
-    public static List<FRA> findFRAsByCriteria(String criteria) {
+    // public static List<FRA> findFRAsByCriteria(String criteria) {
+    //     List<FRA> list = new ArrayList<>();
+    //     String sql = "SELECT f.*, d.full_name AS donee_name, fr.full_name AS fundRaiser_name FROM fra f LEFT JOIN user_account d ON f.donee_id = d.user_id LEFT JOIN user_account fr ON f.fundRaiser_id = fr.user_id WHERE f.fra_title LIKE ?";
+    //     try (Connection conn = DBUtils.getConnection();
+    //          PreparedStatement pstmt = conn.prepareStatement(sql)) {
+    //         pstmt.setString(1, "%" + (criteria == null ? "" : criteria) + "%");
+    //         try (ResultSet rs = pstmt.executeQuery()) {
+    //             while (rs.next()) list.add(fromResultSet(rs));
+    //         }
+    //     } catch (SQLException e) { 
+    //         // Silent handling: return an empty list
+    //     }
+    //     return list;
+    // }
+    // public static List<FRA> findFRAsByCriteria(String criteria, String categoryId, String status, String role, String userId) {
+    //     List<FRA> list = new ArrayList<>();
+    //     StringBuilder sql = new StringBuilder(
+    //         "SELECT f.*, d.full_name AS donee_name, fr.full_name AS fundRaiser_name " +
+    //         "FROM fra f LEFT JOIN user_account d ON f.donee_id = d.user_id " +
+    //         "LEFT JOIN user_account fr ON f.fundRaiser_id = fr.user_id WHERE 1=1"
+    //     );
+    //     List<Object> params = new ArrayList<>();
+
+    //     // 1. 标题模糊搜索
+    //     if (criteria != null && !criteria.isBlank()) {
+    //         sql.append(" AND f.fra_title LIKE ?");
+    //         params.add("%" + criteria + "%");
+    //     }
+    //     // 2. 类别过滤
+    //     if (categoryId != null && !categoryId.isBlank() && !"all".equalsIgnoreCase(categoryId)) {
+    //         sql.append(" AND f.category_id = ?");
+    //         params.add(categoryId);
+    //     }
+    //     // 3. 状态过滤
+    //     if (status != null && !status.isBlank() && !"all".equalsIgnoreCase(status)) {
+    //         sql.append(" AND f.fra_status = ?");
+    //         params.add(status);
+    //     }
+
+    //     // 4. 【核心修复】角色数据隔离
+    //     if ("donee".equalsIgnoreCase(role)) {
+    //         // 受赠人：绝对不允许看到 Draft 或 Cancelled 的活动，强制底层过滤
+    //         sql.append(" AND f.fra_status IN ('Pending', 'Completed', 'Active')");
+    //     } else if ("fundRaiser".equalsIgnoreCase(role)) {
+    //         // 筹款人：只能搜索和管理属于自己创建的活动
+    //         if (userId != null && !userId.isBlank()) {
+    //             sql.append(" AND f.fundRaiser_id = ?");
+    //             params.add(userId);
+    //         }
+    //     }
+
+    //     try (Connection conn = DBUtils.getConnection();
+    //          PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+    //         for (int i = 0; i < params.size(); i++) {
+    //             pstmt.setObject(i + 1, params.get(i));
+    //         }
+    //         try (ResultSet rs = pstmt.executeQuery()) {
+    //             while (rs.next()) list.add(fromResultSet(rs));
+    //         }
+    //     } catch (SQLException e) { 
+    //         // Silent handling
+    //     }
+    //     return list;
+    // }
+    // ================= 修复 Story #1 & #5：加入角色权限和多条件搜索 =================
+    public static List<FRA> findFRAsByCriteria(String criteria, String categoryId, String status, String role, String userId) {
         List<FRA> list = new ArrayList<>();
-        String sql = "SELECT f.*, d.full_name AS donee_name, fr.full_name AS fundRaiser_name FROM fra f LEFT JOIN user_account d ON f.donee_id = d.user_id LEFT JOIN user_account fr ON f.fundRaiser_id = fr.user_id WHERE f.fra_title LIKE ?";
+        // 修复：加入了 fra_category 连表，以便支持前端传 Category Name 过来搜索
+        StringBuilder sql = new StringBuilder(
+            "SELECT f.*, d.full_name AS donee_name, fr.full_name AS fundRaiser_name " +
+            "FROM fra f " +
+            "LEFT JOIN user_account d ON f.donee_id = d.user_id " +
+            "LEFT JOIN user_account fr ON f.fundRaiser_id = fr.user_id " +
+            "LEFT JOIN fra_category fc ON f.category_id = fc.category_id " +
+            "WHERE 1=1"
+        );
+        List<Object> params = new ArrayList<>();
+
+        // 1. 标题模糊搜索
+        if (criteria != null && !criteria.isBlank()) {
+            sql.append(" AND f.fra_title LIKE ?");
+            params.add("%" + criteria + "%");
+        }
+        // 2. 类别过滤（支持匹配 ID 或 Name）
+        if (categoryId != null && !categoryId.isBlank() && !"all".equalsIgnoreCase(categoryId)) {
+            sql.append(" AND (f.category_id = ? OR fc.category_name = ?)");
+            params.add(categoryId);
+            params.add(categoryId);
+        }
+        // 3. 状态过滤
+        if (status != null && !status.isBlank() && !"all".equalsIgnoreCase(status)) {
+            sql.append(" AND f.fra_status = ?");
+            params.add(status);
+        }
+
+        // 4. 【核心】角色数据隔离
+        if ("donee".equalsIgnoreCase(role)) {
+            // 受赠人：只能看到系统内允许公开的状态
+            sql.append(" AND f.fra_status IN ('Pending', 'Completed')");
+        } else if ("fundRaiser".equalsIgnoreCase(role)) {
+            // 筹款人：只能搜索和管理属于自己创建的活动
+            if (userId != null && !userId.isBlank()) {
+                sql.append(" AND f.fundRaiser_id = ?");
+                params.add(userId);
+            }
+        }
+
         try (Connection conn = DBUtils.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, "%" + (criteria == null ? "" : criteria) + "%");
+             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                pstmt.setObject(i + 1, params.get(i));
+            }
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) list.add(fromResultSet(rs));
             }
         } catch (SQLException e) { 
-            // Silent handling: return an empty list
+            // Silent handling
         }
         return list;
     }
@@ -207,13 +313,29 @@ public class FRA {
         return list;
     }
 
-    public static List<FRA> findAllFRAs() {
+    // public static List<FRA> findAllFRAs() {
+    //     List<FRA> list = new ArrayList<>();
+    //     String sql = "SELECT f.*, d.full_name AS donee_name, fr.full_name AS fundRaiser_name FROM fra f LEFT JOIN user_account d ON f.donee_id = d.user_id LEFT JOIN user_account fr ON f.fundRaiser_id = fr.user_id";
+    //     try (Connection conn = DBUtils.getConnection();
+    //          PreparedStatement pstmt = conn.prepareStatement(sql);
+    //          ResultSet rs = pstmt.executeQuery()) {
+    //         while (rs.next()) list.add(fromResultSet(rs));
+    //     } catch (SQLException e) { }
+    //     return list;
+    // }
+
+    public static List<FRA> findAllFRAs(String fundRaiserId) {
         List<FRA> list = new ArrayList<>();
-        String sql = "SELECT f.*, d.full_name AS donee_name, fr.full_name AS fundRaiser_name FROM fra f LEFT JOIN user_account d ON f.donee_id = d.user_id LEFT JOIN user_account fr ON f.fundRaiser_id = fr.user_id";
+        String sql = "SELECT f.*, d.full_name AS donee_name, fr.full_name AS fundRaiser_name " +
+                     "FROM fra f LEFT JOIN user_account d ON f.donee_id = d.user_id " +
+                     "LEFT JOIN user_account fr ON f.fundRaiser_id = fr.user_id " +
+                     "WHERE f.fundRaiser_id = ?"; // 强制过滤当前筹款人
         try (Connection conn = DBUtils.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-            while (rs.next()) list.add(fromResultSet(rs));
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, fundRaiserId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) list.add(fromResultSet(rs));
+            }
         } catch (SQLException e) { }
         return list;
     }
@@ -537,5 +659,24 @@ public class FRA {
             return out;
         }
         return out;
+    }
+    
+    public static boolean isDuplicateTitle(String title, String excludeFraId) {
+        String sql = "SELECT 1 FROM fra WHERE LOWER(TRIM(fra_title)) = LOWER(TRIM(?))";
+        if (excludeFraId != null) {
+            sql += " AND fra_id != ?";
+        }
+        sql += " LIMIT 1";
+        
+        try (Connection conn = DBUtils.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, title);
+            if (excludeFraId != null) {
+                pstmt.setString(2, excludeFraId);
+            }
+            try (ResultSet rs = pstmt.executeQuery()) {
+                return rs.next(); // 查到数据说明重名
+            }
+        } catch (SQLException e) { return false; }
     }
 }
