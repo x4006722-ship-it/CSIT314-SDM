@@ -175,15 +175,42 @@ public class UserAccountPage {
         return result;
     }
 
+    // //Suspend Account
+    // @PostMapping("/api/accounts/suspend")
+    // @ResponseBody
+    // public boolean onSuspendAccount(@RequestParam("targetUserId") int targetUserId,
+    //                                 @RequestParam("currentUserId") int currentUserId) {
+    //     if (targetUserId <= 0 || currentUserId <= 0) {
+    //         uiMessage = "Empty field detected.";
+    //         return false;
+    //     }
+    //     boolean result = suspendUserAccountController.suspendAccount(targetUserId, currentUserId);
+    //     uiMessage = result ? "Account suspend status changed." : "Account suspend failed.";
+    //     return result;
+    // }
     //Suspend Account
     @PostMapping("/api/accounts/suspend")
     @ResponseBody
-    public boolean onSuspendAccount(@RequestParam("targetUserId") int targetUserId,
-                                    @RequestParam("currentUserId") int currentUserId) {
-        if (targetUserId <= 0 || currentUserId <= 0) {
-            uiMessage = "Empty field detected.";
+    public boolean onSuspendAccount(@RequestParam("targetUserId") int targetUserId, HttpSession session) {
+        if (targetUserId <= 0) {
+            uiMessage = "Invalid target user ID.";
             return false;
         }
+        
+        // 【关键修复】：直接从 Session 读取当前操作人 ID，拒绝前端伪造
+        Object sidObj = session.getAttribute("userId");
+        if (sidObj == null) {
+            uiMessage = "User not logged in.";
+            return false;
+        }
+        
+        int currentUserId;
+        try {
+            currentUserId = Integer.parseInt(String.valueOf(sidObj));
+        } catch (NumberFormatException e) {
+            return false;
+        }
+
         boolean result = suspendUserAccountController.suspendAccount(targetUserId, currentUserId);
         uiMessage = result ? "Account suspend status changed." : "Account suspend failed.";
         return result;

@@ -1,12 +1,11 @@
 package com.uow.fra;
 import org.springframework.stereotype.Service;
-import java.util.List;
 
 @Service
 public class CreateFRAController {
     
     public FRA createFRA(FRA fraData) {
-        // Silent Boundary Protection
+        // 1. boundary validation 
         if (fraData == null ||
             fraData.getFraTitle() == null || fraData.getFraTitle().trim().isEmpty() ||
             fraData.getFraTargetAmount() == null || fraData.getFraTargetAmount() <= 0 ||
@@ -18,18 +17,17 @@ public class CreateFRAController {
             return null; 
         }
 
-        // Business Logic 
-        List<FRA> existingFRAs = FRA.findAllFRAs();
-        for (FRA existing : existingFRAs) {
-            if (existing.getFraTitle().equalsIgnoreCase(fraData.getFraTitle().trim())) {
-                return null; 
-            }
-        }
-
-        // 日期逻辑：确保开始时间早于结束时间
+        // 2. date logic
         if (fraData.getStartedAt().compareTo(fraData.getEndedAt()) >= 0) {
             return null; 
         }
+
+        // 3. duplicate check
+        if (FRA.isDuplicateTitle(fraData.getFraTitle(), null)) {
+            return null; 
+        }
+
+        // 4. execute save
         return fraData.saveFRA();
     }
 }

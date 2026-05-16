@@ -56,11 +56,7 @@
             border-left: 4px solid var(--accent);
         }
 
-        .tab-bar {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 26px;
-        }
+        .tab-bar { display: flex; gap: 12px; margin-bottom: 26px; }
 
         .tab-btn {
             padding: 12px 24px;
@@ -73,19 +69,13 @@
             color: var(--text-muted);
             box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
         }
-
         .tab-btn.active {
             background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
             color: #fff;
             border-color: #4f46e5;
             box-shadow: 0 4px 14px rgba(79, 70, 229, 0.28);
         }
-
-        .tab-btn:hover:not(.active) {
-            background: #fafafa;
-            border-color: #c7d2fe;
-            color: var(--accent);
-        }
+        .tab-btn:hover:not(.active) { background: #fafafa; border-color: #c7d2fe; color: var(--accent); }
 
         .admin-section {
             background: #fff;
@@ -118,525 +108,91 @@
 
         h2 { font-size: 20px; color: var(--text); letter-spacing: -0.02em; font-weight: 700; }
 
-        .action-bar {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 18px;
-        }
-
+        .action-bar { display: grid; grid-template-columns: 1fr; gap: 18px; }
         .form-group { margin-bottom: 15px; }
         label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
         input, select {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid var(--border-soft);
-            border-radius: 8px;
-            font-size: 14px;
-            background: #fff;
+            width: 100%; padding: 10px 12px; border: 1px solid var(--border-soft);
+            border-radius: 8px; font-size: 14px; background: #fff;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--accent-bright);
-            box-shadow: 0 0 0 3px var(--accent-ring);
-        }
+        input:focus, select:focus { outline: none; border-color: var(--accent-bright); box-shadow: 0 0 0 3px var(--accent-ring); }
 
         .btn {
-            padding: 10px 20px;
-            border-radius: 10px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+            padding: 10px 20px; border-radius: 10px; border: none; cursor: pointer;
+            font-weight: 600; transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
         }
         .btn:active { transform: translateY(1px); }
-        .btn-black {
-            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
-            color: #fff;
-            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
-        }
-        .btn-black:hover {
-            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35);
-        }
-        .btn-view {
-            background: var(--accent-light);
-            color: #3730a3;
-            border: 1px solid #c7d2fe;
-            font-weight: 600;
-        }
-        .btn-view:hover {
-            background: #e0e7ff;
-            border-color: #a5b4fc;
-        }
-        .btn-outline {
-            background: #fff;
-            border: 1px solid var(--accent);
-            color: var(--accent);
-        }
+        .btn-black { background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%); color: #fff; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3); }
+        .btn-black:hover { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35); }
+        .btn-view { background: var(--accent-light); color: #3730a3; border: 1px solid #c7d2fe; font-weight: 600; }
+        .btn-view:hover { background: #e0e7ff; border-color: #a5b4fc; }
+        .btn-outline { background: #fff; border: 1px solid var(--accent); color: var(--accent); }
         .btn-outline:hover { background: var(--accent-light); }
         .logout-btn {
-            border: 1px solid rgba(248, 113, 113, 0.5);
-            color: #b91c1c;
-            background: var(--danger-soft);
-            padding: 10px 18px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-size: 15px;
-            font-weight: 600;
-            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+            border: 1px solid rgba(248, 113, 113, 0.5); color: #b91c1c; background: var(--danger-soft);
+            padding: 10px 18px; border-radius: 10px; text-decoration: none; font-size: 15px; font-weight: 600;
         }
-        .logout-btn:hover {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            color: #fff;
-            border-color: transparent;
-            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
-        }
+        .logout-btn:hover { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; border-color: transparent; }
 
-        .topbar-user {
-            font-size: 16px;
-            color: var(--text-muted);
-        }
-
-        .topbar-user strong {
-            color: #4338ca;
-            font-size: 17px;
-            font-weight: 700;
-        }
+        .topbar-user { font-size: 16px; color: var(--text-muted); }
+        .topbar-user strong { color: #4338ca; font-size: 17px; font-weight: 700; }
 
         .subsection {
-            padding: 18px;
-            border: 1px solid var(--border-soft);
-            border-radius: 12px;
-            background: #f8fafc;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            padding: 18px; border: 1px solid var(--border-soft); border-radius: 12px;
+            background: #f8fafc; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
         }
+        .subsection h3 { font-size: 15px; margin-bottom: 10px; color: #0f172a; font-weight: 700; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
 
-        .subsection h3 {
-            font-size: 15px;
-            margin-bottom: 10px;
-            color: #0f172a;
-            font-weight: 700;
-        }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .grid-3 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 12px;
-        }
-
-        .btn-sm {
-            padding: 8px 12px;
-            font-size: 13px;
-            border-radius: 8px;
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
-            color: #fff;
-            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.38);
-        }
-        .btn-danger:hover {
-            background: linear-gradient(135deg, #fca5a5 0%, #ef4444 100%);
-        }
-
-        .btn-muted {
-            background: #e2e8f0;
-            color: #334155;
-            border: 1px solid #cbd5e1;
-        }
+        .btn-sm { padding: 8px 12px; font-size: 13px; border-radius: 8px; }
+        .btn-danger { background: linear-gradient(135deg, #f87171 0%, #dc2626 100%); color: #fff; }
+        .btn-danger:hover { background: linear-gradient(135deg, #fca5a5 0%, #ef4444 100%); }
+        .btn-muted { background: #e2e8f0; color: #334155; border: 1px solid #cbd5e1; }
         .btn-muted:hover { background: #cbd5e1; }
 
         .pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 10px;
-            border-radius: 999px;
-            font-size: 12px;
-            border: 1px solid var(--border-soft);
-            background: #fff;
-            color: #1e293b;
-            font-weight: 600;
+            display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px;
+            border-radius: 999px; font-size: 12px; border: 1px solid var(--border-soft);
+            background: #fff; color: #1e293b; font-weight: 600;
         }
-
         .pill.ok { background: #ecfdf5; border-color: #34d399; color: #065f46; }
         .pill.bad { background: #fef2f2; border-color: #f87171; color: #991b1b; }
 
-        .table-wrap {
-            border: 1px solid var(--border-soft);
-            border-radius: 12px;
-            overflow: hidden;
-            background: #fff;
-            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
-        }
-
-        .table-scroll {
-            max-height: 800px;
-            overflow: auto;
-        }
-
-        .subsection .table-wrap {
-            margin-top: 10px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            min-width: 980px;
-        }
-
-        #ua-list-table {
-            min-width: 0;
-        }
-
+        .table-wrap { border: 1px solid var(--border-soft); border-radius: 12px; overflow: hidden; background: #fff; }
+        .table-scroll { max-height: 800px; overflow: auto; }
+        .subsection .table-wrap { margin-top: 10px; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 980px; }
         thead th {
-            position: sticky;
-            top: 0;
-            z-index: 1;
-            background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-            border-bottom: 1px solid var(--border-soft);
-            font-size: 11px;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            color: var(--head-fg);
-            font-weight: 600;
-            padding: 13px 12px;
-            text-align: left;
-            white-space: nowrap;
+            position: sticky; top: 0; z-index: 1; background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+            border-bottom: 1px solid var(--border-soft); font-size: 11px; letter-spacing: 0.05em;
+            text-transform: uppercase; color: var(--head-fg); font-weight: 600; padding: 13px 12px; text-align: left;
         }
-
-        tbody td {
-            padding: 12px 12px;
-            border-bottom: 1px solid #f1f5f9;
-            font-size: 14px;
-            color: #1e293b;
-            vertical-align: middle;
-            background: #fff;
-        }
-
+        tbody td { padding: 12px 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px; color: #1e293b; vertical-align: middle; }
         tbody tr:hover td { background: #f5f3ff; }
-
-        .td-actions {
-            display: inline-flex;
-            gap: 8px;
-            flex-wrap: nowrap;
-            align-items: center;
-            justify-content: flex-end;
-            width: 100%;
-        }
-
-        #ua-list-table thead th:nth-child(4),
-        #ua-list-table tbody td:nth-child(4) {
-            text-align: center;
-            vertical-align: middle;
-        }
-
-        #ua-list-table thead th:last-child {
-            text-align: center;
-        }
-
-        #ua-list-table tbody td:last-child {
-            text-align: center;
-            vertical-align: middle;
-        }
-
-        #ua-list-table .td-actions {
-            justify-content: center;
-            gap: 6px;
-            align-items: center;
-        }
-
-        #ua-list-table .td-actions button.btn-sm {
-            box-sizing: border-box;
-            min-height: 28px;
-            height: 28px;
-            padding: 0 8px;
-            font-size: 12px;
-            font-weight: 600;
-            border-radius: 6px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-
-        #ua-list-table .td-actions button[data-action="toggle-status"].btn-sm {
-            min-width: 104px;
-        }
-
-        .muted {
-            color: var(--text-muted);
-            font-size: 12px;
-        }
-
-        .pagination {
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            padding: 12px 14px;
-            gap: 12px;
-            border-top: 1px solid var(--border-soft);
-            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
-        }
+        .td-actions { display: inline-flex; gap: 8px; flex-wrap: nowrap; align-items: center; justify-content: center; width: 100%; }
+        #ua-list-table thead th:nth-child(4), #ua-list-table tbody td:nth-child(4), #ua-list-table thead th:last-child, #ua-list-table tbody td:last-child { text-align: center; }
+        #ua-list-table .td-actions button.btn-sm { min-height: 28px; height: 28px; padding: 0 8px; font-size: 12px; }
+        #ua-list-table .td-actions button[data-action="toggle-status"].btn-sm { min-width: 104px; }
+        .muted { color: var(--text-muted); font-size: 12px; }
+        .pagination { display: flex; padding: 12px 14px; border-top: 1px solid var(--border-soft); background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%); }
 
         .toast {
-            position: fixed;
-            left: 50%;
-            bottom: 18px;
-            transform: translateX(-50%);
-            background: #1e1b4b;
-            color: #fff;
-            padding: 12px 18px;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 500;
-            display: none;
-            z-index: 1100;
-            box-shadow: 0 10px 40px rgba(15, 23, 42, 0.2);
-            border: 1px solid rgba(165, 180, 252, 0.35);
+            position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); background: #1e1b4b; color: #fff;
+            padding: 12px 18px; border-radius: 10px; font-size: 13px; font-weight: 500; display: none; z-index: 1100;
         }
-
-        .modal-backdrop {
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.45);
-            display: none;
-            z-index: 1200;
-        }
-
-        .modal-backdrop.open { display: block; }
-
+        .modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); display: none; z-index: 1200; }
+        .modal-backdrop.open, .modal.open { display: block; }
         .modal {
-            position: fixed;
-            left: 50%;
-            top: 8%;
-            transform: translateX(-50%);
-            width: min(640px, 92vw);
-            max-height: 88vh;
-            background: #fff;
-            border: 1px solid var(--border-soft);
-            border-radius: 14px;
-            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15);
-            display: none;
-            z-index: 1210;
-            overflow: hidden;
+            position: fixed; left: 50%; top: 8%; transform: translateX(-50%); width: min(640px, 92vw); max-height: 88vh;
+            background: #fff; border-radius: 14px; display: none; z-index: 1210; overflow: hidden;
         }
-
-        .modal.open { display: block; }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 20px;
-            background: #fafafa;
-            border-bottom: 1px solid var(--border-soft);
-        }
-
-        .modal-header strong {
-            font-size: 16px;
-            color: #0f172a;
-            font-weight: 700;
-        }
-
-        .modal-body {
-            padding: 18px 20px;
-            font-size: 15px;
-            line-height: 1.55;
-            color: #1e293b;
-            word-break: break-word;
-            overflow: auto;
-            max-height: calc(88vh - 56px - 64px);
-            background: #fff;
-        }
-
-        .modal-footer {
-            padding: 14px 20px;
-            border-top: 1px solid var(--border-soft);
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
-        }
-
-        #ua-note-backdrop.modal-backdrop {
-            z-index: 1300;
-        }
-
-        #ua-note-modal.modal {
-            z-index: 1310;
-            top: 18%;
-            width: min(560px, 92vw);
-            max-height: 70vh;
-        }
-
-        @media (max-width: 980px) {
-            .grid-2, .grid-3 { grid-template-columns: 1fr; }
-        }
-
-        @media (max-width: 768px) {
-            .main-content {
-                padding: 16px;
-            }
-
-            .topbar {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
-                padding: 14px 16px;
-            }
-
-            .logout-btn {
-                width: 100%;
-                text-align: center;
-            }
-
-            .tab-bar {
-                gap: 10px;
-                flex-wrap: wrap;
-            }
-
-            .tab-btn {
-                flex: 1 1 160px;
-                width: 100%;
-            }
-
-            .admin-section {
-                padding: 16px;
-            }
-
-            .section-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
-
-            .table-wrap,
-            .table-scroll {
-                overflow-x: visible;
-                -webkit-overflow-scrolling: touch;
-            }
-
-            .table-scroll {
-                max-height: none;
-            }
-
-            #ua-list-table {
-                min-width: 0;
-                width: 100%;
-                table-layout: fixed;
-            }
-
-            #ua-list-table thead {
-                display: none;
-            }
-
-            #ua-list-table,
-            #ua-list-table tbody,
-            #ua-list-table tr,
-            #ua-list-table td {
-                display: block;
-                width: 100%;
-            }
-
-            #ua-list-table tbody tr {
-                background: #fff;
-                border: 1px solid var(--border-soft);
-                border-radius: 10px;
-                padding: 8px 10px;
-                margin-bottom: 10px;
-                box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
-            }
-
-            #ua-list-table tbody td {
-                display: flex;
-                justify-content: space-between;
-                align-items: flex-start;
-                gap: 10px;
-                padding: 8px 0;
-                border-bottom: 1px solid #f1f2f4;
-                font-size: 14px;
-                white-space: normal;
-                word-break: break-word;
-                text-align: right;
-            }
-
-            #ua-list-table tbody td:last-child {
-                border-bottom: none;
-            }
-
-            #ua-list-table tbody td::before {
-                color: var(--text-muted);
-                font-weight: 600;
-                text-align: left;
-                padding-right: 8px;
-                flex: 0 0 44%;
-            }
-
-            #ua-list-table tbody td:nth-child(1)::before { content: "Username"; }
-            #ua-list-table tbody td:nth-child(2)::before { content: "Phone Number"; }
-            #ua-list-table tbody td:nth-child(3)::before { content: "Role"; }
-            #ua-list-table tbody td:nth-child(4)::before { content: "Account Status"; }
-            #ua-list-table tbody td:nth-child(5)::before { content: "Action"; }
-
-            #ua-list-table tbody td[colspan] {
-                display: block;
-                text-align: center !important;
-            }
-
-            #ua-list-table tbody td[colspan]::before {
-                content: none;
-            }
-
-            #ua-list-table .pill {
-                font-size: 13px;
-                padding: 6px 10px;
-                white-space: nowrap;
-            }
-
-            #ua-list-table .td-actions {
-                width: auto;
-                justify-content: flex-end;
-                flex-wrap: wrap;
-                gap: 8px;
-            }
-
-            #ua-list-table .td-actions button.btn-sm,
-            #ua-list-table .td-actions button[data-action="toggle-status"].btn-sm {
-                min-width: 92px;
-                width: auto;
-                white-space: nowrap;
-                font-size: 12px;
-                padding: 0 8px;
-            }
-
-            .pagination {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .modal-footer {
-                flex-wrap: wrap;
-            }
-
-            .modal-footer .btn {
-                flex: 1 1 120px;
-            }
-
-            .modal {
-                top: 5%;
-                width: 94vw;
-                max-height: 90vh;
-            }
-        }
+        .modal-header { display: flex; justify-content: space-between; padding: 16px 20px; background: #fafafa; border-bottom: 1px solid var(--border-soft); }
+        .modal-body { padding: 18px 20px; font-size: 15px; overflow: auto; max-height: calc(88vh - 56px - 64px); }
+        .modal-footer { padding: 14px 20px; border-top: 1px solid var(--border-soft); display: flex; justify-content: flex-end; gap: 10px; }
+        #ua-note-modal.modal { top: 18%; width: min(560px, 92vw); max-height: 70vh; z-index: 1310; }
+        #ua-note-backdrop.modal-backdrop { z-index: 1300; }
     </style>
 </head>
 <body>
@@ -661,16 +217,16 @@
             </div>
 
             <div class="action-bar">
-                <form id="create-account-form" class="subsection" action="#" method="post" novalidate>
+                <form id="create-account-form" class="subsection" novalidate onsubmit="return false;">
                     <h3>Create User Account</h3>
                     <div class="grid-2" style="margin-top:10px;">
                         <div class="form-group">
                             <label>Username</label>
-                            <input type="text" name="username" required pattern=".*\\S.*" autocomplete="username">
+                            <input type="text" name="username" required autocomplete="username">
                         </div>
                         <div class="form-group">
                             <label>Password</label>
-                            <input type="password" name="password" required pattern=".*\\S.*" autocomplete="new-password">
+                            <input type="password" name="password" required autocomplete="new-password">
                         </div>
                     </div>
                     <div class="grid-2">
@@ -680,13 +236,13 @@
                         </div>
                         <div class="form-group">
                             <label>Email</label>
-                            <input type="text" name="email" required autocomplete="email">
+                            <input type="email" name="email" required autocomplete="email">
                         </div>
                     </div>
                     <div class="grid-2">
                         <div class="form-group">
                             <label>Phone number</label>
-                            <input type="text" name="phone" required inputmode="numeric" pattern="\\d+" autocomplete="tel">
+                            <input type="text" name="phone" required inputmode="numeric">
                         </div>
                         <div class="form-group">
                             <label>Assign profile</label>
@@ -700,12 +256,12 @@
                             <label>Account status</label>
                             <select name="accountStatus" required>
                                 <option value="">Select account status</option>
-                                <option value="Active">Active</option>
+                                <option value="Active" selected>Active</option>
                                 <option value="Suspended">Suspended</option>
                             </select>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-black">Create</button>
+                    <button type="button" id="btn-create-submit" class="btn btn-black">Create</button>
                 </form>
             </div>
         </div>
@@ -760,15 +316,11 @@
                                 </tr>
                                 </thead>
                                 <tbody id="ua-list-tbody">
-                                <tr>
-                                    <td colspan="5" class="muted" style="text-align: center;">Loading…</td>
-                                </tr>
+                                <tr><td colspan="5" class="muted" style="text-align: center;">Loading…</td></tr>
                                 </tbody>
                             </table>
                         </div>
-                        <div class="pagination">
-                            <div class="muted" id="ua-count">—</div>
-                        </div>
+                        <div class="pagination"><div class="muted" id="ua-count">—</div></div>
                     </div>
                 </div>
             </div>
@@ -778,9 +330,7 @@
 
 <div id="ua-modal-backdrop" class="modal-backdrop"></div>
 <div id="ua-modal" class="modal" role="dialog" aria-modal="true">
-    <div class="modal-header">
-        <strong id="ua-modal-title">Notification</strong>
-    </div>
+    <div class="modal-header"><strong id="ua-modal-title">Notification</strong></div>
     <div id="ua-modal-message" class="modal-body"></div>
     <div class="modal-footer">
         <button id="ua-modal-save" type="button" class="btn btn-outline" style="display:none;">Save changes</button>
@@ -790,21 +340,15 @@
 
 <div id="ua-note-backdrop" class="modal-backdrop"></div>
 <div id="ua-note-modal" class="modal" role="dialog" aria-modal="true">
-    <div class="modal-header">
-        <strong id="ua-note-title">Notice</strong>
-    </div>
+    <div class="modal-header"><strong id="ua-note-title">Notice</strong></div>
     <div id="ua-note-message" class="modal-body"></div>
-    <div class="modal-footer">
-        <button id="ua-note-ok" type="button" class="btn btn-black">OK</button>
-    </div>
+    <div class="modal-footer"><button id="ua-note-ok" type="button" class="btn btn-black">OK</button></div>
 </div>
 
 <div id="ua-toast" class="toast"></div>
 
 <script>
-    const uaState = {
-        profiles: []
-    };
+    const uaState = { profiles: [] };
 
     function uaAssignableProfile(p) {
         if (!p) return false;
@@ -820,10 +364,8 @@
     function uaOpenModal(backdropId, modalId, titleId, messageId, title, message) {
         const backdrop = document.getElementById(backdropId);
         const modal = document.getElementById(modalId);
-        const titleEl = document.getElementById(titleId);
-        const msgEl = document.getElementById(messageId);
-        if (titleEl) titleEl.textContent = title || 'Notice';
-        if (msgEl) msgEl.textContent = message || '';
+        if (document.getElementById(titleId)) document.getElementById(titleId).textContent = title || 'Notice';
+        if (document.getElementById(messageId)) document.getElementById(messageId).innerHTML = message || '';
         backdrop?.classList.add('open');
         modal?.classList.add('open');
     }
@@ -835,63 +377,36 @@
 
     function uaModalOpen(message, title) {
         const saveBtn = document.getElementById('ua-modal-save');
-        if (saveBtn) {
-            saveBtn.style.display = 'none';
-            saveBtn.dataset.userId = '';
-            saveBtn.dataset.dirty = '0';
-            saveBtn.disabled = false;
-        }
+        if (saveBtn) { saveBtn.style.display = 'none'; saveBtn.dataset.dirty = '0'; saveBtn.disabled = false; }
         uaOpenModal('ua-modal-backdrop', 'ua-modal', 'ua-modal-title', 'ua-modal-message', title || 'Notification', message);
     }
-
-    function uaModalClose() {
-        uaCloseModal('ua-modal-backdrop', 'ua-modal');
-    }
-
-    function uaNoteOpen(message, title) {
-        uaOpenModal('ua-note-backdrop', 'ua-note-modal', 'ua-note-title', 'ua-note-message', title || 'Notice', message);
-    }
-
-    function uaNoteClose() {
-        uaCloseModal('ua-note-backdrop', 'ua-note-modal');
-    }
+    function uaModalClose() { uaCloseModal('ua-modal-backdrop', 'ua-modal'); }
+    function uaNoteOpen(message, title) { uaOpenModal('ua-note-backdrop', 'ua-note-modal', 'ua-note-title', 'ua-note-message', title || 'Notice', message); }
+    function uaNoteClose() { uaCloseModal('ua-note-backdrop', 'ua-note-modal'); }
 
     function showUaToast(msg) {
         const t = document.getElementById('ua-toast');
         if (!t) return;
-        t.textContent = msg;
-        t.style.display = 'block';
+        t.textContent = msg; t.style.display = 'block';
         setTimeout(() => { t.style.display = 'none'; }, 1500);
     }
 
     function uaEscapeHtml(s) {
-        return String(s ?? '')
-            .replaceAll('&', '&amp;')
-            .replaceAll('<', '&lt;')
-            .replaceAll('>', '&gt;')
-            .replaceAll('"', '&quot;')
-            .replaceAll("'", '&#39;');
+        return String(s ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
     }
 
     function uaSetAccountListCount(rowsLen, payload) {
         const el = document.getElementById('ua-count');
         if (!el) return;
-
         let n = rowsLen;
-        if (payload && typeof payload === 'object' && !Array.isArray(payload) && payload.total != null) {
-            const t = Number(payload.total);
-            if (Number.isFinite(t)) n = t;
-        }
-
+        if (payload && typeof payload === 'object' && !Array.isArray(payload) && payload.total != null) n = Number(payload.total);
         el.textContent = `Showing ${n} accounts`;
     }
 
     async function loadAccountSummaries() {
         const tbody = document.getElementById('ua-list-tbody');
         if (!tbody) return;
-
         tbody.innerHTML = `<tr><td colspan="5" class="muted" style="text-align: center;">Loading…</td></tr>`;
-
         try {
             const q = (uaState.searchQuery || '').trim();
             const status = uaState.searchStatus || 'all';
@@ -919,15 +434,9 @@
             const r = await fetch(url, { credentials: 'same-origin' });
             if (!r.ok) throw new Error('Failed to load accounts');
             const payload = await r.json();
+            if (payload && typeof payload === 'object' && !Array.isArray(payload) && payload.error) throw new Error(payload.error);
 
-            if (payload && typeof payload === 'object' && !Array.isArray(payload) && payload.error) {
-                throw new Error(payload.error);
-            }
-
-            const safeRows = Array.isArray(payload)
-                ? payload
-                : (Array.isArray(payload?.items) ? payload.items : []);
-
+            const safeRows = Array.isArray(payload) ? payload : (Array.isArray(payload?.items) ? payload.items : []);
             if (safeRows.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="5" class="muted" style="text-align: center;">No accounts found.</td></tr>`;
                 uaSetAccountListCount(0, payload);
@@ -941,7 +450,6 @@
                 const roleRaw = String(a.roleName ?? a.role ?? '').trim().replace(/\s+/g, ' ');
                 const roleName = uaEscapeHtml(roleRaw);
                 const rawStatus = String(a.accountStatus ?? '');
-                const accountStatus = uaEscapeHtml(rawStatus);
                 const isSuspended = rawStatus.toLowerCase() === 'suspended';
                 const statusPillClass = isSuspended ? 'pill bad' : 'pill ok';
                 const toggleLabel = isSuspended ? 'Re-activate' : 'Suspend';
@@ -953,24 +461,17 @@
 
                 return `
                     <tr data-status="${isSuspended ? 'suspended' : 'active'}">
-                        <td>${username}</td>
-                        <td>${phoneNumber}</td>
-                        <td>${roleName}</td>
-                        <td><span class="${statusPillClass}">${accountStatus || (isSuspended ? 'Suspended' : 'Active')}</span></td>
-                        <td>
-                            <div class="td-actions">
-                                <button type="button" class="btn btn-view btn-sm" data-action="view" data-user-id="${uaEscapeHtml(userId)}">View</button>
-                                ${statusActionHtml}
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                        <td>${username}</td><td>${phoneNumber}</td><td>${roleName}</td>
+                        <td><span class="${statusPillClass}">${uaEscapeHtml(rawStatus) || (isSuspended ? 'Suspended' : 'Active')}</span></td>
+                        <td><div class="td-actions">
+                            <button type="button" class="btn btn-view btn-sm" data-action="view" data-user-id="${uaEscapeHtml(userId)}">View</button>
+                            <button type="button" class="btn btn-sm ${toggleClass}" data-action="toggle-status" data-user-id="${uaEscapeHtml(userId)}">${uaEscapeHtml(toggleLabel)}</button>
+                        </div></td>
+                    </tr>`;
             }).join('');
             uaSetAccountListCount(safeRows.length, payload);
         } catch (e) {
             tbody.innerHTML = `<tr><td colspan="5" class="muted" style="text-align: center;">Failed to load accounts.</td></tr>`;
-            const c = document.getElementById('ua-count');
-            if (c) c.textContent = '—';
             uaModalOpen(`Failed to load accounts from database. ${e?.message ? '(' + e.message + ')' : ''}`, 'Notice');
         }
     }
@@ -982,222 +483,83 @@
             if (!r.ok || data?.error) throw new Error(data?.error || 'Failed to load account');
 
             const d = data || {};
-            const labels = {
-                username: 'Username',
-                full_name: 'Full Name',
-                email: 'Email',
-                phone_number: 'Phone Number',
-                a_status: 'Account Status',
-                roleName: 'Role'
-            };
-
+            const labels = { username: 'Username', full_name: 'Full Name', email: 'Email', phone_number: 'Phone Number', a_status: 'Account Status', roleName: 'Role' };
             const rows = [
-                ['username',     d.username    ?? '-'],
-                ['full_name',    d.full_name   ?? '-'],
-                ['email',        d.email       ?? '-'],
-                ['phone_number', d.phone_number ?? '-'],
-                ['a_status',     d.a_status    ?? '-'],
-                ['roleName',     d.roleName    ?? '-'],
+                ['username', d.username ?? '-'], ['full_name', d.full_name ?? '-'], ['email', d.email ?? '-'],
+                ['phone_number', d.phone_number ?? '-'], ['a_status', d.a_status ?? '-'], ['roleName', d.roleName ?? '-']
             ];
 
-            const tableHtml = `
-                <div class="table-wrap">
-                    <table style="min-width:0;" aria-label="My account detail">
-                        <thead>
-                            <tr>
-                                <th style="width:180px;">Field</th>
-                                <th>Value</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${rows.map(([k, v]) => `
-                                <tr>
-                                    <td class="muted" style="font-weight:600;">${uaEscapeHtml(labels[k] ?? k)}</td>
-                                    <td>${uaEscapeHtml(String(v))}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            `;
-
-            const msgEl = document.getElementById('ua-note-message');
-            if (msgEl) msgEl.innerHTML = tableHtml;
-            const titleEl = document.getElementById('ua-note-title');
-            if (titleEl) titleEl.textContent = 'My Account';
-            document.getElementById('ua-note-backdrop')?.classList.add('open');
-            document.getElementById('ua-note-modal')?.classList.add('open');
-        } catch (e) {
-            uaNoteOpen(`Failed to load your account information.${e?.message ? ' ' + e.message : ''}`, 'Notice');
-        }
+            const tableHtml = `<div class="table-wrap"><table style="min-width:0;" aria-label="My account detail"><thead><tr><th style="width:180px;">Field</th><th>Value</th></tr></thead><tbody>
+                ${rows.map(([k, v]) => `<tr><td class="muted" style="font-weight:600;">${uaEscapeHtml(labels[k] ?? k)}</td><td>${uaEscapeHtml(String(v))}</td></tr>`).join('')}
+            </tbody></table></div>`;
+            uaNoteOpen(tableHtml, 'My Account');
+        } catch (e) { uaNoteOpen('Failed to load your account information.', 'Notice'); }
     }
 
     async function viewAccountDetail(userId) {
         if (!userId) return;
         try {
             const r = await fetch(`/api/accounts/view?userId=${encodeURIComponent(userId)}`, { credentials: 'same-origin' });
-            if (!r.ok) {
-                const err = await r.json().catch(() => ({}));
-                throw new Error(err?.error || 'Failed to load account');
-            }
-            const detail = await r.json();
-            const d = detail || {};
+            if (!r.ok) throw new Error((await r.json().catch(() => ({})))?.error || 'Failed to load account');
+            const d = await r.json() || {};
 
-            const fieldLabels = {
-                username: 'Username',
-                full_name: 'Full name',
-                email: 'Email',
-                phone_number: 'Phone Number',
-                password: 'Password',
-                a_status: 'Account Status',
-                profile_id: 'Role',
-                roleName: 'Role'
-            };
-
-            const getFirst = (obj, keys) => {
-                for (const k of keys) {
-                    if (obj && Object.prototype.hasOwnProperty.call(obj, k)) return obj[k];
-                }
-                return '';
-            };
-
-            const profileId = getFirst(d, ['profile_id', 'profileId']);
-            const roleName = getFirst(d, ['roleName', 'role']);
+            const fieldLabels = { username: 'Username', full_name: 'Full name', email: 'Email', phone_number: 'Phone Number', password: 'Password', a_status: 'Account Status', profile_id: 'Role', roleName: 'Role' };
+            const getFirst = (obj, keys) => { for (const k of keys) { if (obj && Object.prototype.hasOwnProperty.call(obj, k)) return obj[k]; } return ''; };
 
             const ordered = [
-                ['username', getFirst(d, ['username'])],
-                ['full_name', getFirst(d, ['full_name', 'fullname', 'fullName', 'name'])],
-                ['email', getFirst(d, ['email', 'e_mail', 'user_email', 'email_address'])],
-                ['phone_number', getFirst(d, ['phone_number', 'phone', 'phoneNo', 'phone_no', 'contact_number'])],
-                ['password', getFirst(d, ['password'])],
-                ['a_status', getFirst(d, ['a_status'])],
-                ['profile_id', profileId],
-                ['roleName', roleName],
+                ['username', getFirst(d, ['username'])], ['full_name', getFirst(d, ['full_name', 'fullName'])],
+                ['email', getFirst(d, ['email'])], ['phone_number', getFirst(d, ['phone_number', 'phoneNumber'])],
+                ['password', getFirst(d, ['password'])], ['a_status', getFirst(d, ['a_status', 'accountStatus'])],
+                ['profile_id', getFirst(d, ['profile_id', 'profileId'])], ['roleName', getFirst(d, ['roleName', 'role'])],
             ];
-
             const editableKeys = new Set(['username', 'full_name', 'email', 'phone_number', 'password', 'a_status', 'profile_id']);
 
-            const bodyHtml = `
-                <div class="muted" style="margin-bottom: 10px;">Tip: Double-click a value to edit, then click “Save changes”.</div>
-                <div class="table-wrap">
-                    <div class="table-scroll" style="max-height: none;">
-                        <table aria-label="Account detail" style="min-width: 0;">
-                            <thead>
-                                <tr>
-                                    <th style="width: 220px;">Field</th>
-                                    <th>Value</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${ordered.filter(([k]) => !['roleName'].includes(String(k))).map(([k, v]) => {
-                                    const label = fieldLabels[k] ?? k;
-                                    const isPassword = String(k) === 'password';
-                                    const safeVal = (v === null || v === undefined || String(v).trim() === '') ? '-' : String(v);
-                                    const valueHtml = isPassword
-                                        ? `<span class="ua-secret" role="button" tabindex="0" style="cursor:pointer; user-select:none;" data-secret="${uaEscapeHtml(safeVal)}">*****</span>`
-                                        : (String(k) === 'profile_id'
-                                            ? `<span class="ua-value" data-field="profile_id" data-value="${uaEscapeHtml(profileId)}">${uaEscapeHtml(roleName || '-')}</span>`
-                                            : `<span class="ua-value" data-field="${uaEscapeHtml(k)}">${uaEscapeHtml(safeVal)}</span>`);
-                                    return `
-                                    <tr data-field="${uaEscapeHtml(k)}" data-editable="${editableKeys.has(String(k)) ? '1' : '0'}">
-                                        <td class="muted" style="font-weight: 600;">${uaEscapeHtml(label)}</td>
-                                        <td>${valueHtml}</td>
-                                    </tr>
-                                    `;
-                                }).join('')}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            `;
-
-            const msgEl = document.getElementById('ua-modal-message');
-            if (msgEl) msgEl.innerHTML = bodyHtml;
-            const titleEl = document.getElementById('ua-modal-title');
-            if (titleEl) titleEl.textContent = `Account Detail (User ID: ${userId})`;
+            const bodyHtml = `<div class="muted" style="margin-bottom: 10px;">Tip: Double-click a value to edit, then click “Save changes”.</div><div class="table-wrap"><div class="table-scroll" style="max-height: none;"><table aria-label="Account detail" style="min-width: 0;"><thead><tr><th style="width: 220px;">Field</th><th>Value</th></tr></thead><tbody>
+                ${ordered.filter(([k]) => !['roleName'].includes(String(k))).map(([k, v]) => {
+                    const label = fieldLabels[k] ?? k;
+                    const isPassword = String(k) === 'password';
+                    const safeVal = (v === null || v === undefined || String(v).trim() === '') ? '-' : String(v);
+                    const valueHtml = isPassword ? `<span class="ua-secret" role="button" tabindex="0" style="cursor:pointer; user-select:none;" data-secret="${uaEscapeHtml(safeVal)}">*****</span>`
+                        : (String(k) === 'profile_id' ? `<span class="ua-value" data-field="profile_id" data-value="${uaEscapeHtml(ordered[6][1])}">${uaEscapeHtml(ordered[7][1] || '-')}</span>`
+                        : `<span class="ua-value" data-field="${uaEscapeHtml(k)}">${uaEscapeHtml(safeVal)}</span>`);
+                    return `<tr data-field="${uaEscapeHtml(k)}" data-editable="${editableKeys.has(String(k)) ? '1' : '0'}"><td class="muted" style="font-weight: 600;">${uaEscapeHtml(label)}</td><td>${valueHtml}</td></tr>`;
+                }).join('')}
+            </tbody></table></div></div>`;
 
             const saveBtn = document.getElementById('ua-modal-save');
-            if (saveBtn) {
-                saveBtn.style.display = 'inline-flex';
-                saveBtn.dataset.userId = String(userId);
-                saveBtn.dataset.dirty = '0';
-                saveBtn.disabled = false;
-            }
-
-            document.getElementById('ua-modal-backdrop')?.classList.add('open');
-            document.getElementById('ua-modal')?.classList.add('open');
-        } catch (e) {
-            uaModalOpen('Failed to load account detail.', 'Notice');
-        }
+            if (saveBtn) { saveBtn.style.display = 'inline-flex'; saveBtn.dataset.userId = String(userId); saveBtn.dataset.dirty = '0'; saveBtn.disabled = false; }
+            uaModalOpen(bodyHtml, `Account Detail (User ID: ${userId})`);
+        } catch (e) { uaModalOpen('Failed to load account detail.', 'Notice'); }
     }
 
     async function loadProfilesIntoCreateSelect() {
         const select = document.querySelector('select[name="profileId"]');
         if (!select) return;
-
         try {
             const r = await fetch('/api/profiles/list', { credentials: 'same-origin' });
             if (!r.ok) throw new Error('Failed to load profiles');
             const profiles = await r.json();
-
-            uaState.profiles = (profiles || []).map(p => ({
-                profileId: String(p.profileId ?? p.profile_id ?? ''),
-                roleName: String(p.roleName ?? p.role ?? ''),
-                status: String(p.status ?? p.p_status ?? '')
-            })).filter(p => p.profileId && p.roleName);
+            uaState.profiles = (profiles || []).map(p => ({ profileId: String(p.profileId ?? p.profile_id ?? ''), roleName: String(p.roleName ?? p.role ?? ''), status: String(p.status ?? p.p_status ?? '') })).filter(p => p.profileId && p.roleName);
 
             const roleSel = document.getElementById('ua-filter-role');
             if (roleSel) {
                 const current = roleSel.value || 'all';
-                roleSel.innerHTML = `<option value="all" selected>All</option>` + uaState.profiles
-                    .filter(uaAssignableProfile)
-                    .map(p => `<option value="${uaEscapeHtml(p.roleName)}">${uaEscapeHtml(p.roleName)}</option>`)
-                    .join('');
-                const exists = Array.from(roleSel.options).some(o => o.value === current);
-                roleSel.value = exists ? current : 'all';
+                roleSel.innerHTML = `<option value="all" selected>All</option>` + uaState.profiles.filter(uaAssignableProfile).map(p => `<option value="${uaEscapeHtml(p.roleName)}">${uaEscapeHtml(p.roleName)}</option>`).join('');
+                roleSel.value = Array.from(roleSel.options).some(o => o.value === current) ? current : 'all';
             }
 
-            const first = select.querySelector('option[value=""]');
-            select.innerHTML = '';
-            if (first) select.appendChild(first);
-            else {
-                const opt = document.createElement('option');
-                opt.value = '';
-                opt.textContent = 'Select a Profile';
-                select.appendChild(opt);
-            }
-
+            select.innerHTML = '<option value="">Select a Profile</option>';
             uaState.profiles.forEach(p => {
                 if (!uaAssignableProfile(p)) return;
                 const opt = document.createElement('option');
-                opt.value = String(p.profileId);
-                opt.textContent = String(p.roleName);
-                select.appendChild(opt);
+                opt.value = String(p.profileId); opt.textContent = String(p.roleName); select.appendChild(opt);
             });
-        } catch (e) {
-            uaModalOpen('Failed to load profiles from database.', 'Notice');
-        }
-    }
-
-    function showToastFromQuery() {
-        const params = new URLSearchParams(window.location.search);
-        const msg = params.get('toast');
-        if (!msg) return;
-        uaModalOpen(msg, msg.toLowerCase().startsWith('success') ? 'Success' : 'Notice');
-        params.delete('toast');
-        const next = params.toString();
-        const url = window.location.pathname + (next ? `?${next}` : '');
-        window.history.replaceState({}, '', url);
+        } catch (e) { uaModalOpen('Failed to load profiles from database.', 'Notice'); }
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-        showToastFromQuery();
         loadProfilesIntoCreateSelect();
         loadAccountSummaries();
-
-        uaState.searchQuery = '';
-        uaState.searchStatus = 'all';
-        uaState.searchRole = 'all';
 
         document.getElementById('ua-search-btn')?.addEventListener('click', async () => {
             uaState.searchQuery = (document.getElementById('ua-search-q')?.value || '').trim();
@@ -1207,31 +569,20 @@
         });
 
         document.getElementById('ua-search-q')?.addEventListener('keydown', async (e) => {
-            if (e.key !== 'Enter') return;
-            e.preventDefault();
-            document.getElementById('ua-search-btn')?.click();
+            if (e.key === 'Enter') { e.preventDefault(); document.getElementById('ua-search-btn')?.click(); }
         });
 
         document.getElementById('ua-search-clear')?.addEventListener('click', async () => {
-            const input = document.getElementById('ua-search-q');
-            if (input) input.value = '';
-            uaState.searchQuery = '';
-            uaState.searchStatus = 'all';
-            uaState.searchRole = 'all';
-            const sSel = document.getElementById('ua-filter-status');
-            if (sSel) sSel.value = 'all';
-            const rSel = document.getElementById('ua-filter-role');
-            if (rSel) rSel.value = 'all';
+            if (document.getElementById('ua-search-q')) document.getElementById('ua-search-q').value = '';
+            uaState.searchQuery = ''; uaState.searchStatus = 'all'; uaState.searchRole = 'all';
+            if (document.getElementById('ua-filter-status')) document.getElementById('ua-filter-status').value = 'all';
+            if (document.getElementById('ua-filter-role')) document.getElementById('ua-filter-role').value = 'all';
             await loadAccountSummaries();
         });
 
         document.getElementById('ua-list-tbody')?.addEventListener('click', async (e) => {
             const viewBtn = e.target.closest('button[data-action="view"]');
-            if (viewBtn) {
-                const userId = viewBtn.getAttribute('data-user-id');
-                viewAccountDetail(userId);
-                return;
-            }
+            if (viewBtn) { viewAccountDetail(viewBtn.getAttribute('data-user-id')); return; }
 
             const toggleBtn = e.target.closest('button[data-action="toggle-status"]');
             if (!toggleBtn) return;
@@ -1245,43 +596,26 @@
                 const currentStatus = (statusCell?.querySelector('.pill')?.textContent ?? statusCell?.textContent ?? '').trim();
                 const nextStatus = currentStatus.toLowerCase() === 'suspended' ? 'Active' : 'Suspended';
 
-                const r = await fetch(`/api/accounts/suspend?targetUserId=${encodeURIComponent(userId)}&currentUserId=1`, {
-                    method: 'POST',
-                    credentials: 'same-origin'
-                });
+                const r = await fetch(`/api/accounts/suspend?targetUserId=${encodeURIComponent(userId)}`, { method: 'POST', credentials: 'same-origin' });
+                const respText = await r.text();
+                if (!r.ok || respText !== 'true') throw new Error('Update failed');
 
-                const resp = await r.json().catch(() => null);
-                if (!r.ok) {
-                    throw new Error((resp && typeof resp === 'object' && resp.error) ? resp.error : `HTTP ${r.status}`);
-                }
-                if (resp !== true) {
-                    throw new Error('Could not change account status (e.g. User Admin cannot be suspended, or you cannot change your own account here).');
-                }
-
-                const newStatus = nextStatus;
-                if (statusCell && newStatus) {
-                    const isS = String(newStatus).toLowerCase() === 'suspended';
-                    const label = uaEscapeHtml(String(newStatus));
-                    statusCell.innerHTML = `<span class="pill ${isS ? 'bad' : 'ok'}">${label || (isS ? 'Suspended' : 'Active')}</span>`;
-                }
-                const isSusp = String(newStatus ?? '').toLowerCase() === 'suspended';
-                toggleBtn.textContent = isSusp ? 'Re-activate' : 'Suspend';
-                toggleBtn.className = 'btn btn-sm ' + (isSusp ? 'btn-muted' : 'btn-danger');
-                if (row) row.setAttribute('data-status', isSusp ? 'suspended' : 'active');
-                const usernameCell = row?.querySelector('td:nth-child(1)');
-                const uname = (usernameCell?.textContent ?? '').trim() || 'User';
-                showUaToast(isSusp ? `${uname} has been suspended.` : `${uname} has been reactivated.`);
-            } catch (err) {
-                uaNoteOpen(`Error: ${err?.message || 'Update failed'}`, 'Notice');
-            } finally {
-                toggleBtn.disabled = false;
-            }
+                const isS = nextStatus.toLowerCase() === 'suspended';
+                if (statusCell) statusCell.innerHTML = `<span class="pill ${isS ? 'bad' : 'ok'}">${nextStatus}</span>`;
+                toggleBtn.textContent = isS ? 'Re-activate' : 'Suspend';
+                toggleBtn.className = 'btn btn-sm ' + (isS ? 'btn-muted' : 'btn-danger');
+                if (row) row.setAttribute('data-status', isS ? 'suspended' : 'active');
+                
+                const uname = (row?.querySelector('td:nth-child(1)')?.textContent ?? '').trim() || 'User';
+                showUaToast(isS ? `${uname} has been suspended.` : `${uname} has been reactivated.`);
+            } catch (err) { uaNoteOpen(`Error: ${err?.message || 'Update failed'}`, 'Notice'); } 
+            finally { toggleBtn.disabled = false; }
         });
 
-        const createForm = document.getElementById('create-account-form');
-        const UA_CREATE_EMAIL_RE = /^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$/;
-        createForm?.addEventListener('submit', async (e) => {
-            e.preventDefault();
+        document.getElementById('btn-create-submit')?.addEventListener('click', async () => {
+            const createForm = document.getElementById('create-account-form');
+            if (!createForm) return;
+
             const username = createForm.querySelector('input[name="username"]');
             const password = createForm.querySelector('input[name="password"]');
             const fullName = createForm.querySelector('input[name="fullName"]');
@@ -1290,52 +624,64 @@
             const profileId = createForm.querySelector('select[name="profileId"]');
             const accountStatus = createForm.querySelector('select[name="accountStatus"]');
 
-            if (username) username.value = username.value.trim();
-            if (password) password.value = password.value.trim();
-            if (fullName) fullName.value = fullName.value.trim();
-            if (email) email.value = email.value.trim();
-            if (phone) phone.value = phone.value.trim();
+            const uVal = username?.value?.trim() || '';
+            const pVal = password?.value?.trim() || '';
+            const fVal = fullName?.value?.trim() || '';
+            const eVal = email?.value?.trim() || '';
+            const phVal = phone?.value?.trim() || '';
+            const prVal = profileId?.value || '';
+            const sVal = accountStatus?.value || 'Active';
 
-            if (profileId && !profileId.value) {
-                uaModalOpen('Please select a profile (role).', 'Notice');
-                profileId.focus();
+            if (!uVal || !pVal || !fVal || !eVal || !phVal || !prVal || !sVal) {
+                uaModalOpen('Please fill in all required fields.', 'Notice');
                 return;
             }
 
-            if (accountStatus && !accountStatus.value) {
-                uaModalOpen('Please select account status (Active or Suspended).', 'Notice');
-                accountStatus.focus();
+            if (!/^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$/.test(eVal)) {
+                uaModalOpen('Invalid email format. (Missing @ or domain)', 'Notice');
                 return;
             }
-
-            if (phone && phone.value && !/^\d+$/.test(phone.value)) {
+            if (!/^\d+$/.test(phVal)) {
                 uaModalOpen('Phone number must contain digits only.', 'Notice');
-                phone.focus();
+                return;
+            }
+            if (pVal.length < 3) {
+                uaModalOpen('Password must be at least 3 characters.', 'Notice');
                 return;
             }
 
-            if (username && !username.value) {
-                uaModalOpen('Username is required.', 'Notice');
-                username.focus();
-                return;
-            }
+            const payload = {
+                username: uVal,
+                password: pVal,
+                fullName: fVal,
+                email: eVal,
+                phoneNumber: phVal,
+                profileId: prVal,
+                accountStatus: sVal
+            };
 
-            if (password && !password.value) {
-                uaModalOpen('Password is required.', 'Notice');
-                password.focus();
-                return;
-            }
+            try {
+                const btn = document.getElementById('btn-create-submit');
+                btn.disabled = true;
 
-            if (fullName && !fullName.value) {
-                uaModalOpen('Full name is required.', 'Notice');
-                fullName.focus();
-                return;
-            }
-
-            if (email && !email.value) {
-                uaModalOpen('Email is required.', 'Notice');
-                email.focus();
-                return;
+                const r = await fetch('/api/accounts/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const res = await r.text();
+                if (r.ok && res === 'true') {
+                    showUaToast("Account created successfully.");
+                    createForm.reset();
+                    loadAccountSummaries();
+                } else {
+                    uaModalOpen("Failed to create account. Username or email might be duplicated.", "Error");
+                }
+                btn.disabled = false;
+            } catch (err) {
+                document.getElementById('btn-create-submit').disabled = false;
+                uaModalOpen("Server error occurred.", "Error");
             }
 
             if (email && email.value && !UA_CREATE_EMAIL_RE.test(email.value)) {
@@ -1387,6 +733,7 @@
                 uaModalOpen(`Error: ${err?.message || 'Request failed'}`, 'Notice');
             }
         });
+
         document.getElementById('ua-modal-backdrop')?.addEventListener('click', uaModalClose);
         document.getElementById('ua-modal-ok')?.addEventListener('click', uaModalClose);
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape') uaModalClose(); });
@@ -1394,12 +741,7 @@
         document.getElementById('ua-modal-message')?.addEventListener('click', (e) => {
             const secretEl = e.target.closest('.ua-secret');
             if (!secretEl) return;
-            const isHidden = secretEl.textContent === '*****';
-            if (isHidden) {
-                secretEl.textContent = secretEl.getAttribute('data-secret') ?? '';
-            } else {
-                secretEl.textContent = '*****';
-            }
+            secretEl.textContent = secretEl.textContent === '*****' ? (secretEl.getAttribute('data-secret') ?? '') : '*****';
         });
 
         document.getElementById('ua-modal-message')?.addEventListener('dblclick', (e) => {
@@ -1409,22 +751,14 @@
             if (!field) return;
 
             const td = tr.querySelector('td:nth-child(2)');
-            if (!td) return;
-            if (td.querySelector('input, textarea')) return;
+            if (!td || td.querySelector('input, textarea')) return;
 
             const saveBtn = document.getElementById('ua-modal-save');
             const valueEl = td.querySelector('.ua-value');
-            const currentVal = field === 'password'
-                ? (td.querySelector('.ua-secret')?.getAttribute('data-secret') ?? '')
-                : (valueEl?.dataset?.value ?? valueEl?.textContent ?? '').trim();
+            const currentVal = field === 'password' ? (td.querySelector('.ua-secret')?.getAttribute('data-secret') ?? '') : (valueEl?.dataset?.value ?? valueEl?.textContent ?? '').trim();
 
             if (field === 'a_status') {
-                td.innerHTML = `
-                    <select class="ua-edit-select" data-field="a_status" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
-                        <option value="Active">Active</option>
-                        <option value="Suspended">Suspended</option>
-                    </select>
-                `;
+                td.innerHTML = `<select class="ua-edit-select" data-field="a_status" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;"><option value="Active">Active</option><option value="Suspended">Suspended</option></select>`;
                 const sel = td.querySelector('select.ua-edit-select');
                 if (sel) sel.value = (currentVal && currentVal !== '-') ? currentVal : 'Active';
                 sel?.focus();
@@ -1433,13 +767,8 @@
             }
 
             if (field === 'profile_id') {
-                const profiles = (uaState.profiles || []).filter(uaAssignableProfile);
-                const opts = profiles.map(p => `<option value="${uaEscapeHtml(p.profileId)}">${uaEscapeHtml(p.roleName || p.role)}</option>`).join('');
-                td.innerHTML = `
-                    <select class="ua-edit-select" data-field="profile_id" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
-                        ${opts}
-                    </select>
-                `;
+                const opts = (uaState.profiles || []).filter(uaAssignableProfile).map(p => `<option value="${uaEscapeHtml(p.profileId)}">${uaEscapeHtml(p.roleName || p.role)}</option>`).join('');
+                td.innerHTML = `<select class="ua-edit-select" data-field="profile_id" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">${opts}</select>`;
                 const sel = td.querySelector('select.ua-edit-select');
                 if (sel && currentVal && currentVal !== '-') sel.value = String(currentVal);
                 sel?.focus();
@@ -1447,18 +776,10 @@
                 return;
             }
 
-            const inputType = field === 'email' ? 'email'
-                : field === 'phone_number' ? 'text'
-                : field === 'password' ? 'text'
-                : 'text';
-
-            td.innerHTML = `
-                <input class="ua-edit" type="${uaEscapeHtml(inputType)}" data-field="${uaEscapeHtml(field)}" value="${uaEscapeHtml(currentVal)}" style="width:100%;" />
-            `;
+            const inputType = field === 'email' ? 'email' : field === 'phone_number' ? 'text' : field === 'password' ? 'text' : 'text';
+            td.innerHTML = `<input class="ua-edit" type="${uaEscapeHtml(inputType)}" data-field="${uaEscapeHtml(field)}" value="${uaEscapeHtml(currentVal)}" style="width:100%;" />`;
             const input = td.querySelector('input.ua-edit');
-            input?.focus();
-            input?.setSelectionRange?.(input.value.length, input.value.length);
-
+            input?.focus(); input?.setSelectionRange?.(input.value.length, input.value.length);
             if (saveBtn) saveBtn.dataset.dirty = '1';
         });
 
@@ -1467,25 +788,12 @@
             if (!input) return;
             const field = input.getAttribute('data-field');
             const td = input.closest('td');
-            const tr = input.closest('tr');
-            if (!field || !td || !tr) return;
-
-            if (e.key === 'Escape') {
-                e.preventDefault();
-                const userId = document.getElementById('ua-modal-save')?.dataset.userId;
-                if (userId) viewAccountDetail(userId);
-                return;
-            }
-
+            if (e.key === 'Escape') { e.preventDefault(); const userId = document.getElementById('ua-modal-save')?.dataset.userId; if (userId) viewAccountDetail(userId); return; }
             if (e.key === 'Enter') {
                 e.preventDefault();
                 const v = (input.value ?? '').trim();
-                const displayVal = v ? v : '-';
-                if (field === 'password') {
-                    td.innerHTML = `<span class="ua-secret" role="button" tabindex="0" style="cursor:pointer; user-select:none;" data-secret="${uaEscapeHtml(v)}">*****</span>`;
-                } else {
-                    td.innerHTML = `<span class="ua-value" data-field="${uaEscapeHtml(field)}">${uaEscapeHtml(displayVal)}</span>`;
-                }
+                if (field === 'password') td.innerHTML = `<span class="ua-secret" role="button" tabindex="0" style="cursor:pointer;" data-secret="${uaEscapeHtml(v)}">*****</span>`;
+                else td.innerHTML = `<span class="ua-value" data-field="${uaEscapeHtml(field)}">${uaEscapeHtml(v || '-')}</span>`;
                 const saveBtn = document.getElementById('ua-modal-save');
                 if (saveBtn) saveBtn.dataset.dirty = '1';
             }
@@ -1496,15 +804,8 @@
             if (!sel) return;
             const field = sel.getAttribute('data-field');
             const td = sel.closest('td');
-            if (!field || !td) return;
-
-            if (field === 'profile_id') {
-                const pid = sel.value;
-                const label = sel.options[sel.selectedIndex]?.textContent ?? '-';
-                td.innerHTML = `<span class="ua-value" data-field="profile_id" data-value="${uaEscapeHtml(pid)}">${uaEscapeHtml(label)}</span>`;
-            } else if (field === 'a_status') {
-                td.innerHTML = `<span class="ua-value" data-field="a_status">${uaEscapeHtml(sel.value)}</span>`;
-            }
+            if (field === 'profile_id') td.innerHTML = `<span class="ua-value" data-field="profile_id" data-value="${uaEscapeHtml(sel.value)}">${uaEscapeHtml(sel.options[sel.selectedIndex]?.textContent ?? '-')}</span>`;
+            else if (field === 'a_status') td.innerHTML = `<span class="ua-value" data-field="a_status">${uaEscapeHtml(sel.value)}</span>`;
             const saveBtn = document.getElementById('ua-modal-save');
             if (saveBtn) saveBtn.dataset.dirty = '1';
         });
@@ -1515,85 +816,31 @@
             if (!userId) return;
 
             const msg = document.getElementById('ua-modal-message');
-            const spanVal = (key) => {
-                const el = msg?.querySelector(`.ua-value[data-field="${CSS.escape(key)}"]`);
-                if (!el) return '';
-                const raw = (el.dataset?.value ?? el.textContent ?? '').trim();
-                return raw === '-' ? '' : raw;
-            };
+            const fields = {};
+            const getVal = (key) => (msg?.querySelector(`.ua-value[data-field="${CSS.escape(key)}"]`)?.dataset?.value ?? msg?.querySelector(`.ua-value[data-field="${CSS.escape(key)}"]`)?.textContent ?? '').trim();
 
-            const inline = {};
-            msg?.querySelectorAll('input.ua-edit').forEach((inp) => {
-                const k = inp.getAttribute('data-field');
-                if (!k) return;
-                inline[k] = (inp.value ?? '').trim();
-            });
-            msg?.querySelectorAll('select.ua-edit-select').forEach((sel) => {
-                const k = sel.getAttribute('data-field');
-                if (!k) return;
-                inline[k] = (sel.value ?? '').trim();
-            });
-
-            const pick = (snake) => {
-                const v = inline[snake];
-                if (v !== undefined && v !== '') return v;
-                return spanVal(snake);
-            };
-
-            let password = inline.password;
-            if (password === undefined || password === '') {
-                const sec = msg?.querySelector('.ua-secret')?.getAttribute('data-secret');
-                if (sec !== undefined && sec !== null) password = sec;
-            }
-            if (password === undefined) password = '';
+            msg?.querySelectorAll('input.ua-edit').forEach(inp => { const k = inp.getAttribute('data-field'); if (k) { if (k === 'password') fields.password = (inp.value ?? '').trim(); else fields[k] = (inp.value ?? '').trim(); } });
+            msg?.querySelectorAll('select.ua-edit-select').forEach(sel => { const k = sel.getAttribute('data-field'); if (k) { if (k === 'a_status') fields.a_status = (sel.value ?? '').trim(); if (k === 'profile_id') fields.profile_id = (sel.value ?? '').trim(); } });
 
             const payload = {
                 userId: Number(userId),
-                username: pick('username'),
-                fullName: pick('full_name'),
-                email: pick('email'),
-                phoneNumber: pick('phone_number'),
-                password: password === '-' ? '' : password,
-                accountStatus: pick('a_status'),
-                profileId: pick('profile_id')
+                username: fields.username ?? getVal('username'),
+                fullName: fields.full_name ?? getVal('full_name'),
+                email: fields.email ?? getVal('email'),
+                phoneNumber: fields.phone_number ?? getVal('phone_number'),
+                password: fields.password || msg?.querySelector('.ua-secret')?.getAttribute('data-secret') || '',
+                accountStatus: fields.a_status ?? getVal('a_status'),
+                profileId: fields.profile_id ?? getVal('profile_id')
             };
-
-            Object.keys(payload).forEach((k) => {
-                if (k === 'userId') return;
-                const v = payload[k];
-                if (v === '' || v === '-') delete payload[k];
-            });
-            if (password !== undefined && password !== '') payload.password = password;
 
             try {
                 saveBtn.disabled = true;
-                const r = await fetch('/api/accounts/update', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'same-origin',
-                    body: JSON.stringify(payload)
-                });
-                const resp = await r.json().catch(() => null);
-                if (!r.ok) {
-                    const errObj = resp && typeof resp === 'object' && !Array.isArray(resp) ? resp : {};
-                    throw new Error(errObj.error || `HTTP ${r.status}`);
-                }
-                if (resp !== true) {
-                    throw new Error(
-                        (resp && typeof resp === 'object' && resp.error) ? resp.error
-                            : 'Update failed (duplicate username/email/phone, or server rejected).'
-                    );
-                }
-                uaModalClose();
-                saveBtn.dataset.dirty = '0';
-                await loadAccountSummaries();
-                uaNoteOpen('Success: Account updated.', 'Success');
-            } catch (err) {
-                uaNoteOpen(`Error: ${err?.message || 'Update failed'}`, 'Notice');
-            } finally {
-                const sb = document.getElementById('ua-modal-save');
-                if (sb) sb.disabled = false;
-            }
+                const r = await fetch('/api/accounts/update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body: JSON.stringify(payload) });
+                const respText = await r.text();
+                if (!r.ok || respText !== 'true') throw new Error('Update failed. Duplicate data or bad request.');
+                uaModalClose(); saveBtn.dataset.dirty = '0'; await loadAccountSummaries(); showUaToast('Account updated successfully.');
+            } catch (err) { uaNoteOpen(`Error: ${err?.message}`, 'Notice'); } 
+            finally { if (saveBtn) saveBtn.disabled = false; }
         });
 
         document.getElementById('ua-note-backdrop')?.addEventListener('click', uaNoteClose);

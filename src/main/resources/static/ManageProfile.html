@@ -20,11 +20,18 @@
             --accent-hover: #4338ca;
             --accent-bright: #6366f1;
             --accent-light: #eef2ff;
-            --accent-ring: rgba(99, 102, 241, 0.28);
-            --danger-soft: #fef2f2;
-            --shadow: 0 20px 50px -12px rgba(15, 23, 42, 0.1);
-            --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 4px 12px -2px rgba(15, 23, 42, 0.06);
-            --head-fg: #475569;
+            --accent-ring: rgba(99, 102, 241, 0.2);
+            --danger-bg: #fff1f2;
+            --danger-text: #f43f5e;
+            --danger-border: #fecdd3;
+            --ok-bg: #dcfce7;
+            --ok-text: #15803d;
+            --ok-dot: #22c55e;
+            --bad-bg: #fee2e2;
+            --bad-text: #dc2626;
+            --bad-dot: #ef4444;
+            --shadow-card: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+            --shadow-float: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, -apple-system, sans-serif; }
@@ -146,24 +153,29 @@
             box-shadow: 0 0 0 3px var(--accent-ring);
         }
 
+        /* 统一的标准按钮样式，和 Create 保持绝对一致 */
         .btn {
             padding: 10px 20px;
             border-radius: 10px;
             border: none;
             cursor: pointer;
-            font-weight: 600;
-            transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+            font-weight: 500;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: transform .15s, box-shadow .2s, background .2s, color .2s;
         }
         .btn:active { transform: translateY(1px); }
-        .btn-black {
-            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+        
+        .btn-primary {
+            background: var(--accent);
             color: #fff;
-            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+            border: none;
         }
-        .btn-black:hover {
-            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35);
-        }
+        .btn-primary:hover { background: var(--accent-dark); }
+        
         .btn-view {
             background: var(--accent-light);
             color: #3730a3;
@@ -434,36 +446,40 @@
         .toast-success { background-color: #2ecc71; border-left: 6px solid #27ae60; }
         .toast-error { background-color: #e74c3c; border-left: 6px solid #c0392b; }
 
-        /* ========= Customized advanced modal (replaces native confirm/alert) ========= */
+        /* ================= 纯净版 Modal 样式 (完美贴合标准按钮) ================= */
         .modal-backdrop {
             position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); display: none; z-index: 1300;
         }
         .modal-backdrop.open { display: block; }
 
         .modal {
-            position: fixed; left: 50%; top: 8%; transform: translateX(-50%);
-            width: min(640px, 92vw); max-height: 88vh; background: #fff;
-            border: 1px solid var(--border-soft); border-radius: 14px;
-            box-shadow: var(--shadow);
+            position: fixed; left: 50%; top: 18%; transform: translateX(-50%);
+            width: min(440px, 92vw); max-height: 70vh; background: #fff;
+            border: none;
+            border-radius: 14px;
+            box-shadow: var(--shadow-float);
             display: none; z-index: 1310; overflow: hidden;
         }
         .modal.open { display: block; }
+        
         .modal-header {
-            display: flex; justify-content: space-between; align-items: center; padding: 16px 20px;
-            background: #fafafa; border-bottom: 1px solid var(--border-soft);
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 16px 20px;
+            background: #f8fafc;
+            border-bottom: 1px solid #f1f5f9;
         }
-        .modal-header strong { font-size: 16px; color: #1e293b; }
+        .modal-header strong { font-size: 16px; color: #1e293b; font-weight: 600; }
+        
         .modal-body {
-            padding: 18px 20px; font-size: 15px; line-height: 1.55; color: #1e293b;
-            word-break: break-word; overflow: auto; max-height: calc(88vh - 56px - 64px);
-            background: #fff;
+            padding: 24px 20px; font-size: 15px; line-height: 1.5; color: #334155;
+            text-align: center; word-break: break-word; overflow: auto; 
+            max-height: calc(70vh - 56px - 60px);
         }
-        #up-note-modal.modal, #up-confirm-modal.modal {
-            top: 18%; width: min(400px, 92vw); max-height: 70vh; text-align: center;
-        }
+        
         .modal-footer {
-            padding: 14px 20px; border-top: 1px solid var(--border-soft); display: flex;
-            justify-content: center; gap: 10px; background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+            padding: 0 20px 20px 20px;
+            background: #fff;
+            display: flex; justify-content: center; gap: 10px;
         }
 
         #up-edit-form.card {
@@ -499,7 +515,6 @@
 </head>
 <body>
 
-<!-- Frontend-only notification container -->
 <div id="toast-container"></div>
 
 <div class="container">
@@ -507,8 +522,7 @@
         <div class="topbar">
             <span class="topbar-user">Logged in as: <strong> User Admin</strong></span>
             <div style="display:flex; align-items:center; gap:12px;">
-                <button type="button" class="btn btn-view" onclick="viewMyAccount()">My Account</button>
-                <a href="/logout" class="logout-btn">Logout</a>
+                <a href="/logout" class="logout-btn"><i class="ti ti-logout"></i> Logout</a>
             </div>
         </div>
 
@@ -523,7 +537,7 @@
             </div>
 
             <div class="action-bar">
-                <form id="up-create-form" class="subsection">
+                <form id="up-create-form" class="subsection" novalidate>
                     <h3>Create User Profile</h3>
                     <div class="grid-2" style="margin-top:10px;">
                         <div class="form-group">
@@ -539,7 +553,7 @@
                             </select>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-black" id="btn-create">Create</button>
+                    <button type="submit" class="btn btn-primary" id="btn-create">Create</button>
                 </form>
             </div>
         </div>
@@ -596,7 +610,6 @@
     </main>
 </div>
 
-<!-- Right-side drawer -->
 <div id="up-backdrop" class="drawer-backdrop"></div>
 <aside id="up-drawer" class="drawer">
     <div class="drawer-header">
@@ -628,33 +641,31 @@
         </div>
     </div>
     <div class="drawer-footer">
-        <button id="up-save" type="button" class="btn btn-black" style="display: none;">Save Changes</button>
-        <button id="up-toggle" type="button" class="btn btn-danger">Suspend</button>
+        <button id="up-save" type="button" class="btn btn-primary" style="display: none;"><i class="ti ti-check"></i> Save Changes</button>
+        <button id="up-toggle" type="button" class="btn btn-danger"><i class="ti ti-ban"></i> Suspend</button>
     </div>
 </aside>
 
-<!-- Custom warning modal (replaces alert) -->
 <div id="up-note-backdrop" class="modal-backdrop"></div>
 <div id="up-note-modal" class="modal" role="dialog">
     <div class="modal-header">
         <strong id="up-note-title">Notice</strong>
     </div>
-    <div id="up-note-message" class="modal-body" style="text-align: center;"></div>
+    <div id="up-note-message" class="modal-body"></div>
     <div class="modal-footer">
-        <button id="up-note-ok" type="button" class="btn btn-black">OK</button>
+        <button id="up-note-ok" type="button" class="btn btn-primary"><i class="ti ti-check"></i> OK</button>
     </div>
 </div>
 
-<!-- Custom confirmation modal (replaces ugly native confirm) -->
 <div id="up-confirm-backdrop" class="modal-backdrop"></div>
 <div id="up-confirm-modal" class="modal" role="dialog">
     <div class="modal-header">
         <strong>Confirm Action</strong>
     </div>
-    <div id="up-confirm-message" class="modal-body" style="text-align: center;">Are you sure?</div>
+    <div id="up-confirm-message" class="modal-body">Are you sure?</div>
     <div class="modal-footer">
         <button id="up-confirm-cancel" type="button" class="btn btn-muted">Cancel</button>
-        <button id="up-confirm-yes" type="button" class="btn btn-danger">Yes, Proceed</button>
+        <button id="up-confirm-yes" type="button" class="btn btn-primary">Proceed</button>
     </div>
 </div>
 
@@ -831,14 +842,22 @@
     document.addEventListener('DOMContentLoaded', function() {
         loadProfilesFromDatabase();
         
-        // --- 1. Create anti-double-click logic ---
         document.getElementById('up-create-form')?.addEventListener('submit', function(e) {
             e.preventDefault();
             const btn = document.getElementById('btn-create');
             const roleName = document.getElementById('up-role-name').value.trim();
             const status = document.getElementById('up-role-status').value;
             
-            if (!roleName) { showToast("Role name cannot be empty", "error"); return; }
+            if (!roleName) { 
+                showToast("Role name cannot be empty", "error"); 
+                document.getElementById('up-role-name').focus();
+                return; 
+            }
+            if (!status) { 
+                showToast("Please select an initial status", "error"); 
+                document.getElementById('up-role-status').focus();
+                return; 
+            }
             
             btn.disabled = true; btn.innerText = "Processing...";
             
@@ -870,7 +889,6 @@
         document.getElementById('up-close').addEventListener('click', closeDrawer);
         document.getElementById('up-backdrop').addEventListener('click', closeDrawer);
 
-        // --- 2. Status toggle logic (with custom secondary confirmation modal) ---
         document.getElementById('up-tbody').addEventListener('click', (e) => {
             const btn = e.target.closest('button');
             if (!btn) return;
@@ -886,7 +904,6 @@
                     return;
                 }
                 
-                // Completely replace ugly native confirm with a custom modal
                 const actionText = isSusp ? 'REACTIVATE' : 'SUSPEND';
                 upConfirmOpen(`Are you sure you want to ${actionText} the role "${roleName}"?`, () => {
                     
@@ -905,13 +922,16 @@
             }
         });
 
-        // --- 3. Update-save logic ---
         document.getElementById('up-save').addEventListener('click', () => {
             const profileId = document.getElementById('up-v-id').textContent.trim();
             const newRoleName = document.getElementById('up-e-role').value.trim();
             const btn = document.getElementById('up-save');
 
-            if (!newRoleName) { showToast('Role name cannot be empty', 'error'); return; }
+            if (!newRoleName) { 
+                showToast('Role name cannot be empty', 'error'); 
+                document.getElementById('up-e-role').focus();
+                return; 
+            }
 
             btn.disabled = true; btn.innerText = "Saving...";
 

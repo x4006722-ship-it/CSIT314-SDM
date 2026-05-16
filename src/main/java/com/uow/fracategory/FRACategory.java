@@ -78,27 +78,72 @@ public class FRACategory {
     }
 
     //Search Category
+    // public Object getSearchCategory(Object searchCategoryData) {
+    //     String name = "";
+    //     String status = "";
+    //     if (!(searchCategoryData instanceof Map<?, ?> data)) {
+    //     return new ArrayList<>(); 
+    // }
+
+    //     StringBuilder sql = new StringBuilder(
+    //             "SELECT category_id, category_name, category_status FROM fra_category WHERE 1=1 ");
+    //     if (!name.isEmpty()) sql.append("AND category_name LIKE ? ");
+    //     if (!status.isEmpty()) sql.append("AND category_status = ? ");
+    //     sql.append("ORDER BY category_id LIMIT 2000");
+
+    //     try (Connection c = DBUtils.getConnection();
+    //          PreparedStatement ps = c.prepareStatement(sql.toString())) {
+    //         int idx = 1;
+    //         if (!name.isEmpty()) ps.setString(idx++, "%" + name + "%");
+    //         if (!status.isEmpty()) ps.setString(idx++, status);
+
+    //         List<Map<String, Object>> out = new ArrayList<>();
+    //         try (ResultSet rs = ps.executeQuery()) {
+    //             while (rs.next()) {
+    //                 Map<String, Object> row = new LinkedHashMap<>();
+    //                 row.put("categoryID", rs.getInt("category_id"));
+    //                 row.put("categoryName", rs.getString("category_name"));
+    //                 row.put("categoryStatus", rs.getString("category_status"));
+    //                 out.add(row);
+    //             }
+    //         }
+    //         return out;
+    //     } catch (SQLException e) {
+    //         return List.of();
+    //     }
+    // }
+    // Search Category
     public Object getSearchCategory(Object searchCategoryData) {
         if (!(searchCategoryData instanceof Map<?, ?> data)) {
-            return new ArrayList<>();
+            return new ArrayList<>(); 
         }
 
+        // 【核心修复】真正把前端传过来的名字和状态从 Map 里读出来！
         String name = readText(data.get("categoryName"));
         String status = readText(data.get("categoryStatus"));
 
         StringBuilder sql = new StringBuilder(
                 "SELECT category_id, category_name, category_status FROM fra_category WHERE 1=1 ");
-        if (!name.isEmpty()) sql.append("AND category_name LIKE ? ");
-        if (!status.isEmpty()) {
-            sql.append("AND LOWER(TRIM(category_status)) = LOWER(?) ");
+        
+        // 加入 LOWER 实现忽略大小写的智能模糊搜索
+        if (!name.isEmpty()) {
+            sql.append("AND LOWER(category_name) LIKE LOWER(?) ");
         }
-        sql.append("ORDER BY category_id LIMIT 500");
+        if (!status.isEmpty() && !"all".equalsIgnoreCase(status)) {
+            sql.append("AND category_status = ? ");
+        }
+        sql.append("ORDER BY category_id LIMIT 2000");
 
         try (Connection c = DBUtils.getConnection();
              PreparedStatement ps = c.prepareStatement(sql.toString())) {
+            
             int idx = 1;
-            if (!name.isEmpty()) ps.setString(idx++, "%" + name + "%");
-            if (!status.isEmpty()) ps.setString(idx++, status);
+            if (!name.isEmpty()) {
+                ps.setString(idx++, "%" + name + "%");
+            }
+            if (!status.isEmpty() && !"all".equalsIgnoreCase(status)) {
+                ps.setString(idx++, status);
+            }
 
             List<Map<String, Object>> out = new ArrayList<>();
             try (ResultSet rs = ps.executeQuery()) {

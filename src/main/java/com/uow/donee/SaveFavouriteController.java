@@ -8,6 +8,10 @@ public class SaveFavouriteController {
     private final Favourite favourite = new Favourite();
 
     public boolean saveFavourite(int fraId, int userId, boolean remove) {
+        // 边界验证
+        if (fraId <= 0 || userId <= 0) {
+            return false;
+        }
         return favourite.saveFavourite(fraId, userId, remove);
     }
 }

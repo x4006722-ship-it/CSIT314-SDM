@@ -20,13 +20,33 @@ public class CreateUserAccountController {
             return false;
         }
 
-        java.util.Map<String, Object> searchData = new java.util.HashMap<>();
-        searchData.put("username", text(map.get("username")));
-        searchData.put("email", text(map.get("email")));
-        searchData.put("phoneNumber", text(map.get("phoneNumber")));
+        String username = text(map.get("username"));
+        String password = text(map.get("password"));
+        String email = text(map.get("email"));
+        String phoneNumber = text(map.get("phoneNumber"));
 
-        Object duplicateRows = userAccount.getSearchAccount(searchData);
-        if (duplicateRows instanceof java.util.List<?> rows && !rows.isEmpty()) {
+        // 边界验证：各字段不能为空
+        if (username.isBlank() || password.isBlank() || email.isBlank() || phoneNumber.isBlank()) {
+            return false;
+        }
+
+        // 边界验证：邮箱格式
+        if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            return false;
+        }
+
+        // 边界验证：电话号码长度（最少8位）
+        if (phoneNumber.length() < 8) {
+            return false;
+        }
+
+        // 边界验证：密码长度（最少3位）
+        if (password.length() < 3) {
+            return false;
+        }
+
+        // 【核心修复】：使用严格的去重方法，0代表不排除任何人
+        if (userAccount.isDuplicateAccount(username, email, phoneNumber, 0)) {
             return false;
         }
 

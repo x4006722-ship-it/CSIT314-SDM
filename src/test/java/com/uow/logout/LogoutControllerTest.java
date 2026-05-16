@@ -2,39 +2,41 @@ package com.uow.logout;
 
 import org.junit.Before;
 import org.junit.Test;
+import jakarta.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 import static org.junit.Assert.*;
 
 public class LogoutControllerTest {
 
-    private LogoutController logoutController;
+    private LogoutController controller;
+    private MockSession mockSession;
 
     @Before
     public void setUp() {
-        logoutController = new LogoutController();
+        controller = new LogoutController();
+        mockSession = new MockSession();
     }
 
     @Test
-    public void testLogout_WithNullData_ReturnsFalse() {
-        // 测试防线 1：传 null 进去
-        boolean result = logoutController.logout(null);
-        assertFalse("Result should be false when the session data is null", result);
+    public void test_Logout_succeeds_when_passing_HttpSession_directly() {
+        boolean result = controller.logout(mockSession);
+        assertTrue("Should return true for direct session object", result);
+        assertTrue("Session should be invalidated", mockSession.isInvalidated());
     }
 
     @Test
-    public void testLogout_WithInvalidType_ReturnsFalse() {
-        // 测试防线 2：乱传一个 String 进去
-        String invalidData = "This is definitely not a session object";
-        boolean result = logoutController.logout(invalidData);
-        assertFalse("Result should be false when data is an invalid type", result);
+    public void test_Logout_succeeds_when_passing_session_wrapped_in_map() {
+        Map<String, Object> sessionMap = new HashMap<>();
+        sessionMap.put("session", mockSession);
+
+        boolean result = controller.logout(sessionMap);
+        assertTrue("Should return true for session inside a Map", result);
+        assertTrue("Session should be invalidated", mockSession.isInvalidated());
     }
 
     @Test
-    public void testLogout_WithEmptyMap_ReturnsFalse() {
-        // 测试防线 3：传一个没有 session 的空 Map 进去
-        Map<String, Object> emptyMap = new HashMap<>();
-        boolean result = logoutController.logout(emptyMap);
-        assertFalse("Result should be false when map does not contain a session", result);
+    public void test_Logout_fails_when_passing_invalid_object() {
+        assertFalse("Should return false for random string input", controller.logout("NotASession"));
     }
 }
