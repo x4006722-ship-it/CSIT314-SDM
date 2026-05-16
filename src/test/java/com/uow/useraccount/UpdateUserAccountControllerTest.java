@@ -94,4 +94,30 @@ public class UpdateUserAccountControllerTest {
         
         assertFalse("Should return false if user not found", updateController.updateAccount(updateData));
     }
+    // 【新增】测试：更新资料时，如果使用了其他用户已经占用的邮箱/电话/账号名，必须被拦截
+    @Test
+    public void test_Update_fails_when_data_conflicts_with_another_existing_user() {
+        // 1. 在数据库里临时再建一个"干扰用户 (User B)"
+        String userBName = TEST_PREFIX + "Collision_" + System.currentTimeMillis();
+        String userBEmail = userBName + "@test.com";
+        
+        Map<String, Object> userB = new HashMap<>();
+        userB.put("username", userBName);
+        userB.put("password", "123456");
+        userB.put("fullName", "User B");
+        userB.put("email", userBEmail); // 这是我们要冲突的目标邮箱
+        userB.put("phoneNumber", "11112222");
+        userB.put("accountStatus", "Active");
+        userB.put("profileId", 3);
+        dao.saveCreateAccount(userB);
+
+        // 2. 尝试把我们在 setUp() 里建好的 User A (existingUserId) 的邮箱，改成 User B 的邮箱
+        Map<String, Object> maliciousUpdateData = new HashMap<>();
+        maliciousUpdateData.put("userId", existingUserId); 
+        maliciousUpdateData.put("email", userBEmail); // 核心冲突点
+        
+        // 3. 断言控制器成功拦截了这次撞车更新
+        assertFalse("Update should fail because the email belongs to another user", 
+                    updateController.updateAccount(maliciousUpdateData));
+    }
 }

@@ -16,8 +16,26 @@ public class SearchFRAControllerTest {
 
     @Test
     public void test_Search_returns_a_list_of_results() {
-        // 【修改】在末尾加上一个空字符串 "" 作为第 6 个参数 (startDate)
         List<FRA> result = controller.searchFRA("Education", "all", "all", "fundRaiser", "1", "");
         assertNotNull(result);
+    }
+
+    // --- 新增：核心越权防御边界测试 ---
+    @Test
+    public void test_Search_fails_when_role_is_null() {
+        List<FRA> result = controller.searchFRA("Education", "all", "all", null, "1", "");
+        assertTrue("Should return empty list to prevent unauthorized access", result.isEmpty());
+    }
+
+    @Test
+    public void test_Search_fails_when_userId_is_null() {
+        List<FRA> result = controller.searchFRA("Education", "all", "all", "fundRaiser", null, "");
+        assertTrue("Should return empty list to prevent unauthorized access", result.isEmpty());
+    }
+
+    @Test
+    public void test_Search_fails_when_userId_is_empty() {
+        List<FRA> result = controller.searchFRA("Education", "all", "all", "fundRaiser", "   ", "");
+        assertTrue("Should return empty list if userId is blank", result.isEmpty());
     }
 }

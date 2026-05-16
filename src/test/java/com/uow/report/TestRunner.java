@@ -63,8 +63,6 @@ class PytestStyleListener extends RunListener {
         }
 
         System.out.println("TEST " + status + ": " + className + " - " + readableName);
-        System.out.println(status); 
-        System.out.println("tests/" + className + ".java::" + methodName);
-        System.out.println("-------------------------------- live log call ---------------------------------");
+        System.out.println("-----------------------------------------------------------------");
     }
 }

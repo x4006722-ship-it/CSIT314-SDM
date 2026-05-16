@@ -41,6 +41,11 @@ public class LoginPage {
             loginErrorMessage = "Empty field detected.";
             return showLoginErrorMessage();
         }
+        // 【新增】后端同步校验密码长度最少3位
+        if (password.length() < 3) {
+            loginErrorMessage = "Password must be at least 3 characters.";
+            return showLoginErrorMessage();
+        }
         if (!USERNAME_PATTERN.matcher(username).matches()) {
             loginErrorMessage = "Invalid username format.";
             return showLoginErrorMessage();

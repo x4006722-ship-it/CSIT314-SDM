@@ -7,9 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
     <style>
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         body {
             font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
@@ -95,7 +93,7 @@
             border-radius: 8px;
             font-size: 14px;
             background-color: #f8fafc;
-            transition: border-color 0.3s;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
 
         input:focus {
@@ -104,9 +102,7 @@
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
         }
 
-        input::placeholder {
-            color: #94a3b8;
-        }
+        input::placeholder { color: #94a3b8; }
 
         .login-button {
             width: 100%;
@@ -127,24 +123,42 @@
             transition: background-color 0.3s;
         }
 
-        .login-button:hover {
-            background-color: #4f46e5;
+        .login-button:hover { background-color: #4f46e5; }
+
+        /* 新增：错误提示样式 */
+        .error-message {
+            color: #ef4444; /* 红色 */
+            font-size: 12px;
+            margin-top: 6px;
+            display: none; /* 默认隐藏 */
+        }
+
+        .input-error {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2 !important;
+        }
+        
+        .input-error:focus {
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+        }
+
+        /* 顶部全局错误横幅（替代 alert） */
+        .alert-banner {
+            background-color: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #f87171;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
         }
 
         @media (max-width: 768px) {
-            .login-card {
-                padding: 2rem 1.25rem;
-                max-width: 100%;
-            }
-
-            h1 {
-                font-size: 17px;
-            }
-
-            input[type="text"],
-            input[type="password"] {
-                font-size: 13px;
-            }
+            .login-card { padding: 2rem 1.25rem; max-width: 100%; }
+            h1 { font-size: 17px; }
+            input[type="text"], input[type="password"] { font-size: 13px; }
         }
     </style>
 </head>
@@ -155,15 +169,19 @@
     <h1>Welcome back</h1>
     <p class="subtitle">Sign in to continue to FRA Platform</p>
 
-    <form action="/login" method="POST">
+    <div id="globalError" class="alert-banner"></div>
+
+    <form id="loginForm" action="/login" method="POST" novalidate>
         <div class="form-group">
             <label for="username">Username</label>
-            <input type="text" id="username" name="username" placeholder="Username" required>
+            <input type="text" id="username" name="username" placeholder="Username">
+            <div id="usernameError" class="error-message"></div>
         </div>
 
         <div class="form-group">
             <label for="password">Password</label>
-            <input type="password" id="password" name="password" placeholder="Password" required>
+            <input type="password" id="password" name="password" placeholder="Password">
+            <div id="passwordError" class="error-message"></div>
         </div>
 
         <button type="submit" class="login-button"><i class="ti ti-login"></i> Log In</button>
@@ -171,11 +189,60 @@
 </div>
 
 <script>
+    // 1. 拦截表单提交，进行前端自定义验证
+    document.getElementById('loginForm').addEventListener('submit', function(event) {
+        let isValid = true;
+        
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const usernameError = document.getElementById('usernameError');
+        const passwordError = document.getElementById('passwordError');
+        const globalError = document.getElementById('globalError');
+
+        // 每次提交前先清空之前的错误状态
+        usernameInput.classList.remove('input-error');
+        passwordInput.classList.remove('input-error');
+        usernameError.style.display = 'none';
+        passwordError.style.display = 'none';
+        globalError.style.display = 'none';
+
+        // 检查用户名是否为空
+        if (!usernameInput.value.trim()) {
+            usernameError.textContent = "Please enter your username";
+            usernameError.style.display = 'block';
+            usernameInput.classList.add('input-error');
+            isValid = false;
+        }
+
+        // 检查密码逻辑：为空或少于3位
+        const pwdValue = passwordInput.value;
+        if (!pwdValue) {
+            passwordError.textContent = "Please enter your password";
+            passwordError.style.display = 'block';
+            passwordInput.classList.add('input-error');
+            isValid = false;
+        } else if (pwdValue.length < 3) {
+            passwordError.textContent = "Password must be at least 3 characters";
+            passwordError.style.display = 'block';
+            passwordInput.classList.add('input-error');
+            isValid = false;
+        }
+
+        // 如果验证不通过，阻止表单提交
+        if (!isValid) {
+            event.preventDefault();
+        }
+    });
+
+    // 2. 处理后端返回的错误（替代原本的 alert）
     const params = new URLSearchParams(window.location.search);
     const error = params.get("error");
 
     if (error) {
-        alert(error);
+        const globalError = document.getElementById('globalError');
+        globalError.textContent = error;
+        globalError.style.display = 'block'; // 显示错误横幅
+        
         const cleanUrl = window.location.origin + "/LoginPage.html";
         window.history.replaceState({}, document.title, cleanUrl);
     }

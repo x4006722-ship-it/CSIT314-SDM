@@ -22,7 +22,6 @@ public class CreateFRACategoryControllerTest {
 
     @After
     public void tearDown() {
-        // Clean up test data to keep the database clean
         try (Connection c = DBUtils.getConnection();
              PreparedStatement ps = c.prepareStatement("DELETE FROM fra_category WHERE category_name LIKE ?")) {
             ps.setString(1, TEST_PREFIX + "%");
@@ -39,6 +38,17 @@ public class CreateFRACategoryControllerTest {
         assertTrue(controller.createCategory(validData));
     }
 
+    // --- 新增：数据格式校验 ---
+    @Test
+    public void test_Creation_throws_exception_for_invalid_data_format() {
+        try {
+            controller.createCategory(null); // 传 null 或非 Map
+            fail("Expected exception for invalid data format");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Invalid data format.", e.getMessage());
+        }
+    }
+
     @Test
     public void test_Creation_throws_exception_when_name_is_empty() {
         Map<String, String> invalidData = new HashMap<>();
@@ -47,9 +57,24 @@ public class CreateFRACategoryControllerTest {
 
         try {
             controller.createCategory(invalidData);
-            fail("Expected IllegalArgumentException was not thrown");
+            fail("Expected exception was not thrown");
         } catch (IllegalArgumentException e) {
             assertEquals("Category name cannot be empty.", e.getMessage());
+        }
+    }
+
+    // --- 新增：状态为空校验 ---
+    @Test
+    public void test_Creation_throws_exception_when_status_is_missing() {
+        Map<String, String> invalidData = new HashMap<>();
+        invalidData.put("categoryName", TEST_PREFIX + "NoStatus");
+        invalidData.put("categoryStatus", "   ");
+
+        try {
+            controller.createCategory(invalidData);
+            fail("Expected exception was not thrown");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Category status is missing.", e.getMessage());
         }
     }
 
@@ -61,7 +86,7 @@ public class CreateFRACategoryControllerTest {
 
         try {
             controller.createCategory(invalidData);
-            fail("Expected IllegalArgumentException was not thrown");
+            fail("Expected exception was not thrown");
         } catch (IllegalArgumentException e) {
             assertEquals("Invalid status format.", e.getMessage());
         }
@@ -74,13 +99,11 @@ public class CreateFRACategoryControllerTest {
         data.put("categoryName", duplicateName);
         data.put("categoryStatus", "Active");
 
-        // First creation should succeed
-        controller.createCategory(data);
+        controller.createCategory(data); // First creation
 
-        // Second creation with the same name should fail
         try {
-            controller.createCategory(data);
-            fail("Expected IllegalArgumentException was not thrown");
+            controller.createCategory(data); // Second should fail
+            fail("Expected exception was not thrown");
         } catch (IllegalArgumentException e) {
             assertEquals("Category already exists.", e.getMessage());
         }

@@ -19,4 +19,17 @@ public class ViewFRAControllerTest {
         List<FRA> result = controller.viewAllFRAs("user123");
         assertNotNull(result);
     }
+
+    // --- 新增：核心越权防御边界测试 ---
+    @Test
+    public void test_View_fails_when_fundRaiserId_is_null() {
+        List<FRA> result = controller.viewAllFRAs(null);
+        assertTrue("Should return empty list if fundRaiserId is null", result.isEmpty());
+    }
+
+    @Test
+    public void test_View_fails_when_fundRaiserId_is_empty() {
+        List<FRA> result = controller.viewAllFRAs("   ");
+        assertTrue("Should return empty list if fundRaiserId is empty or blank", result.isEmpty());
+    }
 }

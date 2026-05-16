@@ -59,22 +59,34 @@ public class UserProfile {
 
     public static List<UserProfile> findAll(String keyword, String status) {
         List<UserProfile> list = new ArrayList<>();
-        String sql = "SELECT profile_id, role, p_status FROM user_profile WHERE 1=1";
-        
+        StringBuilder sql = new StringBuilder("SELECT profile_id, role, p_status FROM user_profile WHERE 1=1");
+        List<String> params = new ArrayList<>();
+
         if (keyword != null && !keyword.trim().isEmpty()) {
-            sql += " AND role LIKE '%" + keyword.trim() + "%'";
+            sql.append(" AND LOWER(role) LIKE LOWER(?)");
+            params.add("%" + keyword.trim() + "%");
         }
         if (status != null && !status.equals("all")) {
-            sql += " AND p_status = '" + status + "'";
+            sql.append(" AND p_status = ?");
+            params.add(status);
         }
 
         try (Connection conn = DBUtils.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                list.add(new UserProfile(rs.getString("profile_id"), rs.getString("role"), rs.getString("p_status")));
+             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+             
+            // 动态设置参数
+            for (int i = 0; i < params.size(); i++) {
+                pstmt.setString(i + 1, params.get(i));
             }
-        } catch (SQLException e) { }
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new UserProfile(rs.getString("profile_id"), rs.getString("role"), rs.getString("p_status")));
+                }
+            }
+        } catch (SQLException e) { 
+            // 建议：System.err.println("[Search SQL Error]: " + e.getMessage());
+        }
         return list;
     }
 

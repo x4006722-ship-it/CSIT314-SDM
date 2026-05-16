@@ -44,6 +44,23 @@ public class LoginPageTest {
         emptyInput.put("password", "");
 
         Object result = loginPage.userLogin(emptyInput);
+        assertTrue(String.valueOf(result).contains("LoginPage.html"));
         assertTrue(String.valueOf(result).contains("Empty+field+detected"));
+    }
+
+    // 【新增】测试密码长度小于3位的拦截逻辑
+    @Test
+    public void test_Login_fails_when_password_is_too_short() {
+        Map<String, String> shortPasswordInput = new HashMap<>();
+        shortPasswordInput.put("username", "admin");
+        shortPasswordInput.put("password", "12"); // 只有两位
+
+        Object result = loginPage.userLogin(shortPasswordInput);
+        
+        // 验证是否重定向回登录页
+        assertTrue("Should redirect to login page", String.valueOf(result).contains("LoginPage.html"));
+        // 验证是否带有对应的错误提示 (空格会被 URLEncoder 转换为 '+')
+        assertTrue("Should contain length error message", 
+                   String.valueOf(result).contains("Password+must+be+at+least+3+characters"));
     }
 }
