@@ -47,28 +47,18 @@ public class FRA_UI {
     //     return viewController.viewAllFRAs();
     // }
 
-    // @GetMapping("/search")
-    // public List<FRA> onSearchInput(@RequestParam(value="criteria", required=false) String criteria) {
-    //     return searchController.searchFRA(criteria);
-    // }
-    // @GetMapping("/view")
-    // public List<FRA> onViewAll(HttpSession session) {
-    //     // 修复：必须传入当前登录的 fundraiser ID，防止越权看到别人的数据
-    //     Object userIdObj = session.getAttribute("userId");
-    //     if (userIdObj == null) return List.of(); 
-    //     return FRA.findAllFRAs(String.valueOf(userIdObj));
-    // }
+
     @GetMapping("/view")
     public List<FRA> onViewAll(HttpSession session) {
-        // 1. 从 Session 获取当前登录的筹款人 ID
+        // 1. Get the logged-in fund raiser ID from Session
         Object userIdObj = session.getAttribute("userId");
         
-        // 2. 如果没登录，返回空列表（安全兜底）
+        // 2. Return empty list if not logged in
         if (userIdObj == null) {
             return List.of(); 
         }
         
-        // 3. 将 ID 传给你刚修改好的 viewController
+        // 3. Pass the ID to viewController
         return viewController.viewAllFRAs(String.valueOf(userIdObj));
     }
 
@@ -77,13 +67,13 @@ public class FRA_UI {
             @RequestParam(value="criteria", required=false) String criteria,
             @RequestParam(value="categoryId", required=false) String categoryId,
             @RequestParam(value="status", required=false) String status,
-            @RequestParam(value="startDate", required=false) String startDate, // 【新增】接收前端传来的 startDate
+            @RequestParam(value="startDate", required=false) String startDate,
             HttpSession session) {
     
         Object userIdObj = session.getAttribute("userId");
         String userId = userIdObj != null ? String.valueOf(userIdObj) : "";
     
-        // 【修改】把 startDate 作为第 6 个参数传给 searchController
+        // Pass startDate as the 6th argument to searchController
         return searchController.searchFRA(criteria, categoryId, status, "fundRaiser", userId, startDate);
     }
     
@@ -100,18 +90,17 @@ public class FRA_UI {
 
     @PostMapping("/create")
     public FRA submitFRACreationData(@RequestBody FRA fraData, HttpSession session) {
-    // 1. 从 Session 中获取当前登录用户的 ID
-    // （注意：这里的 "userId" 必须与你登录时存入 Session 的键名一致，有可能是 Integer 或者 String，根据你的实际情况强转）
+    // 1. Get the logged-in user ID from Session
         Object userIdObj = session.getAttribute("userId");
     
-    // 2. 安全校验：如果用户没登录，直接拒绝创建
+    // 2. Reject creation if user is not logged in
         if (userIdObj == null) {
-            return null; // 或者抛出个异常，前端会收到错误
+            return null;
         }
     
         fraData.setFundRaiserId(String.valueOf(userIdObj));
     
-    // 4. 保存到数据库
+    // 3. Save to database
         return createController.createFRA(fraData);
     }
 

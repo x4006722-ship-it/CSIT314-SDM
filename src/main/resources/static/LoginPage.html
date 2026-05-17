@@ -125,12 +125,12 @@
 
         .login-button:hover { background-color: #4f46e5; }
 
-        /* 新增：错误提示样式 */
+        /* Inline field error message */
         .error-message {
-            color: #ef4444; /* 红色 */
+            color: #ef4444;
             font-size: 12px;
             margin-top: 6px;
-            display: none; /* 默认隐藏 */
+            display: none;
         }
 
         .input-error {
@@ -142,7 +142,7 @@
             box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
         }
 
-        /* 顶部全局错误横幅（替代 alert） */
+        /* Global error banner shown on failed login */
         .alert-banner {
             background-color: #fef2f2;
             color: #b91c1c;
@@ -185,11 +185,20 @@
         </div>
 
         <button type="submit" class="login-button"><i class="ti ti-login"></i> Log In</button>
+
+        <div style="margin-top:20px; padding:14px 16px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; font-size:13px; color:#64748b; line-height:1.8;">
+            <div style="font-weight:600; color:#475569; margin-bottom:6px;">Demo accounts</div>
+            <div><span style="color:#94a3b8; display:inline-block; width:160px;">User Admin:</span> <code style="color:#0f172a;">admin1</code></div>
+            <div><span style="color:#94a3b8; display:inline-block; width:160px;">Platform Management:</span> <code style="color:#0f172a;">pm1</code></div>
+            <div><span style="color:#94a3b8; display:inline-block; width:160px;">Donee:</span> <code style="color:#0f172a;">donee1</code></div>
+            <div><span style="color:#94a3b8; display:inline-block; width:160px;">Fund Raiser:</span> <code style="color:#0f172a;">raiser1</code></div>
+            <div style="margin-top:6px; padding-top:6px; border-top:1px solid #e2e8f0;"><span style="color:#94a3b8; display:inline-block; width:160px;">Password (all):</span> <code style="color:#0f172a;">123</code></div>
+        </div>
     </form>
 </div>
 
 <script>
-    // 1. 拦截表单提交，进行前端自定义验证
+    // 1. Intercept form submission and run client-side validation
     document.getElementById('loginForm').addEventListener('submit', function(event) {
         let isValid = true;
         
@@ -199,14 +208,14 @@
         const passwordError = document.getElementById('passwordError');
         const globalError = document.getElementById('globalError');
 
-        // 每次提交前先清空之前的错误状态
+        // Clear all error states before each submission
         usernameInput.classList.remove('input-error');
         passwordInput.classList.remove('input-error');
         usernameError.style.display = 'none';
         passwordError.style.display = 'none';
         globalError.style.display = 'none';
 
-        // 检查用户名是否为空
+        // Validate username is not empty
         if (!usernameInput.value.trim()) {
             usernameError.textContent = "Please enter your username";
             usernameError.style.display = 'block';
@@ -214,7 +223,7 @@
             isValid = false;
         }
 
-        // 检查密码逻辑：为空或少于3位
+        // Validate password: empty or shorter than 3 characters
         const pwdValue = passwordInput.value;
         if (!pwdValue) {
             passwordError.textContent = "Please enter your password";
@@ -228,20 +237,20 @@
             isValid = false;
         }
 
-        // 如果验证不通过，阻止表单提交
+        // Prevent form submission if validation failed
         if (!isValid) {
             event.preventDefault();
         }
     });
 
-    // 2. 处理后端返回的错误（替代原本的 alert）
+    // 2. Handle server-side login errors returned via query param
     const params = new URLSearchParams(window.location.search);
     const error = params.get("error");
 
     if (error) {
         const globalError = document.getElementById('globalError');
         globalError.textContent = error;
-        globalError.style.display = 'block'; // 显示错误横幅
+        globalError.style.display = 'block';
         
         const cleanUrl = window.location.origin + "/LoginPage.html";
         window.history.replaceState({}, document.title, cleanUrl);

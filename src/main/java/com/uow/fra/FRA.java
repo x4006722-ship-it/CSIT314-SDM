@@ -2,7 +2,6 @@ package com.uow.fra;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.sql.*;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -10,7 +9,7 @@ import java.util.Map;
 import com.uow.util.DBUtils;
 
 public class FRA {
-    // 12个核心属性
+    // 12 core fields
     private String fraId;
     private String fraTitle;
     private String fraStatus;
@@ -24,13 +23,14 @@ public class FRA {
     private String doneeId;
     private String fundRaiserId;
 
-    // 辅助显示属性（LEFT JOIN 查出来的）
+    // Display-only fields (populated by LEFT JOIN)
+    private String categoryName;
     private String doneeName;
     private String fundRaiserName;
 
     public FRA() {}
 
-    // 构造函数
+    // Constructor
     public FRA(String fraId, String title, Double target, String categoryId, String status, double currentAmount, int viewCount, int favoriteCount, String startedAt, String endedAt, String doneeId, String doneeName, String fundRaiserId, String fundRaiserName) {
         this.fraId = fraId;
         this.fraTitle = title;
@@ -48,7 +48,7 @@ public class FRA {
         this.fundRaiserName = fundRaiserName;
     }
 
-    // --- 标准 Getters 和 Setters (严格对应你的字段名) ---
+    // --- Standard Getters and Setters ---
     public String getFraId() { return fraId; }
     public void setFraId(String fraId) { this.fraId = fraId; }
     public String getFraTitle() { return fraTitle; }
@@ -71,6 +71,8 @@ public class FRA {
     public void setFavoriteCount(int favoriteCount) { this.favoriteCount = favoriteCount; }
     public String getDoneeId() { return doneeId; }
     public void setDoneeId(String doneeId) { this.doneeId = doneeId; }
+    public String getCategoryName() { return categoryName; }
+    public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
     public String getDoneeName() { return doneeName; }
     public void setDoneeName(String doneeName) { this.doneeName = doneeName; }
     public String getFundRaiserId() { return fundRaiserId; }
@@ -126,7 +128,7 @@ public class FRA {
     // 3. findFRAsByCriteria
     public static List<FRA> findFRAsByCriteria(String criteria, String categoryId, String status, String role, String userId, String startDate) {
         List<FRA> list = new ArrayList<>();
-        StringBuilder sql = new StringBuilder("SELECT f.*, d.full_name AS donee_name, fr.full_name AS fundRaiser_name FROM fra f LEFT JOIN user_account d ON f.donee_id = d.user_id LEFT JOIN user_account fr ON f.fundRaiser_id = fr.user_id LEFT JOIN fra_category fc ON f.category_id = fc.category_id WHERE 1=1");
+        StringBuilder sql = new StringBuilder("SELECT f.*, fc.category_name, d.full_name AS donee_name, fr.full_name AS fundRaiser_name FROM fra f LEFT JOIN user_account d ON f.donee_id = d.user_id LEFT JOIN user_account fr ON f.fundRaiser_id = fr.user_id LEFT JOIN fra_category fc ON f.category_id = fc.category_id WHERE 1=1");
         List<Object> params = new ArrayList<>();
         if (criteria != null && !criteria.isBlank()) { sql.append(" AND f.fra_title LIKE ?"); params.add("%" + criteria + "%"); }
         if (categoryId != null && !categoryId.isBlank() && !"all".equalsIgnoreCase(categoryId)) { sql.append(" AND (f.category_id = ? OR fc.category_name = ?)"); params.add(categoryId); params.add(categoryId); }
@@ -145,12 +147,14 @@ public class FRA {
     private static FRA fromResultSet(ResultSet rs) throws SQLException {
         int favoriteCount;
         try { favoriteCount = rs.getInt("fra_favouriteCount"); } catch (SQLException e) { favoriteCount = rs.getInt("fra_favoriteCount"); }
-        return new FRA(
+        FRA fra = new FRA(
             rs.getString("fra_id"), rs.getString("fra_title"), rs.getDouble("fra_targetAmount"), rs.getString("category_id"),
             rs.getString("fra_status"), rs.getDouble("current_amount"), rs.getInt("fra_viewCount"), favoriteCount,
             rs.getString("fra_startedAt"), rs.getString("fra_endedAt"), rs.getString("donee_id"), rs.getString("donee_name"),
             rs.getString("fundRaiser_id"), rs.getString("fundRaiser_name")
         );
+        try { fra.setCategoryName(rs.getString("category_name")); } catch (SQLException ignored) {}
+        return fra;
     }
 
     // 5. findFRAsForViewEngagementReport
@@ -235,13 +239,14 @@ public class FRA {
 
     // 10. getViewDonation
     public static Object getViewDonation(int fraId) {
-        String sql = "SELECT f.fra_title, f.fra_status, f.fra_startedAt, f.fra_viewCount, f.fra_favouriteCount, f.current_amount, f.fra_targetAmount, COALESCE(NULLIF(TRIM(ua.full_name),''), ua.username, '-') AS doneeName FROM fra f LEFT JOIN user_account ua ON f.donee_id = ua.user_id WHERE f.fra_id = ? LIMIT 1";
+        String sql = "SELECT f.fra_title, f.fra_status, f.fra_startedAt, f.fra_endedAt, f.fra_viewCount, f.fra_favouriteCount, f.current_amount, f.fra_targetAmount, COALESCE(NULLIF(TRIM(ua.full_name),''), ua.username, '-') AS doneeName FROM fra f LEFT JOIN user_account ua ON f.donee_id = ua.user_id WHERE f.fra_id = ? LIMIT 1";
         try (Connection conn = DBUtils.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, fraId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (!rs.next()) return null;
                 Map<String, Object> out = new LinkedHashMap<>();
-                out.put("title", rs.getString("fra_title")); out.put("status", rs.getString("fra_status")); out.put("createAt", rs.getString("fra_startedAt"));
+                out.put("title", rs.getString("fra_title")); out.put("status", rs.getString("fra_status"));
+                out.put("startedAt", rs.getString("fra_startedAt")); out.put("endedAt", rs.getString("fra_endedAt"));
                 out.put("viewCount", rs.getObject("fra_viewCount")); out.put("favouriteCount", rs.getObject("fra_favouriteCount"));
                 out.put("currentAmount", rs.getObject("current_amount")); out.put("targetAmount", rs.getObject("fra_targetAmount")); out.put("doneeName", rs.getString("doneeName"));
                 return out;
@@ -284,5 +289,5 @@ public class FRA {
 
     // Utils
     private static String parseText(Object v) { return v == null ? "" : String.valueOf(v).trim(); }
-    private static int parseInt(Object v) { if (v instanceof Number n) return n.intValue(); try { return Integer.parseInt(parseText(v)); } catch (Exception e) { return 0; } }
+    private static int parseInt(Object v) { if (v instanceof Number n) return n.intValue(); try { return Integer.parseInt(parseText(v)); } catch (NumberFormatException e) { return 0; } }
 }

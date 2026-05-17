@@ -13,7 +13,7 @@ import com.uow.util.DBUtils;
 
 public class UserAccount {
 
-    // 【新增】：真正的全方位查重方法
+    // Full duplicate check across username, email, and phone
     public boolean isDuplicateAccount(String username, String email, String phone, int excludeUserId) {
         String sql = "SELECT 1 FROM user_account WHERE (LOWER(username) = LOWER(?) OR LOWER(email) = LOWER(?) OR phone_number = ?) AND user_id != ? LIMIT 1";
         try (Connection c = DBUtils.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
@@ -22,7 +22,7 @@ public class UserAccount {
             ps.setString(3, phone);
             ps.setInt(4, excludeUserId);
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next(); // 查到了说明存在重复
+                return rs.next(); // true = duplicate exists
             }
         } catch (SQLException e) {
             return false;
@@ -46,7 +46,7 @@ public class UserAccount {
             ps.setInt(7, readInt(data, "profileId"));
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
-            // 【修改】：把数据库报错打印出来，以后就不瞎猜了
+            // Log SQL error for easier debugging
             System.err.println("[Create Account SQL Error]: " + e.getMessage());
             return false;
         }

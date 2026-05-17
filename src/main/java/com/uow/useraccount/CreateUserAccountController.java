@@ -27,28 +27,28 @@ public class CreateUserAccountController {
         String accountStatus = text(map.get("accountStatus"));
         String profileIdText = text(map.get("profileId"));
 
-        // 完整的边界验证
+        // Full boundary validation
         if (username.isBlank() || password.isBlank() || email.isBlank() || phoneNumber.isBlank() 
                 || accountStatus.isBlank() || profileIdText.isBlank()) {
             return false;
         }
 
-        // 边界验证：邮箱格式
+        // Validate email format
         if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
             return false;
         }
 
-        // 边界验证：电话号码长度（最少8位）
+        // Validate phone number length (minimum 8 digits)
         if (phoneNumber.length() < 8) {
             return false;
         }
 
-        // 边界验证：密码长度（最少3位）
+        // Validate password length (minimum 3 characters)
         if (password.length() < 3) {
             return false;
         }
 
-        // 【核心修复】：使用严格的去重方法，0代表不排除任何人
+        // Strict duplicate check — 0 means no account is excluded
         if (userAccount.isDuplicateAccount(username, email, phoneNumber, 0)) {
             return false;
         }

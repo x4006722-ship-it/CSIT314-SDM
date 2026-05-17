@@ -197,7 +197,7 @@ public class UserAccountPage {
             return false;
         }
         
-        // 【关键修复】：直接从 Session 读取当前操作人 ID，拒绝前端伪造
+        // Read operator ID from Session — reject front-end identity forgery
         Object sidObj = session.getAttribute("userId");
         if (sidObj == null) {
             uiMessage = "User not logged in.";

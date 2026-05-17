@@ -11,7 +11,7 @@ import java.util.List;
 public class SearchDonationController {
 
     public Object searchDonation(Object searchDonationData) {
-        // 1. 修复泛型类型：将 <?, ?> 改为 <String, Object>
+        // 1. Cast raw Map to typed Map<String, Object>
         if (!(searchDonationData instanceof Map)) {
             return List.of();
         }
@@ -19,27 +19,27 @@ public class SearchDonationController {
         @SuppressWarnings("unchecked")
         Map<String, Object> data = (Map<String, Object>) searchDonationData;
 
-        // 2. 提取参数
+        // 2. Extract parameters
         String title = String.valueOf(data.getOrDefault("title", "")).trim();
         String startDateStr = String.valueOf(data.getOrDefault("startDate", ""));
         String endDateStr = String.valueOf(data.getOrDefault("endDate", ""));
         Object userIdObj = data.get("userId");
 
-        // ================= 【业务规则 1：权限规则】 =================
+        // Business rule 1: access control — userId must be present
         if (userIdObj == null || String.valueOf(userIdObj).equals("0")) {
             Map<String, String> err = new HashMap<>();
             err.put("error", "Access Denied: User identity is missing.");
             return err;
         }
 
-        // ================= 【业务规则 2：输入约束规则】 =================
+        // Business rule 2: input constraint — title max 50 characters
         if (title.length() > 50) {
             Map<String, String> err = new HashMap<>();
             err.put("error", "Search criteria too long: Maximum 50 characters.");
             return err;
         }
 
-        // ================= 【业务规则 3：日期逻辑规则】 =================
+        // Business rule 3: date logic — start must not be after end
         if (startDateStr != null && !startDateStr.isBlank() && endDateStr != null && !endDateStr.isBlank()) {
             try {
                 LocalDate start = LocalDate.parse(startDateStr);
@@ -57,7 +57,7 @@ public class SearchDonationController {
             }
         }
 
-        // 3. 校验通过，调用 Entity
+        // 3. Validation passed — invoke Entity
         return FRA.getSearchDonation(searchDonationData);
     }
 }

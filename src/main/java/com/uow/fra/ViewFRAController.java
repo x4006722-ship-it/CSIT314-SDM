@@ -6,9 +6,9 @@ import java.util.ArrayList;
 
 @Service
 public class ViewFRAController {
-    // 加上 fundRaiserId 参数，并传递给底层
+    // Accepts fundRaiserId and passes it to the data layer
     public List<FRA> viewAllFRAs(String fundRaiserId) {
-        // 边界验证
+        // Boundary validation
         if (fundRaiserId == null || fundRaiserId.trim().isEmpty()) {
             return new ArrayList<>();
         }

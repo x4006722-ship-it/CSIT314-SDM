@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class RemoveFRAController {
     public boolean deleteFRA(String fraId) {
-        // 边界检查
+        // Boundary check
         if (fraId == null || fraId.trim().isEmpty()) {
             return false;
         }

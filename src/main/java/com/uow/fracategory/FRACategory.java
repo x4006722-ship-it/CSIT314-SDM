@@ -118,14 +118,14 @@ public class FRACategory {
             return new ArrayList<>(); 
         }
 
-        // 【核心修复】真正把前端传过来的名字和状态从 Map 里读出来！
+        // Read name and status from the request map
         String name = readText(data.get("categoryName"));
         String status = readText(data.get("categoryStatus"));
 
         StringBuilder sql = new StringBuilder(
                 "SELECT category_id, category_name, category_status FROM fra_category WHERE 1=1 ");
         
-        // 加入 LOWER 实现忽略大小写的智能模糊搜索
+        // Case-insensitive fuzzy search using LOWER()
         if (!name.isEmpty()) {
             sql.append("AND LOWER(category_name) LIKE LOWER(?) ");
         }

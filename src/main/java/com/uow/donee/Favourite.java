@@ -9,7 +9,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.uow.fra.FRA;
 import com.uow.util.DBUtils;
 
 public class Favourite {

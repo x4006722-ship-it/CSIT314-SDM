@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.uow.fra.FRA;
 import com.uow.fra.SearchFRAController;
+import com.uow.fracategory.FRACategory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -36,38 +37,13 @@ public class DoneePage {
     }
 
     // // Search FRA
-    // @GetMapping(value = "/api/donee/fra/search", produces = MediaType.APPLICATION_JSON_VALUE)
-    // @ResponseBody
-    // public List<FRA> onSearchFRA(
-    //         @RequestParam(value = "criteria", defaultValue = "") String criteria,
-    //         @RequestParam(value = "categoryId", defaultValue = "all") String categoryId,
-    //         @RequestParam(value = "status", defaultValue = "all") String status,
-    //         HttpSession session) {
-        
-    //     // 获取当前受赠人ID（即使没登录也允许搜索，只是 userId 传空字符串）
-    //     Object sid = session.getAttribute("userId");
-    //     String userId = sid != null ? String.valueOf(sid) : "";
-        
-    //     // 传入 5 个参数，并标记角色为 "donee"
-    //     return searchFRAController.searchFRA(criteria, categoryId, status, "donee", userId);
-    // }
-    // // Search FRA
-    // @GetMapping(value = "/api/donee/fra/search", produces = MediaType.APPLICATION_JSON_VALUE)
-    // @ResponseBody
-    // public List<FRA> onSearchFRA(
-    //         @RequestParam(value = "criteria", defaultValue = "") String criteria,
-    //         @RequestParam(value = "categoryId", defaultValue = "all") String categoryId,
-    //         @RequestParam(value = "status", defaultValue = "all") String status,
-    //         @RequestParam(value = "startDate", defaultValue = "") String startDate, // 【新增】接收 startDate
-    //         HttpSession session) {
-    
-    //     // 获取当前受赠人ID（即使没登录也允许搜索，只是 userId 传空字符串）
-    //     Object sid = session.getAttribute("userId");
-    //     String userId = sid != null ? String.valueOf(sid) : "";
-    
-    //     // 【修改】传入 6 个参数，把 startDate 补在最后
-    //     return searchFRAController.searchFRA(criteria, categoryId, status, "donee", userId, startDate);
-    // }
+    // Category options for dropdowns
+    @GetMapping(value = "/api/donee/fra/category-options", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public Object onGetCategoryOptions() {
+        return new FRACategory().getSearchCategory(Map.of("categoryName", "", "categoryStatus", "Active"));
+    }
+
     // Search FRA
     @GetMapping(value = "/api/donee/fra/search", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -78,7 +54,7 @@ public class DoneePage {
             @RequestParam(value = "startDate", defaultValue = "") String startDate, 
             HttpSession session) {
     
-        // 【核心修改】：加上 (session != null) 的判断，防止测试报错
+        // Guard against null session in test environments
         Object sid = (session != null) ? session.getAttribute("userId") : null;
         String userId = sid != null ? String.valueOf(sid) : "";
     

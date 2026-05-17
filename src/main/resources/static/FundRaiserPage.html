@@ -11,15 +11,15 @@
             --surface: #ffffff;
             --surface-soft: #f8fafc;
             --surface-tint: #f1f5f9;
-            --border: #f1f5f9;
+            --border: rgba(245, 158, 11, 0.2);
             --border-soft: #e2e8f0;
             --text: #0f172a;
             --text-muted: #64748b;
             --text-faint: #94a3b8;
-            --accent: #6366f1;
-            --accent-dark: #4338ca;
-            --accent-light: #eef2ff;
-            --accent-ring: rgba(99, 102, 241, 0.2);
+            --accent: #b45309;
+            --accent-dark: #92400e;
+            --accent-light: #fffbeb;
+            --accent-ring: rgba(245, 158, 11, 0.2);
             --danger-bg: #fff1f2;
             --danger-text: #f43f5e;
             --danger-border: #fecdd3;
@@ -135,10 +135,10 @@
         .topbar-user { font-size: 13px; color: var(--text-faint); display: inline-flex; align-items: center; gap: 8px; }
         .topbar-user::before {
             content: "FR"; width: 34px; height: 34px; border-radius: 999px;
-            background: var(--accent-light); color: var(--accent-dark); display: inline-flex;
+            background: #fffbeb; color: #92400e; display: inline-flex;
             align-items: center; justify-content: center; font-size: 12px; font-weight: 600; letter-spacing: .03em;
         }
-        .topbar-user strong { color: var(--accent-dark); font-size: 14px; font-weight: 500; }
+        .topbar-user strong { color: #92400e; font-size: 14px; font-weight: 500; }
 
         /* Pills */
         .pill { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; font-size: 12px; border: 0; font-weight: 600; }
@@ -153,7 +153,7 @@
         /* Table */
         .table-wrap { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: #fff; box-shadow: var(--shadow-card); }
         .table-scroll { overflow-x: auto; }
-        table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 1100px; } /* 加宽了一点 */
+        table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 1100px; }
         thead th {
             background: #f8fafc; border-bottom: 1px solid var(--border); font-size: 11px;
             letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-faint);
@@ -190,7 +190,7 @@
         
         .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: #f8fafc; border-bottom: 1px solid #f1f5f9; }
         .modal-header strong { font-size: 16px; color: #1e293b; font-weight: 600; }
-        .modal-body { padding: 24px 20px; font-size: 15px; line-height: 1.5; color: #334155; text-align: center; word-break: break-word; overflow: auto; max-height: calc(70vh - 56px - 60px); }
+        .modal-body { padding: 24px 20px; font-size: 15px; line-height: 1.5; color: #334155; text-align: left; word-break: break-word; overflow: auto; max-height: calc(70vh - 56px - 60px); }
         .modal-footer { padding: 0 20px 20px 20px; background: #fff; display: flex; justify-content: center; gap: 10px; }
 
         .text-donee { color: #10b981; font-weight: 600; }
@@ -207,7 +207,7 @@
             <div class="topbar">
                 <span class="topbar-user">Logged in as: <strong id="login-full-name">Fund Raiser</strong></span>
                 <div style="display:flex; align-items:center; gap:12px;">
-                    <a href="/logout" class="logout-btn"><i class="ti ti-logout"></i> Logout</a>
+                    <a href="/logout" class="logout-btn">Logout</a>
                 </div>
             </div>
 
@@ -397,7 +397,7 @@
 
     <script>
         const API_BASE_URL = '/api/fra';
-        // 【新增】：全局保存分类数据，专门给 Table 用来展示文字
+        // Global category map used to display category names in the table
         window.fraCategoryMap = {}; 
 
         // ================= Unified Toast =================
@@ -520,13 +520,13 @@
                 createSelect.innerHTML = '<option value="">Select category</option>';
                 searchSelect.innerHTML = '<option value="">All Categories</option>';
                 
-                window.fraCategoryMap = {}; // 清空并记录
+                window.fraCategoryMap = {}; // Reset and rebuild
 
                 (Array.isArray(list) ? list : []).forEach(item => {
                     const id = item.categoryID || item.categoryId || '';
                     const name = item.categoryName || '';
                     
-                    window.fraCategoryMap[id] = name; // 保存起来！
+                    window.fraCategoryMap[id] = name;
 
                     const cOpt = document.createElement('option');
                     cOpt.value = id; cOpt.textContent = name;
@@ -685,7 +685,7 @@
                 return;
             }
 
-            // 【核心修复】：无论条件是否为空，全部发给后端。因为后端现在已经允许参数为 null/空 了！
+            // Send all params to backend regardless of whether they are empty
             let url = `${API_BASE_URL}/search?criteria=${encodeURIComponent(t)}&categoryId=${encodeURIComponent(c)}&status=${encodeURIComponent(s)}`;
             if (startDate) {
                 url += `&startDate=${encodeURIComponent(startDate)}`;
@@ -724,7 +724,7 @@
                 }
 
                 const safeTitle = item.fraTitle ? item.fraTitle.replace(/'/g,"\\'") : "";
-                // 【核心新增】：从字典里拿种类名称，拿不到就回退到 ID
+                // Look up category name from map, fall back to ID if not found
                 const catName = window.fraCategoryMap[item.categoryId] || item.categoryId || 'N/A';
                 
                 const row = `<tr>
@@ -818,11 +818,23 @@
             loadCurrentAccount();
             loadDoneeOptions();
             
-            // 先加载分类，由于它是异步的，我们要等它加载完再拉取表格数据，以防分类文字出不来
+            // Load categories first (async), then fetch table data so category names are available
             loadCategoryOptions().then(() => {
                 fetchAllFRAs();
             });
         };
+
+        async function viewMyAccount() {
+            try {
+                const r = await fetch('/api/accounts/view', { credentials: 'same-origin' });
+                const d = await r.json().catch(() => ({}));
+                if (!r.ok || d?.error) throw new Error(d?.error || 'Failed');
+                const esc = s => String(s ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+                const rows = [['Username', d.username ?? '-'], ['Full Name', d.full_name ?? '-'], ['Email', d.email ?? '-'], ['Phone Number', d.phone_number ?? '-'], ['Account Status', d.a_status ?? '-'], ['Role', d.roleName ?? '-']];
+                const tableHtml = `<div class="table-wrap"><table style="min-width:0;" aria-label="My account detail"><thead><tr><th style="width:180px;">Field</th><th>Value</th></tr></thead><tbody>${rows.map(([k,v]) => `<tr><td style="font-weight:600; color:var(--text-muted); font-size:12px;">${esc(k)}</td><td>${esc(String(v))}</td></tr>`).join('')}</tbody></table></div>`;
+                openNotice(tableHtml, 'My Account');
+            } catch (e) { openNotice('Failed to load your account information.', 'Notice'); }
+        }
     </script>
 </body>
 </html>

@@ -9,23 +9,23 @@ public class SearchFRACategoryController {
     private final FRACategory fraCategory = new FRACategory();
 
     public Object searchCategory(Object searchCategoryData) {
-        // 1. 在业务层集中进行状态格式的校验
+        // 1. Validate status format in the business layer
         if (searchCategoryData instanceof Map<?, ?> map) {
             String categoryStatus = readText(map.get("categoryStatus"));
             
             if (!categoryStatus.isBlank() && 
                 !"Active".equalsIgnoreCase(categoryStatus) && 
                 !"Suspended".equalsIgnoreCase(categoryStatus)) {
-                // 抛出异常，统一处理！
+                // Throw exception for unified error handling
                 throw new IllegalArgumentException("Invalid status format.");
             }
         }
         
-        // 2. 校验通过，交给底层 DAO
+        // 2. Validation passed — delegate to DAO
         return fraCategory.getSearchCategory(searchCategoryData);
     }
 
-    // 辅助方法
+    // Helper method
     private String readText(Object value) {
         return value == null ? "" : String.valueOf(value).trim();
     }

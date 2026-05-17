@@ -30,7 +30,7 @@ public class UpdateUserAccountController {
         String accountStatus = nonBlankOrDefault(m.get("accountStatus"), currentMap.get("a_status"));
         int profileId = parseInt(nonBlankOrDefault(m.get("profileId"), currentMap.get("profile_id")));
 
-        // 【核心修复】：更新时查重，必须排除当前正在编辑的账号ID
+        // Duplicate check on update — exclude the account currently being edited
         if (userAccount.isDuplicateAccount(username, email, phoneNumber, userId)) {
             return false;
         }

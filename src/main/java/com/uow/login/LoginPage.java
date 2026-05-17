@@ -41,7 +41,7 @@ public class LoginPage {
             loginErrorMessage = "Empty field detected.";
             return showLoginErrorMessage();
         }
-        // 【新增】后端同步校验密码长度最少3位
+        // Server-side validation: password must be at least 3 characters
         if (password.length() < 3) {
             loginErrorMessage = "Password must be at least 3 characters.";
             return showLoginErrorMessage();
@@ -69,7 +69,7 @@ public class LoginPage {
             HttpSession session = attributes.getRequest().getSession();
             session.setAttribute("username", username);
             session.setAttribute("role", readText(sessionMap.get("role")));
-            session.setAttribute("userId", Integer.valueOf(parseInt(sessionMap.get("userId"))));
+            session.setAttribute("userId", parseInt(sessionMap.get("userId")));
         }
         return redirectPage(readText(sessionMap.get("role")));
     }

@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import com.uow.util.DBUtils;
@@ -74,7 +73,7 @@ public class UserProfile {
         try (Connection conn = DBUtils.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
              
-            // 动态设置参数
+            // Bind parameters dynamically
             for (int i = 0; i < params.size(); i++) {
                 pstmt.setString(i + 1, params.get(i));
             }
@@ -85,7 +84,7 @@ public class UserProfile {
                 }
             }
         } catch (SQLException e) { 
-            // 建议：System.err.println("[Search SQL Error]: " + e.getMessage());
+            // Optional: System.err.println("[Search SQL Error]: " + e.getMessage());
         }
         return list;
     }
@@ -114,7 +113,6 @@ public class UserProfile {
         }
     }
 
-    // 在 UserProfile.java 中加入此方法
     public static boolean isDuplicateRole(String roleName, String excludeProfileId) {
         String sql = "SELECT COUNT(*) FROM user_profile WHERE LOWER(role) = LOWER(?)";
         if (excludeProfileId != null) {
@@ -131,11 +129,11 @@ public class UserProfile {
             
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getInt(1) > 0; // 如果数量 > 0，说明数据库里有重名
+                    return rs.getInt(1) > 0; // true = a duplicate role name exists
                 }
             }
         } catch (SQLException e) { 
-            // 数据库异常静默处理或打印日志
+            // Swallow SQL exception silently (or log it)
         }
         return false;
     }

@@ -1,10 +1,8 @@
 package com.uow.fracategory;
 
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,8 +12,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class FRACategoryPage {
-
-    private static final Pattern ID_PATTERN = Pattern.compile("^\\d+$");
 
     @Autowired
     private CreateFRACategoryController createFRACategoryController;
@@ -132,14 +128,14 @@ public class FRACategoryPage {
         }
 
         try {
-            // 调用业务逻辑，依然返回 boolean
+            // Invoke business logic — returns boolean
             boolean result = createFRACategoryController.createCategory(newCategoryData);
             if (result) {
                 return true; 
             }
             return Map.of("error", "Database save failed.");
         } catch (IllegalArgumentException e) {
-            // 完美接住你的 "Category already exists."，发给前端！
+            // Catch and forward business exception to the frontend
             return Map.of("error", e.getMessage());
         }
     }
@@ -231,10 +227,10 @@ public class FRACategoryPage {
         searchData.put("categoryStatus", readText(queryData.get("categoryStatus")));
 
         try {
-            // 直接扔给业务层
+            // Delegate to business layer
             return searchFRACategoryController.searchCategory(searchData);
         } catch (IllegalArgumentException e) {
-            // 接住异常，给前端返回漂亮的 JSON
+            // Catch exception and return JSON error to frontend
             return Map.of("error", e.getMessage());
         }
     }
@@ -248,10 +244,10 @@ public class FRACategoryPage {
         }
         
         try {
-            // 直接扔给业务层
-            return searchFRACategoryController.searchCategory(searchCategoryData);
+            // Delegate to business layer
+            return searchFRACategoryController.searchCategory(data);
         } catch (IllegalArgumentException e) {
-            // 接住异常，给前端返回漂亮的 JSON
+            // Catch exception and return JSON error to frontend
             return Map.of("error", e.getMessage());
         }
     }

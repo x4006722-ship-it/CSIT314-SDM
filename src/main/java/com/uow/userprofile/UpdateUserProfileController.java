@@ -4,20 +4,20 @@ import org.springframework.stereotype.Service;
 @Service
 public class UpdateUserProfileController {
     
-    // 严格返回 boolean
+    // Returns boolean
     public boolean updateProfile(String profileID, String newRoleName) throws IllegalArgumentException {
-        // 1. 防御性拦截
+        // 1. Defensive null/blank guard
         if (newRoleName == null || newRoleName.trim().isEmpty() || profileID == null) {
             return false;
         }
 
-        // 2. 商业逻辑决策：排除自身后，是否与别人重名
+        // 2. Business rule: duplicate role name check (excluding this profile)
         if (UserProfile.isDuplicateRole(newRoleName, profileID)) {
-            // 违反业务规则，抛出异常
+            // Business rule violation — throw exception
             throw new IllegalArgumentException("duplicate");
         }
 
-        // 3. 决策通过，交由 Entity 执行更新
+        // 3. Validation passed — delegate update to Entity
         UserProfile profile = UserProfile.findByID(profileID);
         if (profile == null) return false;
         

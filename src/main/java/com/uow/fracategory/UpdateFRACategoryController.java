@@ -10,7 +10,7 @@ public class UpdateFRACategoryController {
 
     private final FRACategory fraCategory = new FRACategory();
 
-    // 保持返回 boolean 不变！
+    // Returns boolean
     public boolean updateCategory(Object updatedCategoryData) {
         if (!(updatedCategoryData instanceof Map<?, ?> map)) {
             throw new IllegalArgumentException("Invalid data format.");
@@ -21,8 +21,7 @@ public class UpdateFRACategoryController {
             throw new IllegalArgumentException("Invalid category ID.");
         }
 
-        Object currentCategory = fraCategory.getViewCategory(categoryId);
-        if (!(currentCategory instanceof Map<?, ?> currentMap)) {
+        if (fraCategory.getViewCategory(categoryId) == null) {
             throw new IllegalArgumentException("Category not found.");
         }
 
@@ -30,7 +29,7 @@ public class UpdateFRACategoryController {
         String incomingStatus = readText(map.get("categoryStatus"));
 
         // ==========================================
-        // 1. 精准边界检查：不再静默使用旧值，直接报错拦截！
+        // 1. Strict boundary check — reject missing or blank fields immediately
         // ==========================================
         if (incomingName.isBlank()) {
             throw new IllegalArgumentException("Category name cannot be empty.");
@@ -43,7 +42,7 @@ public class UpdateFRACategoryController {
         }
 
         // ==========================================
-        // 2. 查重逻辑（排除自身）
+        // 2. Duplicate check (excluding current record)
         // ==========================================
         Map<String, Object> searchData = new HashMap<>();
         searchData.put("categoryName", incomingName);
@@ -54,7 +53,7 @@ public class UpdateFRACategoryController {
                     int foundId = parseInt(each.get("categoryID"));
                     String foundName = readText(each.get("categoryName"));
                     
-                    // 如果发现同名，且那个同名的 ID 不是我们正在修改的这条数据的 ID
+                    // Found a duplicate name belonging to a different category
                     if (foundId != categoryId && incomingName.equalsIgnoreCase(foundName)) {
                         throw new IllegalArgumentException("Category already exists.");
                     }
@@ -63,7 +62,7 @@ public class UpdateFRACategoryController {
         }
 
         // ==========================================
-        // 3. 一切合规，执行更新
+        // 3. All checks passed — execute update
         // ==========================================
         Map<String, Object> updateData = new HashMap<>();
         updateData.put("categoryId", categoryId);
