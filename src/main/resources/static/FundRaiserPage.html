@@ -398,7 +398,9 @@
     <script>
         const API_BASE_URL = '/api/fra';
         // Global category map used to display category names in the table
-        window.fraCategoryMap = {}; 
+        window.fraCategoryMap = {};
+        // Current logged-in fund raiser's user ID (set by loadCurrentAccount)
+        window.currentUserId = '';
 
         // ================= Unified Toast =================
         function showMessage(message, type = 'success') {
@@ -463,9 +465,10 @@
         
                 const fullName = data.fullName || data.full_name || '';
                 const userId = (data.userId || data.user_id) ? String(data.userId || data.user_id) : '';
-        
+
                 if (!fullName || !userId) return;
-        
+
+                window.currentUserId = userId;
                 document.getElementById('login-full-name').innerText = fullName || 'Fund Raiser';
                 document.getElementById('create-fund-raiser-name').value = fullName;
         
@@ -684,12 +687,16 @@
             if (s === 'Completed') {
                 let url = `${API_BASE_URL}/completed/search?`;
                 if (c) url += `categoryId=${encodeURIComponent(c)}&`;
-                if (startDate) url += `startDate=${encodeURIComponent(startDate)}&`; 
+                if (startDate) url += `startDate=${encodeURIComponent(startDate)}&`;
 
                 fetch(url)
                     .then(r => r.json())
                     .then(data => {
-                        const rows = Array.isArray(data) ? data : [];
+                        let rows = Array.isArray(data) ? data : [];
+                        // Filter to only show the current fund raiser's own campaigns
+                        if (window.currentUserId) {
+                            rows = rows.filter(item => String(item.fundRaiserId) === window.currentUserId);
+                        }
                         renderTable(rows, 'fra-table-body', true);
                         updateStats(rows);
                         fetchEngagementTotals();
