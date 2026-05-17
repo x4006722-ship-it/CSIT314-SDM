@@ -643,6 +643,37 @@
                 }
             }).finally(() => { btn.disabled = false; btn.innerText = "Save Changes"; });
         });
+
+        document.getElementById('up-toggle').addEventListener('click', () => {
+            const profileId = document.getElementById('up-v-id').textContent.trim();
+            const roleName  = document.getElementById('up-v-role').textContent.trim();
+            const statusText = document.getElementById('up-v-status').textContent.trim().toLowerCase();
+            const isSusp = statusText === 'suspended';
+
+            if (!isSusp && profileIsUserAdminRole(roleName)) {
+                upNoteOpen('Error: User Admin profiles cannot be suspended.', 'Warning');
+                return;
+            }
+
+            const actionText = isSusp ? 'REACTIVATE' : 'SUSPEND';
+            upConfirmOpen(`Are you sure you want to ${actionText} the role "${roleName}"?`, () => {
+                const apiEndpoint = isSusp
+                    ? `/api/profiles/reactivate/${profileId}`
+                    : `/api/profiles/suspend/${profileId}`;
+
+                fetch(apiEndpoint, { method: 'POST' })
+                    .then(r => r.text())
+                    .then(res => {
+                        if (res === 'true') {
+                            showToast(isSusp ? 'Profile reactivated!' : 'Profile suspended!', 'success');
+                            closeDrawer();
+                            loadProfilesFromDatabase();
+                        } else {
+                            showToast('Failed to update profile status', 'error');
+                        }
+                    });
+            });
+        });
     });
 
     async function viewMyAccount() {

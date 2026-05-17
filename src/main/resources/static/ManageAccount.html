@@ -569,6 +569,12 @@
             try {
                 toggleBtn.disabled = true;
                 const row = toggleBtn.closest('tr');
+                const roleText = (row?.querySelector('td:nth-child(3)')?.textContent ?? '').trim();
+                if (roleText.toLowerCase() === 'user admin') {
+                    uaNoteOpen('Accounts with the User Admin role cannot be suspended.', 'Notice');
+                    return;
+                }
+
                 const statusCell = row?.querySelector('td:nth-child(4)');
                 const currentStatus = (statusCell?.querySelector('.pill')?.textContent ?? statusCell?.textContent ?? '').trim();
                 const nextStatus = currentStatus.toLowerCase() === 'suspended' ? 'Active' : 'Suspended';
