@@ -17,6 +17,7 @@ public class CreateUserAccountControllerTest {
 
     @Before
     public void setUp() {
+        tearDown();
         controller = new CreateUserAccountController();
     }
 
@@ -125,14 +126,14 @@ public class CreateUserAccountControllerTest {
 
     @Test
     public void test_Creation_fails_when_account_is_duplicate() {
-        String duplicateName = TEST_PREFIX + "Duplicate";
+        String duplicateName = TEST_PREFIX + "Dup_" + System.currentTimeMillis();
         
         Map<String, Object> data = new HashMap<>();
         data.put("username", duplicateName);
         data.put("password", "Pass123!");
         data.put("fullName", "Dupe");
-        data.put("email", "dupe@test.com");
-        data.put("phoneNumber", "99999999");
+        data.put("email", duplicateName + "@test.com");
+        data.put("phoneNumber", String.valueOf(10000000 + (System.currentTimeMillis() % 80000000)));
         data.put("accountStatus", "Active");
         data.put("profileId", 3);
 

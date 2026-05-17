@@ -21,34 +21,27 @@ public final class DBUtils {
     private static final String URL = "jdbc:mysql://" + HOST + ":" + PORT + "/" + DATABASE
             + "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
 
-    private static volatile HikariDataSource dataSource;
+    private static final HikariDataSource dataSource;
+
+    static {
+        HikariConfig cfg = new HikariConfig();
+        cfg.setJdbcUrl(URL);
+        cfg.setUsername(USER);
+        cfg.setPassword(PASSWORD);
+        cfg.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        cfg.setPoolName("csit314-main");
+        cfg.setMaximumPoolSize(16);
+        cfg.setMinimumIdle(2);
+        cfg.setConnectionTimeout(25_000);
+        cfg.setInitializationFailTimeout(60_000);
+        cfg.setIdleTimeout(300_000);
+        cfg.setMaxLifetime(1_800_000);
+        dataSource = new HikariDataSource(cfg);
+    }
 
     private DBUtils() {}
 
     public static Connection getConnection() throws SQLException {
-        return dataSource().getConnection();
-    }
-
-    private static HikariDataSource dataSource() {
-        if (dataSource == null) {
-            synchronized (DBUtils.class) {
-                if (dataSource == null) {
-                    HikariConfig cfg = new HikariConfig();
-                    cfg.setJdbcUrl(URL);
-                    cfg.setUsername(USER);
-                    cfg.setPassword(PASSWORD);
-                    cfg.setDriverClassName("com.mysql.cj.jdbc.Driver");
-                    cfg.setPoolName("csit314-main");
-                    cfg.setMaximumPoolSize(16);
-                    cfg.setMinimumIdle(2);
-                    cfg.setConnectionTimeout(25_000);
-                    cfg.setInitializationFailTimeout(60_000);
-                    cfg.setIdleTimeout(300_000);
-                    cfg.setMaxLifetime(1_800_000);
-                    dataSource = new HikariDataSource(cfg);
-                }
-            }
-        }
-        return dataSource;
+        return dataSource.getConnection();
     }
 }

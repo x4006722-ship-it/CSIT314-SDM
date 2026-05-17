@@ -22,6 +22,7 @@ public class UpdateFRACategoryControllerTest {
 
     @Before
     public void setUp() {
+        tearDown();
         updateController = new UpdateFRACategoryController();
         createController = new CreateFRACategoryController();
         searchController = new SearchFRACategoryController();

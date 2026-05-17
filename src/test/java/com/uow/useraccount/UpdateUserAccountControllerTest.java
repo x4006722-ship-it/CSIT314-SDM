@@ -20,6 +20,7 @@ public class UpdateUserAccountControllerTest {
 
     @Before
     public void setUp() {
+        tearDown();
         updateController = new UpdateUserAccountController();
         dao = new UserAccount();
 
@@ -30,7 +31,7 @@ public class UpdateUserAccountControllerTest {
         newAcc.put("password", "123456");
         newAcc.put("fullName", "To Update");
         newAcc.put("email", uniqueName + "@test.com");
-        newAcc.put("phoneNumber", "88888888");
+        newAcc.put("phoneNumber", String.valueOf(10000000 + (System.currentTimeMillis() % 80000000)));
         newAcc.put("accountStatus", "Active");
         newAcc.put("profileId", 3);
         dao.saveCreateAccount(newAcc);
@@ -106,7 +107,7 @@ public class UpdateUserAccountControllerTest {
         userB.put("password", "123456");
         userB.put("fullName", "User B");
         userB.put("email", userBEmail); // 这是我们要冲突的目标邮箱
-        userB.put("phoneNumber", "11112222");
+        userB.put("phoneNumber", String.valueOf(20000000 + (System.currentTimeMillis() % 80000000)));
         userB.put("accountStatus", "Active");
         userB.put("profileId", 3);
         dao.saveCreateAccount(userB);

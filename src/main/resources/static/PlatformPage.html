@@ -359,21 +359,19 @@
             color: #fff;
         }
 
-        .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; min-width: 0; }
-        .report-grid > .subsection { min-width: 0; }
-        .report-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px; }
-        .report-stat { border: 1px solid var(--border-soft); border-radius: 10px; background: #fff; padding: 10px; }
-        .report-stat-key { color: var(--text-muted); font-size: 12px; margin-bottom: 4px; }
-        .report-stat-val { font-size: 22px; font-weight: 700; }
-        .report-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; min-width: 0; }
-        .report-chart-card { border: 1px solid var(--border-soft); border-radius: 10px; background: #fff; padding: 10px; min-width: 0; overflow: hidden; }
-        .report-chart-title { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
-        .report-canvas { position: relative; height: 260px; min-width: 0; }
+        .report-grid { display: block; min-width: 0; }
+        .report-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+        .report-stat { border: 1px solid var(--border-soft); border-radius: 10px; background: #fff; padding: 14px 16px; }
+        .report-stat-key { color: var(--text-muted); font-size: 12px; margin-bottom: 6px; }
+        .report-stat-val { font-size: 26px; font-weight: 700; }
+        .report-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; min-width: 0; }
+        .report-chart-card { border: 1px solid var(--border-soft); border-radius: 10px; background: #fff; padding: 14px 16px; min-width: 0; overflow: hidden; }
+        .report-chart-title { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+        .report-canvas { position: relative; height: 320px; min-width: 0; }
         .report-canvas.scroll-y { overflow-y: auto; }
         .report-error { display:none; margin-bottom:10px; border:1px solid #fecaca; background:#fef2f2; color:#991b1b; border-radius:10px; padding:8px 10px; font-size:13px; }
 
         @media (max-width: 980px) {
-            .report-grid { grid-template-columns: 1fr; }
             .report-stats { grid-template-columns: 1fr 1fr; }
             .report-charts { grid-template-columns: 1fr; }
             table { min-width: 0; width: 100%; table-layout: fixed; }
@@ -494,24 +492,6 @@
             <div id="report-error" class="report-error"></div>
             <div class="report-grid">
                 <div class="subsection">
-                    <h3>FRA Stats</h3>
-                    <div class="report-stats">
-                        <div class="report-stat"><div class="report-stat-key">Total FRA</div><div class="report-stat-val" id="rep-fra-total">0</div></div>
-                        <div class="report-stat"><div class="report-stat-key">Total View Count</div><div class="report-stat-val" id="rep-fra-views">0</div></div>
-                        <div class="report-stat"><div class="report-stat-key">Total Favourite Count</div><div class="report-stat-val" id="rep-fra-favourites">0</div></div>
-                    </div>
-                    <div class="report-charts">
-                        <div class="report-chart-card">
-                            <div class="report-chart-title">Completed vs Pending</div>
-                            <div class="report-canvas"><canvas id="rep-fra-status-chart"></canvas></div>
-                        </div>
-                        <div class="report-chart-card">
-                            <div class="report-chart-title">FRA Count per Category</div>
-                            <div class="report-canvas"><canvas id="rep-fra-category-chart"></canvas></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="subsection">
                     <h3>User Stats</h3>
                     <div class="report-stats">
                         <div class="report-stat"><div class="report-stat-key">Total Users</div><div class="report-stat-val" id="rep-user-total">0</div></div>
@@ -568,8 +548,6 @@
         searchStatus: ''
     };
     const reportState = {
-        fraStatusChart: null,
-        fraCategoryChart: null,
         userStatusChart: null,
         userRoleChart: null,
         loadedPeriod: ''
@@ -843,46 +821,6 @@
         box.textContent = message || '';
     }
 
-    function reportRenderFraCharts(fraStats) {
-        const completed = reportToNumber(fraStats.completedCount);
-        const pending = reportToNumber(fraStats.pendingCount);
-        const byCategory = Array.isArray(fraStats.fraByCategory) ? fraStats.fraByCategory : [];
-        const fraCategoryWrap = document.getElementById('rep-fra-category-chart')?.parentElement;
-        if (fraCategoryWrap) {
-            fraCategoryWrap.classList.add('scroll-y');
-            fraCategoryWrap.style.height = `${Math.max(260, byCategory.length * 30 + 80)}px`;
-        }
-
-        reportDestroy(reportState.fraStatusChart);
-        reportState.fraStatusChart = new Chart(document.getElementById('rep-fra-status-chart'), {
-            type: 'pie',
-            data: {
-                labels: ['Completed', 'Pending'],
-                datasets: [{ data: [completed, pending], backgroundColor: ['#10b981', '#f59e0b'] }]
-            },
-            options: { responsive: true, maintainAspectRatio: false }
-        });
-
-        reportDestroy(reportState.fraCategoryChart);
-        reportState.fraCategoryChart = new Chart(document.getElementById('rep-fra-category-chart'), {
-            type: 'bar',
-            data: {
-                labels: byCategory.map(x => String(x.categoryName || 'Unknown')),
-                datasets: [{ label: 'FRA Count', data: byCategory.map(x => reportToNumber(x.count)), backgroundColor: '#34d399' }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { beginAtZero: true, ticks: { precision: 0 } },
-                    y: { ticks: { autoSkip: false } }
-                }
-            }
-        });
-    }
-
     function reportRenderUserCharts(userStats) {
         const active = reportToNumber(userStats.activeCount);
         const suspended = reportToNumber(userStats.suspendedCount);
@@ -924,15 +862,10 @@
     }
 
     function reportRenderStats(data) {
-        const fraStats = data && data.fraStats ? data.fraStats : {};
         const userStats = data && data.userStats ? data.userStats : {};
-        document.getElementById('rep-fra-total').textContent = String(reportToNumber(fraStats.totalFraCount));
-        document.getElementById('rep-fra-views').textContent = String(reportToNumber(fraStats.totalViewCount));
-        document.getElementById('rep-fra-favourites').textContent = String(reportToNumber(fraStats.totalFavouriteCount));
         document.getElementById('rep-user-total').textContent = String(reportToNumber(userStats.totalUserCount));
         document.getElementById('rep-user-active').textContent = String(reportToNumber(userStats.activeCount));
         document.getElementById('rep-user-suspended').textContent = String(reportToNumber(userStats.suspendedCount));
-        reportRenderFraCharts(fraStats);
         reportRenderUserCharts(userStats);
     }
 

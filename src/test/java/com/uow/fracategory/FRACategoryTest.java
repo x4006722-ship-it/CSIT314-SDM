@@ -1,6 +1,7 @@
 package com.uow.fracategory;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +14,11 @@ import static org.junit.Assert.*;
 public class FRACategoryTest {
 
     private final String TEST_PREFIX = "PragmaticTest_DAO_";
+
+    @Before
+    public void setUp() {
+        tearDown();
+    }
 
     @After
     public void tearDown() {

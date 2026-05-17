@@ -1,6 +1,7 @@
 package com.uow.fracategory;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +14,11 @@ import static org.junit.Assert.*;
 public class SearchAndOtherControllersTest {
 
     private final String TEST_PREFIX = "PragmaticTest_Other_";
+
+    @Before
+    public void setUp() {
+        tearDown();
+    }
 
     @After
     public void tearDown() {
@@ -74,7 +80,7 @@ public class SearchAndOtherControllersTest {
     public void test_Suspend_succeeds_for_valid_id() {
         // 先在数据库里造一条真实的数据
         CreateFRACategoryController createController = new CreateFRACategoryController();
-        String catName = TEST_PREFIX + "ToSuspend";
+        String catName = TEST_PREFIX + "ToSuspend_" + System.currentTimeMillis();
         Map<String, String> newCat = new HashMap<>();
         newCat.put("categoryName", catName);
         newCat.put("categoryStatus", "Active");

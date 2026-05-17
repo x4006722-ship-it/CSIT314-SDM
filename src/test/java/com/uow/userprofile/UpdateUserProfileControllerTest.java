@@ -58,7 +58,7 @@ public class UpdateUserProfileControllerTest {
     @Test
     public void test_Update_throws_exception_on_duplicate_role() {
         // Create another profile to cause a conflict
-        String conflictRole = TEST_PREFIX + "Conflict";
+        String conflictRole = TEST_PREFIX + "Conflict_" + System.currentTimeMillis();
         createController.createProfile(new UserProfile(conflictRole, "Active"));
 
         try {

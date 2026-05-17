@@ -21,10 +21,6 @@ public class UpdateFRACategoryController {
             throw new IllegalArgumentException("Invalid category ID.");
         }
 
-        if (fraCategory.getViewCategory(categoryId) == null) {
-            throw new IllegalArgumentException("Category not found.");
-        }
-
         String incomingName = readText(map.get("categoryName"));
         String incomingStatus = readText(map.get("categoryStatus"));
 
@@ -39,6 +35,10 @@ public class UpdateFRACategoryController {
         }
         if (!"Active".equalsIgnoreCase(incomingStatus) && !"Suspended".equalsIgnoreCase(incomingStatus)) {
             throw new IllegalArgumentException("Invalid status format.");
+        }
+
+        if (fraCategory.getViewCategory(categoryId) == null) {
+            throw new IllegalArgumentException("Category not found.");
         }
 
         // ==========================================
