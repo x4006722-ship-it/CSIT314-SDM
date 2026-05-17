@@ -4,16 +4,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import com.uow.util.DBUtils;
 import static org.junit.Assert.*;
 
 public class SearchAndOtherControllersTest {
 
-    private final String TEST_PREFIX = "PragmaticTest_Other_";
+    private final String TEST_PREFIX = "PragmCatS_";
 
     @Before
     public void setUp() {
@@ -40,7 +40,6 @@ public class SearchAndOtherControllersTest {
         assertNotNull(result);
     }
 
-    // --- 新增：容错测试（传入 null）---
     @Test
     public void test_Search_executes_safely_with_null_or_invalid_type() {
         SearchFRACategoryController controller = new SearchFRACategoryController();
@@ -75,10 +74,8 @@ public class SearchAndOtherControllersTest {
         assertFalse(controller.suspendCategory(-9999));
     }
 
-    // --- 新增：真实的 Suspend 成功测试 ---
     @Test
     public void test_Suspend_succeeds_for_valid_id() {
-        // 先在数据库里造一条真实的数据
         CreateFRACategoryController createController = new CreateFRACategoryController();
         String catName = TEST_PREFIX + "ToSuspend_" + System.currentTimeMillis();
         Map<String, String> newCat = new HashMap<>();
@@ -86,16 +83,20 @@ public class SearchAndOtherControllersTest {
         newCat.put("categoryStatus", "Active");
         createController.createCategory(newCat);
 
-        // 查出它的 ID
-        SearchFRACategoryController searchController = new SearchFRACategoryController();
-        Map<String, String> searchParam = new HashMap<>();
-        searchParam.put("categoryName", catName);
-        searchParam.put("categoryStatus", "");
-        @SuppressWarnings("unchecked")
-        List<Map<String, Object>> results = (List<Map<String, Object>>) searchController.searchCategory(searchParam);
-        int validId = (Integer) results.get(0).get("categoryID");
+        // Get ID via exact-match SELECT
+        int validId = 0;
+        try (Connection c = DBUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT category_id FROM fra_category WHERE category_name = ?")) {
+            ps.setString(1, catName);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) validId = rs.getInt(1);
+            }
+        } catch (Exception e) {
+            fail("Failed to retrieve category ID: " + e.getMessage());
+        }
 
-        // 测试执行挂起
+        assertTrue("validId should be positive", validId > 0);
         SuspendFRACategoryController suspendController = new SuspendFRACategoryController();
         assertTrue("Suspend should succeed for a valid existing ID", suspendController.suspendCategory(validId));
     }

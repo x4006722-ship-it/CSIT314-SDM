@@ -25,7 +25,7 @@ public class UserAccount {
                 return rs.next(); // true = duplicate exists
             }
         } catch (SQLException e) {
-            return false;
+            return true; // fail-safe: treat DB errors as "duplicate exists" to prevent phantom inserts
         }
     }
 

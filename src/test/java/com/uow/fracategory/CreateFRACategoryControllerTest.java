@@ -13,10 +13,11 @@ import static org.junit.Assert.*;
 public class CreateFRACategoryControllerTest {
 
     private CreateFRACategoryController controller;
-    private final String TEST_PREFIX = "PragmaticTest_";
+    private final String TEST_PREFIX = "PragmCatC_";
 
     @Before
     public void setUp() {
+        tearDown();
         controller = new CreateFRACategoryController();
     }
 
@@ -38,11 +39,10 @@ public class CreateFRACategoryControllerTest {
         assertTrue(controller.createCategory(validData));
     }
 
-    // --- 新增：数据格式校验 ---
     @Test
     public void test_Creation_throws_exception_for_invalid_data_format() {
         try {
-            controller.createCategory(null); // 传 null 或非 Map
+            controller.createCategory(null);
             fail("Expected exception for invalid data format");
         } catch (IllegalArgumentException e) {
             assertEquals("Invalid data format.", e.getMessage());
@@ -63,7 +63,6 @@ public class CreateFRACategoryControllerTest {
         }
     }
 
-    // --- 新增：状态为空校验 ---
     @Test
     public void test_Creation_throws_exception_when_status_is_missing() {
         Map<String, String> invalidData = new HashMap<>();
@@ -94,7 +93,7 @@ public class CreateFRACategoryControllerTest {
 
     @Test
     public void test_Creation_throws_exception_when_category_already_exists() {
-        String duplicateName = TEST_PREFIX + "Duplicate";
+        String duplicateName = TEST_PREFIX + "Dup_" + System.currentTimeMillis();
         Map<String, String> data = new HashMap<>();
         data.put("categoryName", duplicateName);
         data.put("categoryStatus", "Active");
