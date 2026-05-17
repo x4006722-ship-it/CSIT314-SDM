@@ -511,30 +511,42 @@
 
         async function loadCategoryOptions() {
             try {
-                const qs = new URLSearchParams({ categoryName: '', categoryStatus: 'Active' });
-                const r = await fetch('/api/fra-categories/search?' + qs.toString());
-                if (!r.ok) return;
-                const list = await r.json();
+                const [activeRes, allRes] = await Promise.all([
+                    fetch('/api/fra-categories/search?' + new URLSearchParams({ categoryName: '', categoryStatus: 'Active' })),
+                    fetch('/api/fra-categories/search?' + new URLSearchParams({ categoryName: '', categoryStatus: '' }))
+                ]);
+
+                window.fraCategoryMap = {};
+
+                // Build full map from ALL categories (including suspended) so table rows always show names
+                if (allRes.ok) {
+                    const allList = await allRes.json();
+                    (Array.isArray(allList) ? allList : []).forEach(item => {
+                        const id = item.categoryID || item.categoryId || '';
+                        const name = item.categoryName || '';
+                        if (id) window.fraCategoryMap[id] = name;
+                    });
+                }
+
+                // Populate dropdowns with Active categories only
                 const createSelect = document.getElementById('create-category');
                 const searchSelect = document.getElementById('search-category');
                 createSelect.innerHTML = '<option value="">Select category</option>';
                 searchSelect.innerHTML = '<option value="">All Categories</option>';
-                
-                window.fraCategoryMap = {}; // Reset and rebuild
 
-                (Array.isArray(list) ? list : []).forEach(item => {
-                    const id = item.categoryID || item.categoryId || '';
-                    const name = item.categoryName || '';
-                    
-                    window.fraCategoryMap[id] = name;
-
-                    const cOpt = document.createElement('option');
-                    cOpt.value = id; cOpt.textContent = name;
-                    createSelect.appendChild(cOpt);
-                    const sOpt = document.createElement('option');
-                    sOpt.value = id; sOpt.textContent = name;
-                    searchSelect.appendChild(sOpt);
-                });
+                if (activeRes.ok) {
+                    const activeList = await activeRes.json();
+                    (Array.isArray(activeList) ? activeList : []).forEach(item => {
+                        const id = item.categoryID || item.categoryId || '';
+                        const name = item.categoryName || '';
+                        const cOpt = document.createElement('option');
+                        cOpt.value = id; cOpt.textContent = name;
+                        createSelect.appendChild(cOpt);
+                        const sOpt = document.createElement('option');
+                        sOpt.value = id; sOpt.textContent = name;
+                        searchSelect.appendChild(sOpt);
+                    });
+                }
             } catch (e) { }
         }
 
