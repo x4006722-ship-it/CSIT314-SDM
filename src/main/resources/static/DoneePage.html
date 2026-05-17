@@ -1052,8 +1052,8 @@
         var rows = [
             ['Title', data.title],
             ['Status', data.status],
-            ['Start from', data.startedAt != null ? data.startedAt : data.startFrom],
-            ['End at', data.endedAt != null ? data.endedAt : data.endAt],
+            ['Start from', data.startedAt != null ? data.startedAt : (data.startFrom != null ? data.startFrom : data.createAt)],
+            ['End at', data.endedAt != null ? data.endedAt : (data.endAt != null ? data.endAt : null)],
             ['View count', data.viewCount],
             ['Favourite count', data.favouriteCount != null ? data.favouriteCount : data.favourite_count],
             ['Target amount', data.targetAmount != null ? data.targetAmount : data.target_amount],
@@ -1340,7 +1340,7 @@
             return;
         }
         var v = e.target.closest('button[data-action="view"]');
-        if (v) viewFra(v.getAttribute('data-id'), '/api/donee/favourites/view');
+        if (v) viewFra(v.getAttribute('data-id'), '/api/donee/fra/view');
     });
     
     // Use validateAndSearchHistory instead of loadHistorySearch directly
