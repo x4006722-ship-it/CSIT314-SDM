@@ -46,15 +46,26 @@ public class DoneePage {
             HttpSession session) {
     
         Object sid = (session != null) ? session.getAttribute("userId") : null;
-        String userId = sid != null ? String.valueOf(sid) : "";
+        String userId = sid != null ? String.valueOf(sid).trim() : "";
     
-        return searchFRAController.searchFRA(criteria, categoryId, status, "donee", userId, startDate, endDate);
+        // Clean and sanitize string inputs before routing to business controller
+        String cleanCriteria = criteria == null ? "" : criteria.trim();
+        String cleanCategory = categoryId == null ? "all" : categoryId.trim();
+        String cleanStatus = status == null ? "all" : status.trim();
+        String cleanStart = startDate == null ? "" : startDate.trim();
+        String cleanEnd = endDate == null ? "" : endDate.trim();
+
+        return searchFRAController.searchFRA(cleanCriteria, cleanCategory, cleanStatus, "donee", userId, cleanStart, cleanEnd);
     }
 
     // View FRA
     @GetMapping(value = "/api/donee/fra/view", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public Object onViewFRA(@RequestParam(value = "fraId", defaultValue = "0") int fraId) {
+        // Fast-fail check for invalid resource identifier
+        if (fraId <= 0) {
+            return Map.of("error", "Invalid identifier identifier.");
+        }
         return viewDonationController.viewDonation(fraId);
     }
 
@@ -71,13 +82,17 @@ public class DoneePage {
             Object sid = session.getAttribute("userId");
             if (sid != null) {
                 try {
-                    userId = Integer.parseInt(String.valueOf(sid));
+                    userId = Integer.parseInt(String.valueOf(sid).trim());
                 } catch (NumberFormatException e) {
                     userId = 0;
                 }
             } else {
                 return false; 
             }
+        }
+        // Basic resource check before passing data down
+        if (fraId <= 0 || userId <= 0) {
+            return false;
         }
         return saveFavouriteController.saveFavourite(fraId, userId, remove);
     }
@@ -86,6 +101,9 @@ public class DoneePage {
     @GetMapping(value = "/api/donee/favourites/view", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public Object onViewFavourite(@RequestParam(value = "fraId", defaultValue = "0") int fraId) {
+        if (fraId <= 0) {
+            return null; 
+        }
         return viewFavouriteController.viewFavourite(fraId);
     }
 
@@ -96,13 +114,18 @@ public class DoneePage {
         if (searchFavouriteData instanceof Map<?, ?> raw) {
             Map<String, Object> payload = new HashMap<>();
             for (Map.Entry<?, ?> e : raw.entrySet()) {
-                payload.put(String.valueOf(e.getKey()), e.getValue());
+                Object val = e.getValue();
+                // Clean and trim text entries inside the payload map
+                if (val instanceof String str) {
+                    val = str.trim();
+                }
+                payload.put(String.valueOf(e.getKey()).trim(), val);
             }
             if (!payload.containsKey("userId") && session != null) {
                 Object sid = session.getAttribute("userId");
                 if (sid != null) {
                     try {
-                        payload.put("userId", Integer.parseInt(String.valueOf(sid)));
+                        payload.put("userId", Integer.parseInt(String.valueOf(sid).trim()));
                     } catch (NumberFormatException e) { }
                 }
             }
@@ -118,13 +141,18 @@ public class DoneePage {
         if (searchDonationData instanceof Map<?, ?> raw) {
             Map<String, Object> payload = new HashMap<>();
             for (Map.Entry<?, ?> e : raw.entrySet()) {
-                payload.put(String.valueOf(e.getKey()), e.getValue());
+                Object val = e.getValue();
+                // Clean and trim text entries inside the payload map
+                if (val instanceof String str) {
+                    val = str.trim();
+                }
+                payload.put(String.valueOf(e.getKey()).trim(), val);
             }
             if (!payload.containsKey("userId") && session != null) {
                 Object sid = session.getAttribute("userId");
                 if (sid != null) {
                     try {
-                        payload.put("userId", Integer.parseInt(String.valueOf(sid)));
+                        payload.put("userId", Integer.parseInt(String.valueOf(sid).trim()));
                     } catch (NumberFormatException e) { }
                 }
             }
@@ -137,6 +165,9 @@ public class DoneePage {
     @GetMapping(value = "/api/donee/donation/view", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public Object onViewDonation(@RequestParam(value = "fraId", defaultValue = "0") int fraId) {
+        if (fraId <= 0) {
+            return null;
+        }
         return viewDonationController.viewDonation(fraId);
     }
 }

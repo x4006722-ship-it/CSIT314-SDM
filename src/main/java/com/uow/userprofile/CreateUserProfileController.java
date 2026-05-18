@@ -1,24 +1,8 @@
 package com.uow.userprofile;
 import org.springframework.stereotype.Service;
 
-/**
- * Handles creation of new user roles/profiles.
- * 
- * Responsibilities:
- * - Validate profile data (role name and status)
- * - Check for duplicate role names
- * - Persist new profile to database
- */
 @Service
 public class CreateUserProfileController {
-    
-    /**
-     * Creates a new user profile (role) with validation.
-     * 
-     * @param profile The UserProfile object with role name and status
-     * @return true if profile was successfully created
-     * @throws IllegalArgumentException if role name is a duplicate
-     */
     public boolean createProfile(UserProfile profile) throws IllegalArgumentException {
         
         // rolename and status check 

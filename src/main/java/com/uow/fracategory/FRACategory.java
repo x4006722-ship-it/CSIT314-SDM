@@ -1,201 +1,83 @@
 package com.uow.fracategory;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
+import java.sql.*;
+import java.util.*;
 import com.uow.util.DBUtils;
 
-/**
- * Represents a category for organizing Fund Raising Activities.
- * 
- * FRA categories help organize and group fundraising campaigns by type or theme.
- * Each FRA can be assigned to a category for better organization and filtering.
- * 
- * Responsibilities:
- * - Create and manage FRA categories
- * - Retrieve category information
- * - Update category details
- * - Toggle category activation status
- * - Search and list categories with filters
- */
 public class FRACategory {
 
-    /**
-     * Creates and saves a new FRA category to the database.
-     * 
-     * @param newCategoryData A Map containing: categoryName, categoryStatus
-     * @return true if category was successfully created, false otherwise
-     */
-    public boolean saveCreateCategory(Object newCategoryData) {
-        if (!(newCategoryData instanceof Map<?, ?> data)) {
-            return false;
-        }
-        try (Connection c = DBUtils.getConnection();
-             PreparedStatement ps = c.prepareStatement(
-                     "INSERT INTO fra_category (category_name, category_status) VALUES (?, ?)")) {
-            ps.setString(1, readText(data.get("categoryName")));
-            ps.setString(2, readText(data.get("categoryStatus")));
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            return false;
-        }
-    }
-
-    /**
-     * Retrieves a specific FRA category by its ID.
-     * 
-     * @param categoryId The category ID to retrieve
-     * @return A Map containing category details (categoryID, categoryName, categoryStatus), or null if not found
-     */
     public Object getViewCategory(int categoryId) {
-        try (Connection c = DBUtils.getConnection();
-             PreparedStatement ps = c.prepareStatement(
-                     "SELECT category_id, category_name, category_status FROM fra_category WHERE category_id = ? LIMIT 1")) {
+        String sql = "SELECT category_id, category_name, category_status FROM fra_category WHERE category_id = ? LIMIT 1";
+        try (Connection c = DBUtils.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, categoryId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (!rs.next()) return null;
-                Map<String, Object> obj = new LinkedHashMap<>();
-                obj.put("categoryID", rs.getInt("category_id"));
-                obj.put("categoryName", rs.getString("category_name"));
-                obj.put("categoryStatus", rs.getString("category_status"));
-                return obj;
+                // Use HashMap for JDK 8 compatibility
+                Map<String, Object> row = new HashMap<>();
+                row.put("categoryID", rs.getInt("category_id"));
+                row.put("categoryName", rs.getString("category_name"));
+                row.put("categoryStatus", rs.getString("category_status"));
+                return row;
             }
-        } catch (SQLException e) {
-            return null;
-        }
+        } catch (SQLException e) { return null; }
     }
 
-    //Update Category
-    public boolean saveUpdateCategory(Object updatedCategoryData) {
-        if (!(updatedCategoryData instanceof Map<?, ?> data)) {
-            return false;
-        }
-        try (Connection c = DBUtils.getConnection();
-             PreparedStatement ps = c.prepareStatement(
-                     "UPDATE fra_category SET category_name = ?, category_status = ? WHERE category_id = ?")) {
-            ps.setString(1, readText(data.get("categoryName")));
-            ps.setString(2, readText(data.get("categoryStatus")));
-            ps.setInt(3, readInt(data.get("categoryId")));
+    public boolean saveCreateCategory(Map<String, Object> data) {
+        String sql = "INSERT INTO fra_category (category_name, category_status) VALUES (?, ?)";
+        try (Connection c = DBUtils.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, String.valueOf(data.get("categoryName")));
+            ps.setString(2, String.valueOf(data.get("categoryStatus")));
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            return false;
-        }
+        } catch (SQLException e) { return false; }
     }
 
-    //Suspend Category
+    public boolean saveUpdateCategory(Map<String, Object> data) {
+        String sql = "UPDATE fra_category SET category_name = ?, category_status = ? WHERE category_id = ?";
+        try (Connection c = DBUtils.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, String.valueOf(data.get("categoryName")));
+            ps.setString(2, String.valueOf(data.get("categoryStatus")));
+            ps.setInt(3, Integer.parseInt(String.valueOf(data.get("categoryId"))));
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) { return false; }
+    }
+
     public boolean saveSuspendCategory(int categoryId) {
-        try (Connection c = DBUtils.getConnection();
-             PreparedStatement ps = c.prepareStatement(
-                     "UPDATE fra_category SET category_status = CASE WHEN LOWER(TRIM(category_status))='suspended' THEN 'Active' ELSE 'Suspended' END WHERE category_id=?")) {
+        String sql = "UPDATE fra_category SET category_status = CASE WHEN LOWER(TRIM(category_status))='suspended' THEN 'Active' ELSE 'Suspended' END WHERE category_id=?";
+        try (Connection c = DBUtils.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, categoryId);
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            return false;
-        }
+        } catch (SQLException e) { return false; }
     }
 
-    //Search Category
-    // public Object getSearchCategory(Object searchCategoryData) {
-    //     String name = "";
-    //     String status = "";
-    //     if (!(searchCategoryData instanceof Map<?, ?> data)) {
-    //     return new ArrayList<>(); 
-    // }
-
-    //     StringBuilder sql = new StringBuilder(
-    //             "SELECT category_id, category_name, category_status FROM fra_category WHERE 1=1 ");
-    //     if (!name.isEmpty()) sql.append("AND category_name LIKE ? ");
-    //     if (!status.isEmpty()) sql.append("AND category_status = ? ");
-    //     sql.append("ORDER BY category_id LIMIT 2000");
-
-    //     try (Connection c = DBUtils.getConnection();
-    //          PreparedStatement ps = c.prepareStatement(sql.toString())) {
-    //         int idx = 1;
-    //         if (!name.isEmpty()) ps.setString(idx++, "%" + name + "%");
-    //         if (!status.isEmpty()) ps.setString(idx++, status);
-
-    //         List<Map<String, Object>> out = new ArrayList<>();
-    //         try (ResultSet rs = ps.executeQuery()) {
-    //             while (rs.next()) {
-    //                 Map<String, Object> row = new LinkedHashMap<>();
-    //                 row.put("categoryID", rs.getInt("category_id"));
-    //                 row.put("categoryName", rs.getString("category_name"));
-    //                 row.put("categoryStatus", rs.getString("category_status"));
-    //                 out.add(row);
-    //             }
-    //         }
-    //         return out;
-    //     } catch (SQLException e) {
-    //         return List.of();
-    //     }
-    // }
-    // Search Category
-    public Object getSearchCategory(Object searchCategoryData) {
-        if (!(searchCategoryData instanceof Map<?, ?> data)) {
-            return new ArrayList<>(); 
+    public Object getSearchCategory(Object searchData) {
+        String name = "";
+        String status = "";
+        if (searchData instanceof Map<?, ?> data) {
+            name = data.get("categoryName") == null ? "" : String.valueOf(data.get("categoryName")).trim();
+            status = data.get("categoryStatus") == null ? "" : String.valueOf(data.get("categoryStatus")).trim();
         }
 
-        // 【核心修复】真正把前端传过来的名字和状态从 Map 里读出来！
-        String name = readText(data.get("categoryName"));
-        String status = readText(data.get("categoryStatus"));
-
-        StringBuilder sql = new StringBuilder(
-                "SELECT category_id, category_name, category_status FROM fra_category WHERE 1=1 ");
+        String sql = "SELECT category_id, category_name, category_status FROM fra_category " +
+                     "WHERE (? = '' OR category_name LIKE ?) AND (? = '' OR category_status = ?)";
         
-        // 加入 LOWER 实现忽略大小写的智能模糊搜索
-        if (!name.isEmpty()) {
-            sql.append("AND LOWER(category_name) LIKE LOWER(?) ");
-        }
-        if (!status.isEmpty() && !"all".equalsIgnoreCase(status)) {
-            sql.append("AND category_status = ? ");
-        }
-        sql.append("ORDER BY category_id LIMIT 2000");
-
-        try (Connection c = DBUtils.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql.toString())) {
-            
-            int idx = 1;
-            if (!name.isEmpty()) {
-                ps.setString(idx++, "%" + name + "%");
-            }
-            if (!status.isEmpty() && !"all".equalsIgnoreCase(status)) {
-                ps.setString(idx++, status);
-            }
-
-            List<Map<String, Object>> out = new ArrayList<>();
+        try (Connection c = DBUtils.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, name);
+            ps.setString(2, "%" + name + "%");
+            ps.setString(3, status);
+            ps.setString(4, status);
             try (ResultSet rs = ps.executeQuery()) {
+                List<Map<String, Object>> list = new ArrayList<>();
                 while (rs.next()) {
-                    Map<String, Object> row = new LinkedHashMap<>();
+                    Map<String, Object> row = new HashMap<>();
                     row.put("categoryID", rs.getInt("category_id"));
                     row.put("categoryName", rs.getString("category_name"));
                     row.put("categoryStatus", rs.getString("category_status"));
-                    out.add(row);
+                    list.add(row);
                 }
+                return list;
             }
-            return out;
         } catch (SQLException e) {
-            return List.of();
-        }
-    }
-
-    private String readText(Object value) {
-        return value == null ? "" : String.valueOf(value).trim();
-    }
-
-    private int readInt(Object value) {
-        if (value instanceof Number number) {
-            return number.intValue();
-        }
-        try {
-            return Integer.parseInt(readText(value));
-        } catch (NumberFormatException e) {
-            return 0;
+            return new ArrayList<Map<String, Object>>(); // Return empty ArrayList for JDK 8
         }
     }
 }

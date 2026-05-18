@@ -40,3 +40,4 @@ public class ReportPage {
         return monthlyReportController.getMonthlyReport();
     }
 }
+

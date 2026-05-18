@@ -3,6 +3,7 @@ package com.uow.fra;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,10 +78,11 @@ public class FRA {
         String sql = "INSERT INTO fra (title, target_amount, category_id, fra_status, current_amount, viewCount, favoriteCount, startedAt, endedAt, donee_id, fundRaiser_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBUtils.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            
             pstmt.setString(1, this.fraTitle);
-            pstmt.setDouble(2, this.fraTargetAmount);
+            pstmt.setDouble(2, this.fraTargetAmount != null ? this.fraTargetAmount : 0.0);
             pstmt.setString(3, this.categoryId);
-            pstmt.setString(4, "Pending");
+            pstmt.setString(4, "Pending"); 
             pstmt.setDouble(5, 0.0);
             pstmt.setInt(6, 0);
             pstmt.setInt(7, 0);
@@ -88,35 +90,32 @@ public class FRA {
             pstmt.setString(9, this.fraEndedAt);
             pstmt.setString(10, this.doneeId);
             pstmt.setString(11, this.fundRaiserId);
+
             if (pstmt.executeUpdate() > 0) {
                 ResultSet rs = pstmt.getGeneratedKeys();
                 if (rs.next()) this.fraId = String.valueOf(rs.getInt(1));
                 return this; 
             }
             return null;
-        } catch (SQLException e) { return null; }
+        } catch (SQLException e) {
+            e.printStackTrace(); 
+            return null;
+        }
     }
 
     public boolean updateFRAData() {
-        // 【已修改】：彻底移除了 donee_id 和 fundRaiser_id 确保其死锁
         String sql = "UPDATE fra SET title = ?, target_amount = ?, category_id = ?, fra_status = ?, startedAt = ?, endedAt = ? WHERE fra_id = ?";
-        
         try (Connection conn = DBUtils.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
             pstmt.setString(1, this.fraTitle);
             pstmt.setDouble(2, this.fraTargetAmount);
             pstmt.setString(3, this.categoryId);
             pstmt.setString(4, this.fraStatus);
             pstmt.setString(5, this.fraStartedAt);
             pstmt.setString(6, this.fraEndedAt);
-            pstmt.setString(7, this.fraId); 
-            
+            pstmt.setString(7, this.fraId);
             return pstmt.executeUpdate() > 0;
-            
-        } catch (SQLException e) { 
-            return false; 
-        }
+        } catch (SQLException e) { return false; }
     }
 
     public static List<FRA> findFRAsByCriteria(String criteria, String categoryId, String status, String role, String userId, String startDate, String endDate) {
@@ -201,42 +200,89 @@ public class FRA {
         return list;
     }
 
-    public static Object getSearchDonation(Object searchDonationData) {
-        if (!(searchDonationData instanceof Map<?, ?> data)) return List.of();
-        int userId = parseInt(data.get("userId"));
-        String title = parseText(data.get("title"));
-        String fraStatus = parseText(data.get("fraStatus"));
-        String categoryName = parseText(data.get("categoryName"));
-        String startDate = parseText(data.get("startDate"));
-        String endDate = parseText(data.get("endDate"));
-        
-        StringBuilder sql = new StringBuilder("SELECT f.fra_id, f.title, f.fra_status, f.current_amount, f.target_amount, IFNULL(TRIM(fc.category_name), '') AS category_name FROM fra f LEFT JOIN fra_category fc ON f.category_id = fc.category_id WHERE f.donee_id = ? AND 1=1 ");
-        List<Object> params = new ArrayList<>();
-        params.add(userId);
-        if (!title.isBlank()) { sql.append("AND LOWER(f.title) LIKE LOWER(?) "); params.add("%" + title + "%"); }
-        if (!fraStatus.isBlank() && !"all".equalsIgnoreCase(fraStatus)) { sql.append("AND f.fra_status = ? "); params.add(fraStatus); }
-        if (!categoryName.isBlank() && !"all".equalsIgnoreCase(categoryName)) { sql.append("AND TRIM(LOWER(fc.category_name)) = LOWER(?) "); params.add(categoryName); }
-        if (!startDate.isBlank()) { sql.append("AND DATE(f.startedAt) >= ? "); params.add(startDate); }
-        if (!endDate.isBlank()) { sql.append("AND DATE(f.endedAt) <= ? "); params.add(endDate); }
-        sql.append("ORDER BY f.fra_id");
-        try (Connection conn = DBUtils.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
-            for (int i = 0; i < params.size(); i++) pstmt.setObject(i + 1, params.get(i));
-            List<Map<String, Object>> out = new ArrayList<>();
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    Map<String, Object> row = new LinkedHashMap<>();
-                    row.put("fra_id", rs.getInt("fra_id")); 
-                    row.put("title", rs.getString("title"));
-                    row.put("status", rs.getString("fra_status"));
-                    row.put("currentAmount", rs.getObject("current_amount")); 
-                    row.put("targetAmount", rs.getObject("target_amount"));
-                    row.put("category", rs.getString("category_name"));
-                    out.add(row);
-                }
-            }
-            return out;
-        } catch (SQLException e) { return List.of(); }
+   public static Object getSearchDonation(Object searchDonationData) {
+    if (!(searchDonationData instanceof Map<?, ?> data)) {
+        return List.of();
     }
+
+    // 1. Extract and validate parameters
+    int userId = parseInt(data.get("userId"));
+    String title = parseText(data.get("title"));
+    String fraStatus = parseText(data.get("fraStatus"));
+    String categoryName = parseText(data.get("categoryName"));
+    String startDate = parseText(data.get("startDate"));
+    String endDate = parseText(data.get("endDate"));
+
+    // 2. Build dynamic SQL query with proper joins and conditions
+    StringBuilder sql = new StringBuilder(
+        "SELECT f.fra_id, f.title, f.fra_status, f.current_amount, f.target_amount, " +
+        "IFNULL(TRIM(fc.category_name), '') AS category_name " +
+        "FROM fra f " +
+        "LEFT JOIN fra_category fc ON f.category_id = fc.category_id " +
+        "WHERE f.donee_id = ? " // Ensure the user only sees their own donations
+    );
+
+    List<Object> params = new ArrayList<>();
+    params.add(userId);
+
+    // 3. (Only add conditions if parameters are provided
+    if (!title.isBlank()) {
+        sql.append("AND LOWER(f.title) LIKE LOWER(?) ");
+        params.add("%" + title + "%");
+    }
+
+    // status
+    if (!fraStatus.isBlank() && !"all".equalsIgnoreCase(fraStatus)) {
+        sql.append("AND f.fra_status = ? ");
+        params.add(fraStatus);
+    }
+
+    // categoryName
+    if (!categoryName.isBlank() && !"all".equalsIgnoreCase(categoryName)) {
+        sql.append("AND TRIM(LOWER(fc.category_name)) = LOWER(?) ");
+        params.add(categoryName);
+    }
+    // [startDate]  [endDate] 
+    if (!startDate.isBlank()) {
+        sql.append("AND DATE(f.startedAt) >= ? ");
+        params.add(startDate);
+    }
+    if (!endDate.isBlank()) {
+        sql.append("AND DATE(f.startedAt) <= ? ");
+        params.add(endDate);
+    }
+
+    sql.append(" ORDER BY f.fra_id DESC");
+
+    // 4. 执行数据库操作
+    try (Connection conn = DBUtils.getConnection(); 
+         PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+        
+        for (int i = 0; i < params.size(); i++) {
+            pstmt.setObject(i + 1, params.get(i));
+        }
+
+        List<Map<String, Object>> out = new ArrayList<>();
+        try (ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                Map<String, Object> row = new LinkedHashMap<>();
+                row.put("fra_id", rs.getInt("fra_id")); 
+                row.put("title", rs.getString("title"));
+                row.put("status", rs.getString("fra_status"));
+                row.put("currentAmount", rs.getObject("current_amount")); 
+                row.put("targetAmount", rs.getObject("target_amount"));
+                row.put("category", rs.getString("category_name"));
+                out.add(row);
+            }
+        }
+        return out;
+
+    } catch (SQLException e) {
+        e.printStackTrace(); //  Print error for debugging
+        return List.of();
+    }
+}
+
 
     public static Object getViewDonation(int fraId) {
         String sql = "SELECT f.title, f.fra_status, f.startedAt, f.endedAt, f.viewCount, f.favoriteCount, f.current_amount, f.target_amount, COALESCE(NULLIF(TRIM(ua.full_name),''), ua.username, '-') AS doneeName FROM fra f LEFT JOIN user_account ua ON f.donee_id = ua.user_id WHERE f.fra_id = ? LIMIT 1";
@@ -260,10 +306,24 @@ public class FRA {
     }
 
     public boolean removeFRA() {
+        // Logic: Delete associated records first to avoid Foreign Key violations
         try (Connection conn = DBUtils.getConnection()) {
-            try (PreparedStatement p1 = conn.prepareStatement("DELETE FROM fra_favourite WHERE fra_id = ?")) { p1.setString(1, this.fraId); p1.executeUpdate(); }
-            try (PreparedStatement p2 = conn.prepareStatement("DELETE FROM fra WHERE fra_id = ?")) { p2.setString(1, this.fraId); return p2.executeUpdate() > 0; }
-        } catch (SQLException e) { return false; }
+            // Step 1: Clean up favorites associated with this FRA
+            try (PreparedStatement p1 = conn.prepareStatement("DELETE FROM fra_favourite WHERE fra_id = ?")) {
+                p1.setString(1, this.fraId);
+                p1.executeUpdate();
+            }
+            
+            // Step 2: Delete the FRA itself
+            try (PreparedStatement p2 = conn.prepareStatement("DELETE FROM fra WHERE fra_id = ?")) {
+                p2.setString(1, this.fraId);
+                int rows = p2.executeUpdate();
+                return rows > 0; // Return true if at least one row was deleted
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Useful for debugging in console
+            return false;
+        }
     }
 
     @JsonIgnore public Object getDailyFraStats() { return getStatsByFilter("DATE(f.startedAt) = CURDATE()"); }
@@ -272,11 +332,35 @@ public class FRA {
 
     private Object getStatsByFilter(String filter) {
         Map<String, Object> out = new LinkedHashMap<>();
+        out.put("totalFraCount", 0);
+        out.put("totalTargetAmount", 0.0);
+        out.put("totalCurrentAmount", 0.0);
+        out.put("fraByCategory", new ArrayList<>());
+
+        String whereClause = filter.isBlank() ? "" : " WHERE " + filter;
+
         try (Connection conn = DBUtils.getConnection()) {
-            String sql = "SELECT COUNT(*) as total FROM fra f WHERE " + filter;
-            try (PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) out.put("totalFraCount", rs.getInt("total"));
+            String sql1 = "SELECT COUNT(*) as total, SUM(target_amount) as totalTarget, SUM(current_amount) as totalCurrent FROM fra f" + whereClause;
+            try (PreparedStatement ps = conn.prepareStatement(sql1); ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    out.put("totalFraCount", rs.getInt("total"));
+                    out.put("totalTargetAmount", rs.getDouble("totalTarget"));
+                    out.put("totalCurrentAmount", rs.getDouble("totalCurrent"));
+                }
             }
+            String sql2 = "SELECT COALESCE(fc.category_name, 'Unknown') as categoryName, COUNT(f.fra_id) as fraCount " +
+                          "FROM fra f LEFT JOIN fra_category fc ON f.category_id = fc.category_id " +
+                          whereClause + " GROUP BY fc.category_name ORDER BY fraCount DESC";
+            List<Map<String, Object>> byCat = new ArrayList<>();
+            try (PreparedStatement ps = conn.prepareStatement(sql2); ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("categoryName", rs.getString("categoryName"));
+                    row.put("count", rs.getInt("fraCount"));
+                    byCat.add(row);
+                }
+            }
+            out.put("fraByCategory", byCat);
         } catch (SQLException e) { }
         return out;
     }

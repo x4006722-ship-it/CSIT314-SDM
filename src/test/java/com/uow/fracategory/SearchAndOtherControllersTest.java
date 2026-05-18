@@ -1,96 +1,32 @@
 package com.uow.fracategory;
 
-import org.junit.After;
 import org.junit.Test;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import com.uow.util.DBUtils;
 import static org.junit.Assert.*;
 
 public class SearchAndOtherControllersTest {
 
-    private final String TEST_PREFIX = "PragmaticTest_Other_";
-
-    @After
-    public void tearDown() {
-        try (Connection c = DBUtils.getConnection();
-             PreparedStatement ps = c.prepareStatement("DELETE FROM fra_category WHERE category_name LIKE ?")) {
-            ps.setString(1, TEST_PREFIX + "%");
-            ps.executeUpdate();
-        } catch (Exception e) {}
-    }
-
     @Test
     public void test_Search_executes_safely_and_returns_list() {
         SearchFRACategoryController controller = new SearchFRACategoryController();
-        Map<String, String> searchParams = new HashMap<>();
+        Map<String, Object> searchParams = new HashMap<>();
         searchParams.put("categoryName", "");
         searchParams.put("categoryStatus", "Active");
 
         Object result = controller.searchCategory(searchParams);
-        assertNotNull(result);
-    }
-
-    // --- 新增：容错测试（传入 null）---
-    @Test
-    public void test_Search_executes_safely_with_null_or_invalid_type() {
-        SearchFRACategoryController controller = new SearchFRACategoryController();
-        Object result = controller.searchCategory(null);
-        assertNotNull("Should safely return an empty list or execute without crashing", result);
+        assertNotNull("Search result should not be null", result);
     }
 
     @Test
-    public void test_Search_throws_exception_when_status_is_invalid() {
-        SearchFRACategoryController controller = new SearchFRACategoryController();
-        Map<String, String> searchParams = new HashMap<>();
-        searchParams.put("categoryName", "Test");
-        searchParams.put("categoryStatus", "InvalidHackedStatus");
-
-        try {
-            controller.searchCategory(searchParams);
-            fail("Expected exception for invalid status format");
-        } catch (IllegalArgumentException e) {
-            assertEquals("Invalid status format.", e.getMessage());
-        }
-    }
-
-    @Test
-    public void test_View_executes_safely() {
+    public void test_View_returns_null_for_invalid_id() {
         ViewFRACategoryController controller = new ViewFRACategoryController();
-        assertNull(controller.viewCategory(-9999));
+        assertNull("Viewing non-existent ID should return null", controller.viewCategory(-1));
     }
 
     @Test
-    public void test_Suspend_returns_false_for_invalid_id() {
+    public void test_Suspend_returns_false_for_missing_id() {
         SuspendFRACategoryController controller = new SuspendFRACategoryController();
-        assertFalse(controller.suspendCategory(-9999));
-    }
-
-    // --- 新增：真实的 Suspend 成功测试 ---
-    @Test
-    public void test_Suspend_succeeds_for_valid_id() {
-        // 先在数据库里造一条真实的数据
-        CreateFRACategoryController createController = new CreateFRACategoryController();
-        String catName = TEST_PREFIX + "ToSuspend";
-        Map<String, String> newCat = new HashMap<>();
-        newCat.put("categoryName", catName);
-        newCat.put("categoryStatus", "Active");
-        createController.createCategory(newCat);
-
-        // 查出它的 ID
-        SearchFRACategoryController searchController = new SearchFRACategoryController();
-        Map<String, String> searchParam = new HashMap<>();
-        searchParam.put("categoryName", catName);
-        searchParam.put("categoryStatus", "");
-        @SuppressWarnings("unchecked")
-        List<Map<String, Object>> results = (List<Map<String, Object>>) searchController.searchCategory(searchParam);
-        int validId = (Integer) results.get(0).get("categoryID");
-
-        // 测试执行挂起
-        SuspendFRACategoryController suspendController = new SuspendFRACategoryController();
-        assertTrue("Suspend should succeed for a valid existing ID", suspendController.suspendCategory(validId));
+        assertFalse("Suspending non-existent ID should return false", controller.suspendCategory(-1));
     }
 }

@@ -2,6 +2,7 @@ package com.uow.fra;
 
 import org.junit.Before;
 import org.junit.Test;
+import java.time.LocalDate;
 import static org.junit.Assert.*;
 
 public class UpdateFRAControllerTest {
@@ -9,7 +10,7 @@ public class UpdateFRAControllerTest {
     private UpdateFRAController controller;
     private FRA validFraData;
     private String existingRealId; 
-    private String initialTitle; // 存一下原来的名字
+    private String initialTitle;
 
     @Before
     public void setUp() {
@@ -23,8 +24,8 @@ public class UpdateFRAControllerTest {
         setupData.setCategoryId("1");
         setupData.setDoneeId("1");
         setupData.setFundRaiserId("2");
-        setupData.setStartedAt("2026-01-01");
-        setupData.setEndedAt("2026-05-01");
+        setupData.setStartedAt(LocalDate.now().plusDays(1).toString());
+        setupData.setEndedAt(LocalDate.now().plusMonths(5).toString());
         setupData.setFraStatus("Pending");
         
         FRA savedFra = setupCreateCtrl.createFRA(setupData);
@@ -37,8 +38,8 @@ public class UpdateFRAControllerTest {
         validFraData.setCategoryId("1");
         validFraData.setDoneeId("1");
         validFraData.setFundRaiserId("2");
-        validFraData.setStartedAt("2026-06-01");
-        validFraData.setEndedAt("2026-12-31");
+        validFraData.setStartedAt(LocalDate.now().plusDays(2).toString());
+        validFraData.setEndedAt(LocalDate.now().plusMonths(6).toString());
         validFraData.setFraStatus("Pending");
     }
 
@@ -48,18 +49,21 @@ public class UpdateFRAControllerTest {
         assertTrue("Should return true when updating a real existing record with valid data", result);
     }
 
-    // --- 新增：排除自身查重测试 ---
+    @Test
+    public void test_Update_fails_when_target_amount_exceeds_maximum() {
+        validFraData.setFraTargetAmount(1000000000.01);
+        assertFalse("Should fail when update target amount exceeds 1 Billion", controller.updateFRA(existingRealId, validFraData));
+    }
+
     @Test
     public void test_Update_succeeds_when_title_is_unchanged() {
-        validFraData.setFraTitle(initialTitle); // 保持原Title不变
+        validFraData.setFraTitle(initialTitle); 
         boolean result = controller.updateFRA(existingRealId, validFraData);
         assertTrue("Should succeed because duplicate check excludes self", result);
     }
 
-    // --- 新增：和别人重名查重测试 ---
     @Test
     public void test_Update_fails_when_title_is_duplicate_of_another_record() {
-        // 先创建第二条无关的数据
         CreateFRAController setupCreateCtrl = new CreateFRAController();
         FRA anotherData = new FRA();
         String anotherTitle = "Another Record Title " + System.nanoTime();
@@ -68,11 +72,10 @@ public class UpdateFRAControllerTest {
         anotherData.setCategoryId("1");
         anotherData.setDoneeId("1");
         anotherData.setFundRaiserId("2");
-        anotherData.setStartedAt("2026-01-01");
-        anotherData.setEndedAt("2026-05-01");
+        anotherData.setStartedAt(LocalDate.now().plusDays(1).toString());
+        anotherData.setEndedAt(LocalDate.now().plusMonths(5).toString());
         setupCreateCtrl.createFRA(anotherData);
 
-        // 试图把第一条数据的Title改得和第二条一样
         validFraData.setFraTitle(anotherTitle);
         boolean result = controller.updateFRA(existingRealId, validFraData);
         assertFalse("Should fail when updating to a title owned by another record", result);
@@ -124,16 +127,17 @@ public class UpdateFRAControllerTest {
 
     @Test
     public void test_Update_fails_when_start_date_equals_end_date() {
-        validFraData.setStartedAt("2026-10-10");
-        validFraData.setEndedAt("2026-10-10");
+        String sameDate = LocalDate.now().plusDays(10).toString();
+        validFraData.setStartedAt(sameDate);
+        validFraData.setEndedAt(sameDate);
         boolean result = controller.updateFRA(existingRealId, validFraData);
         assertFalse("Should fail when start date equals end date", result);
     }
 
     @Test
     public void test_Update_fails_when_date_logic_is_invalid() {
-        validFraData.setStartedAt("2026-12-31");
-        validFraData.setEndedAt("2026-01-01");
+        validFraData.setStartedAt(LocalDate.now().plusMonths(2).toString());
+        validFraData.setEndedAt(LocalDate.now().plusMonths(1).toString());
         boolean result = controller.updateFRA(existingRealId, validFraData);
         assertFalse("Should fail when start date is after end date", result);
     }

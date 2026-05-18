@@ -1,53 +1,37 @@
 package com.uow.useraccount;
 
 import org.springframework.stereotype.Controller;
+import java.util.Map;
 
-/**
- * Handles suspension (activation toggle) of user accounts.
- * 
- * Responsibilities:
- * - Prevent users from suspending themselves
- * - Validate both current and target user accounts
- * - Prevent suspension of User Admin role accounts
- * - Toggle account status between Active and Suspended
- */
 @Controller
 public class SuspendUserAccountController {
 
     private final UserAccount userAccount = new UserAccount();
 
-    /**
-     * Toggles the suspension status of a user account.
-     * 
-     * Business Rules:
-     * - A user cannot suspend themselves
-     * - Cannot suspend User Admin role accounts
-     * - Both accounts must exist and be valid
-     * 
-     * @param targetUserId The user ID to suspend/activate
-     * @param currentUserId The user ID performing the action
-     * @return true if suspension toggle was successful, false if validation fails
-     */
     public boolean suspendAccount(int targetUserId, int currentUserId) {
+        // Business Domain Rule 1: Self-suspension is strictly forbidden
         if (targetUserId == currentUserId) {
-            return false;
+            throw new IllegalArgumentException("You cannot suspend your own account.");
         }
 
+        // Business Domain Rule 2: Verify account existence criteria inside the logic flow
         Object currentAccount = userAccount.getViewAccount(currentUserId);
-        if (!(currentAccount instanceof java.util.Map<?, ?>)) {
-            return false;
+        if (!(currentAccount instanceof Map<?, ?>)) {
+            throw new IllegalArgumentException("Current user account not found.");
         }
 
         Object targetAccount = userAccount.getViewAccount(targetUserId);
-        if (!(targetAccount instanceof java.util.Map<?, ?> targetMap)) {
-            return false;
+        if (!(targetAccount instanceof Map<?, ?> targetMap)) {
+            throw new IllegalArgumentException("Target account not found.");
         }
 
+        // Business Domain Rule 3: Protected Role Exclusivity Check (User Admins cannot be locked out)
         Object roleName = targetMap.get("roleName");
         if (roleName != null && "User Admin".equalsIgnoreCase(String.valueOf(roleName).trim())) {
-            return false;
+            throw new IllegalArgumentException("Accounts with the User Admin role cannot be suspended.");
         }
 
+        // Logic validated, send instructions down to Entity update mechanisms
         return userAccount.saveSuspendAccount(targetUserId, currentUserId);
     }
 }

@@ -15,7 +15,6 @@ public class DoneePageTest {
     public void setUp() throws Exception {
         doneePage = new DoneePage();
         
-        // 【核心修复】：注入全部依赖，防止引发 NPE
         injectField("viewDonationController", new ViewDonationController());
         injectField("searchDonationController", new SearchDonationController());
         injectField("saveFavouriteController", new SaveFavouriteController());
@@ -31,7 +30,6 @@ public class DoneePageTest {
 
    @Test
     public void test_On_search_FRA_executes_safely_with_all_params() {
-        // 正常用例：补上漏掉的 endDate 参数 (比如 "2023-12-31")
         Object result = doneePage.onSearchFRA("test", "1", "Pending", "2023-01-01", "2023-12-31", null);
         assertTrue("Should return a list", result instanceof java.util.List);
     }
@@ -39,7 +37,9 @@ public class DoneePageTest {
     @Test
     public void test_On_view_FRA_executes_without_crashing() {
         Object result = doneePage.onViewFRA(0);
-        assertNull(result); 
+
+        assertTrue("Should return error map for invalid ID", result instanceof java.util.Map);
+        assertEquals("Invalid identifier identifier.", ((java.util.Map<?,?>) result).get("error"));
     }
 
     @Test

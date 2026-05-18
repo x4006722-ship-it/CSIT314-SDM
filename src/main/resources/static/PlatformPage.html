@@ -7,9 +7,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <style>
-        /* ================= 核心色彩与基础变量 (保持绿色的 PM 风格) ================= */
         :root {
             --surface: #ffffff;
             --surface-soft: #f8fafc;
@@ -18,6 +18,7 @@
             --border-soft: #e2e8f0;
             --text: #0f172a;
             --text-muted: #64748b;
+            --text-faint: #94a3b8;
             --accent: #059669;
             --accent-hover: #047857;
             --accent-bright: #10b981;
@@ -32,21 +33,11 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, -apple-system, sans-serif; }
 
-        /* ================= 页面背景 (弥散光晕) ================= */
-        body {
-            min-height: 100vh;
-            color: var(--text);
-            position: relative;
-            background:
-                radial-gradient(1000px 500px at 0% 0%, rgba(16, 185, 129, 0.08), transparent 55%),
-                radial-gradient(800px 400px at 100% 0%, rgba(20, 184, 166, 0.05), transparent 50%),
-                #f1f5f9;
-        }
+        body { min-height: 100vh; color: var(--text); background: #f8fafc; }
 
-        .container { min-height: 100vh; position: relative; z-index: 1; }
-        .main-content { padding: 30px; max-width: 1500px; margin: 0 auto; }
+        .container { min-height: 100vh; }
+        .main-content { padding: 20px; max-width: 1560px; margin: 0 auto; }
 
-        /* ================= 顶栏 ================= */
         .topbar {
             display: flex;
             justify-content: space-between;
@@ -59,8 +50,13 @@
             border: 1px solid var(--border-soft);
             border-left: 4px solid var(--accent);
         }
-        .topbar-user { font-size: 16px; color: var(--text-muted); }
-        .topbar-user strong { color: #047857; font-size: 17px; font-weight: 700; }
+        .topbar-user { font-size: 13px; color: #94a3b8; display: inline-flex; align-items: center; gap: 8px; }
+        .topbar-user::before {
+            content: "PM"; width: 34px; height: 34px; border-radius: 999px;
+            background: #d1fae5; color: #047857; display: inline-flex;
+            align-items: center; justify-content: center; font-size: 12px; font-weight: 600; letter-spacing: .03em;
+        }
+        .topbar-user strong { color: #047857; font-size: 14px; font-weight: 500; }
 
         .topbar-left { display: flex; align-items: center; gap: 12px; }
         .nav-btn {
@@ -97,51 +93,29 @@
         .nav-icon span:nth-child(3) { top: 10px; }
 
         .logout-btn {
-            border: 1px solid rgba(248, 113, 113, 0.5);
-            color: #b91c1c;
-            background: var(--danger-soft);
-            padding: 10px 18px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-size: 15px;
-            font-weight: 600;
-            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+            border: 1px solid #fecdd3; color: #f43f5e; background: #fff1f2;
+            padding: 6px 12px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 500;
+            transition: background 0.2s, color 0.2s; display: inline-flex; align-items: center; gap: 5px;
         }
-        .logout-btn:hover {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            color: #fff;
-            border-color: transparent;
-            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
-        }
+        .logout-btn:hover { background: #ffe4e6; }
 
         .admin-section {
             background: #fff;
             border-radius: 14px;
-            padding: 26px;
-            margin-bottom: 28px;
-            box-shadow: var(--shadow);
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-sm);
             border: 1px solid var(--border-soft);
         }
         .section-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 1rem;
             border-bottom: 1px solid var(--border-soft);
-            padding-bottom: 12px;
-            position: relative;
+            padding-bottom: .8rem;
         }
-        .section-header::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            bottom: -1px;
-            width: min(180px, 45%);
-            height: 2px;
-            border-radius: 2px;
-            background: linear-gradient(90deg, #10b981, #14b8a6);
-        }
-        h2 { font-size: 20px; color: var(--text); letter-spacing: -0.02em; font-weight: 700; }
+        h2 { font-size: 16px; color: #334155; font-weight: 600; letter-spacing: .01em; }
 
         .subsection {
             padding: 18px;
@@ -248,10 +222,10 @@
         table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 980px; }
         thead th {
             position: sticky; top: 0; z-index: 1;
-            background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+            background: #f8fafc;
             border-bottom: 1px solid var(--border-soft);
-            font-size: 11px; letter-spacing: 0.05em;
-            text-transform: uppercase; color: var(--head-fg);
+            font-size: 11px; letter-spacing: 0.07em;
+            text-transform: uppercase; color: #94a3b8;
             font-weight: 600;
             padding: 13px 12px;
             text-align: left; white-space: nowrap;
@@ -264,7 +238,7 @@
             vertical-align: middle;
             background: #fff;
         }
-        tbody tr:hover td { background: #ecfdf5; }
+        tbody tr:hover td { background: #fafbff; }
 
         .td-actions { display: inline-flex; gap: 8px; flex-wrap: nowrap; align-items: center; justify-content: center; width: 100%; }
 
@@ -302,27 +276,32 @@
             background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
         }
 
+        /* 🚨 FIXED TOAST: HIGH-END TOP-RIGHT POSITIONING 🚨 */
         .toast {
             position: fixed;
-            left: 50%;
-            bottom: 18px;
-            transform: translateX(-50%);
-            z-index: 1100;
-            background: #064e3b;
+            right: 24px;
+            top: 24px;
+            z-index: 9999;
             color: #fff;
             border-radius: 10px;
-            padding: 12px 18px;
-            box-shadow: 0 10px 40px rgba(6, 78, 59, 0.2);
+            padding: 14px 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
             display: none;
-            max-width: min(520px, 92vw);
-            font-size: 13px;
-            font-weight: 500;
-            line-height: 1.35;
-            border: 1px solid rgba(167, 243, 208, 0.4);
+            max-width: 400px;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.4;
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .toast.open { display: block; }
-        .toast.bad { background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%); border-color: rgba(252, 165, 165, 0.4); }
-        .toast.ok { background: linear-gradient(135deg, #047857 0%, #064e3b 100%); border-color: rgba(167, 243, 208, 0.45); }
+        .toast.open { 
+            display: block; 
+            transform: translateX(0);
+            opacity: 1;
+        }
+        .toast.bad { background: #ef4444; border-left: 6px solid #b91c1c; }
+        .toast.ok { background: #10b981; border-left: 6px solid #047857; }
 
         .nav-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.35); display: none; z-index: 2100; }
         .nav-backdrop.open { display: block; }
@@ -348,20 +327,44 @@
         }
         .nav-drawer-header strong { font-size: 14px; color: #065f46; font-weight: 700; }
         .nav-close {
-            border: 1px solid var(--border-soft); background: #fff; border-radius: 10px; padding: 8px 10px;
-            cursor: pointer; font-weight: 700; color: #334155; transition: border-color 0.2s, background 0.2s;
+            border: 1px solid var(--border-soft);
+            background: #fff;
+            border-radius: 10px;
+            padding: 8px 10px;
+            cursor: pointer;
+            font-weight: 700;
+            color: #334155;
+            transition: border-color 0.2s, background 0.2s;
         }
-        .nav-close:hover { border-color: var(--accent-soft); background: var(--accent-light); }
+        .nav-close:hover {
+            border-color: var(--accent-soft);
+            background: var(--accent-light);
+        }
         .nav-list { padding: 10px; display: grid; gap: 8px; }
         .nav-item {
-            width: 100%; text-align: left; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border-soft);
-            background: #fff; cursor: pointer; font-weight: 700; color: #334155; transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
+            width: 100%;
+            text-align: left;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border-soft);
+            background: #fff;
+            cursor: pointer;
+            font-weight: 700;
+            color: #334155;
+            transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
         }
-        .nav-item.active { background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: #fff; border-color: transparent; box-shadow: 0 4px 14px rgba(5, 150, 105, 0.28); }
+        .nav-item.active {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 4px 14px rgba(5, 150, 105, 0.28);
+        }
         .nav-item:hover { background: #ecfdf5; border-color: var(--accent-soft); color: #047857; }
-        .nav-item.active:hover { background: linear-gradient(135deg, #10b981 0%, #34d399 100%); color: #fff; }
+        .nav-item.active:hover {
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            color: #fff;
+        }
 
-        /* ================= 报表模块布局 ================= */
         .report-grid { display: block; min-width: 0; }
         .report-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
         .report-stat { border: 1px solid var(--border-soft); border-radius: 10px; background: #fff; padding: 14px 16px; }
@@ -477,7 +480,7 @@
                         </thead>
                         <tbody id="fra-list-tbody">
                         <tr>
-                            <td colspan="4" class="muted" style="text-align: center;">Loading…</td>
+                            <td colspan="4" class="muted" style="text-align: center;">Loading...</td>
                         </tr>
                         </tbody>
                     </table>
@@ -512,6 +515,26 @@
                         </div>
                     </div>
                 </div>
+                
+                <div class="subsection" style="margin-top:16px;">
+                    <h3>FRA Stats</h3>
+                    <div class="report-stats">
+                        <div class="report-stat"><div class="report-stat-key">Total New FRAs</div><div class="report-stat-val" id="rep-fra-total">0</div></div>
+                        <div class="report-stat"><div class="report-stat-key">Total Target ($)</div><div class="report-stat-val" id="rep-fra-target">$0</div></div>
+                        <div class="report-stat"><div class="report-stat-key">Total Raised ($)</div><div class="report-stat-val" id="rep-fra-raised">$0</div></div>
+                    </div>
+                    <div class="report-charts">
+                        <div class="report-chart-card">
+                            <div class="report-chart-title">Target vs Raised ($)</div>
+                            <div class="report-canvas"><canvas id="rep-fra-amount-chart"></canvas></div>
+                        </div>
+                        <div class="report-chart-card">
+                            <div class="report-chart-title">FRA Count by Category</div>
+                            <div class="report-canvas"><canvas id="rep-fra-category-chart"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </main>
@@ -539,7 +562,7 @@
     <div id="fra-modal-body" class="modal-body"></div>
     <div class="modal-footer">
         <button id="fra-modal-save" type="button" class="btn btn-muted" style="display:none;">Save</button>
-        <button id="fra-modal-ok" type="button" class="btn btn-black">OK</button>
+        <button id="fra-modal-ok" type="button" class="btn btn-black">Close</button>
     </div>
 </div>
 
@@ -550,9 +573,12 @@
         searchQuery: '',
         searchStatus: ''
     };
+    
     const reportState = {
         userStatusChart: null,
         userRoleChart: null,
+        fraAmountChart: null,
+        fraCategoryChart: null,
         loadedPeriod: ''
     };
 
@@ -589,14 +615,14 @@
         clearTimeout(window.__fraToastTimer);
         window.__fraToastTimer = setTimeout(() => {
             el.classList.remove('open');
-        }, 1800);
+        }, 3000); // 3 seconds visible
     }
 
     function fraShowToastFromQuery() {
         const params = new URLSearchParams(window.location.search);
         const msg = params.get('toast');
         if (!msg) return;
-        fraOpenModal(msg.toLowerCase().startsWith('success') ? 'Success' : 'Notice', `<div>${fraEscapeHtml(msg)}</div>`, false);
+        fraToast(msg, msg.toLowerCase().includes('failed') ? 'bad' : 'ok');
         params.delete('toast');
         const next = params.toString();
         const url = window.location.pathname + (next ? `?${next}` : '');
@@ -606,7 +632,7 @@
     async function loadFraCategories() {
         const tbody = document.getElementById('fra-list-tbody');
         const count = document.getElementById('fra-count');
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#667085;">Loading…</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#667085;">Loading...</td></tr>`;
         try {
             const q = (fraState.searchQuery || '').trim();
             const st = (fraState.searchStatus || '').trim();
@@ -648,7 +674,6 @@
         } catch (e) {
             tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#667085;">Failed to load categories.</td></tr>`;
             count.textContent = '—';
-            fraOpenModal('Notice', `Failed to load categories from database. ${fraEscapeHtml(e?.message || '')}`, false);
         }
     }
 
@@ -664,24 +689,22 @@
             const html = `
                 <div style="display:grid; gap: 10px;">
                     <div>
-                        <div style="font-size:12px; color:#667085; margin-bottom:4px;">categoryName</div>
+                        <div style="font-size:12px; color:#667085; margin-bottom:4px;">Category Name</div>
                         <input id="fra-edit-name" value="${fraEscapeHtml(name)}" />
                     </div>
                     <div>
-                        <div style="font-size:12px; color:#667085; margin-bottom:4px;">categoryStatus</div>
+                        <div style="font-size:12px; color:#667085; margin-bottom:4px;">Category Status</div>
                         <select id="fra-edit-status">
-                            <option value="Active">Active</option>
-                            <option value="Suspended">Suspended</option>
+                            <option value="Active" ${status === 'Active' ? 'selected' : ''}>Active</option>
+                            <option value="Suspended" ${status === 'Suspended' ? 'selected' : ''}>Suspended</option>
                         </select>
                     </div>
-                    <div id="fra-edit-error" style="display:none; color:#a8071a; font-weight:700;"></div>
                 </div>
             `;
             fraOpenModal(`Category Detail (ID: ${categoryID})`, html, true);
-            document.getElementById('fra-edit-status').value = status || 'Active';
             document.getElementById('fra-modal-save').dataset.categoryId = String(categoryID);
         } catch (e) {
-            fraOpenModal('Notice', 'Failed to load category detail.', false);
+            fraToast('Failed to load category detail.', 'bad');
         }
     }
 
@@ -690,8 +713,6 @@
         const name = (document.getElementById('fra-edit-name')?.value || '').trim();
         const status = (document.getElementById('fra-edit-status')?.value || '').trim();
         try {
-            const errEl = document.getElementById('fra-edit-error');
-            if (errEl) { errEl.textContent = ''; errEl.style.display = 'none'; }
             const saveBtn = document.getElementById('fra-modal-save');
             saveBtn.disabled = true;
 
@@ -710,23 +731,17 @@
             
             const resp = await r.json().catch(() => null);
             
-            if (!r.ok || resp !== true) {
-                const errorMessage = (resp && resp.error) ? resp.error : `HTTP ${r.status || 'Update failed.'}`;
-                throw new Error(errorMessage);
-            }
-            
-            fraCloseModal();
-            await loadFraCategories();
-            fraToast('Category updated.', 'ok');
-        } catch (e) {
-            const errEl = document.getElementById('fra-edit-error');
-            const msg = String(e?.message || 'Update failed'); 
-            if (errEl) {
-                errEl.textContent = `${msg}`;
-                errEl.style.display = 'block';
+            // 🚨 FIXED LOGIC: CHECK resp.success 🚨
+            if (r.ok && resp === true) {
+                fraCloseModal();
+                await loadFraCategories();
+                fraToast('Category updated.', 'ok');
             } else {
-                fraToast(`${msg}`, 'bad');
+                const msg = (resp && resp.error) ? resp.error : 'Update failed.';
+                throw new Error(msg);
             }
+        } catch (e) {
+            fraToast(e.message, 'bad');
         } finally {
             const saveBtn = document.getElementById('fra-modal-save');
             if(saveBtn) saveBtn.disabled = false;
@@ -749,10 +764,16 @@
         box.textContent = message || '';
     }
 
-    function reportRenderUserCharts(userStats) {
+    function reportRenderStats(data) {
+        const userStats = data && data.userStats ? data.userStats : {};
         const active = reportToNumber(userStats.activeCount);
         const suspended = reportToNumber(userStats.suspendedCount);
         const byRole = Array.isArray(userStats.userByRole) ? userStats.userByRole : [];
+        
+        document.getElementById('rep-user-total').textContent = String(reportToNumber(userStats.totalUserCount));
+        document.getElementById('rep-user-active').textContent = String(active);
+        document.getElementById('rep-user-suspended').textContent = String(suspended);
+
         const userRoleWrap = document.getElementById('rep-user-role-chart')?.parentElement;
         if (userRoleWrap) {
             userRoleWrap.classList.add('scroll-y');
@@ -787,14 +808,41 @@
                 }
             }
         });
-    }
 
-    function reportRenderStats(data) {
-        const userStats = data && data.userStats ? data.userStats : {};
-        document.getElementById('rep-user-total').textContent = String(reportToNumber(userStats.totalUserCount));
-        document.getElementById('rep-user-active').textContent = String(reportToNumber(userStats.activeCount));
-        document.getElementById('rep-user-suspended').textContent = String(reportToNumber(userStats.suspendedCount));
-        reportRenderUserCharts(userStats);
+        const fraStats = data && data.fraStats ? data.fraStats : {};
+        document.getElementById('rep-fra-total').textContent = String(reportToNumber(fraStats.totalFraCount));
+        document.getElementById('rep-fra-target').textContent = '$' + reportToNumber(fraStats.totalTargetAmount).toLocaleString();
+        document.getElementById('rep-fra-raised').textContent = '$' + reportToNumber(fraStats.totalCurrentAmount).toLocaleString();
+
+        reportDestroy(reportState.fraAmountChart);
+        reportState.fraAmountChart = new Chart(document.getElementById('rep-fra-amount-chart'), {
+            type: 'bar',
+            data: {
+                labels: ['Amounts ($)'],
+                datasets: [
+                    { label: 'Target', data: [reportToNumber(fraStats.totalTargetAmount)], backgroundColor: '#94a3b8' },
+                    { label: 'Raised', data: [reportToNumber(fraStats.totalCurrentAmount)], backgroundColor: '#10b981' }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        const byCat = Array.isArray(fraStats.fraByCategory) ? fraStats.fraByCategory : [];
+        reportDestroy(reportState.fraCategoryChart);
+        reportState.fraCategoryChart = new Chart(document.getElementById('rep-fra-category-chart'), {
+            type: 'doughnut',
+            data: {
+                labels: byCat.map(x => String(x.categoryName || 'Unknown')),
+                datasets: [{
+                    data: byCat.map(x => reportToNumber(x.count)),
+                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#6366f1', '#ec4899', '#14b8a6']
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
     }
 
     async function loadReport(period) {
@@ -815,7 +863,7 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-        // Navigation menu (single-page views)
+        // Menu Toggles
         function positionNavDrawer() {
             const btn = document.getElementById('nav-open');
             const drawer = document.getElementById('nav-drawer');
@@ -846,9 +894,7 @@
             const drawer = document.getElementById('nav-drawer');
             drawer?.classList.remove('open');
             if (drawer) {
-                drawer.style.top = '';
-                drawer.style.left = '';
-                drawer.style.width = '';
+                drawer.style.top = ''; drawer.style.left = ''; drawer.style.width = '';
             }
             document.getElementById('nav-open')?.focus();
         }
@@ -860,9 +906,9 @@
             if (dash) dash.style.display = isDash ? '' : 'none';
             if (rep) rep.style.display = isDash ? 'none' : '';
             if (!isDash) {
-                const label = view === 'daily' ? 'Daily report'
-                    : view === 'weekly' ? 'Weekly report'
-                        : view === 'monthly' ? 'Monthly report'
+                const label = view === 'daily' ? 'Daily Report'
+                    : view === 'weekly' ? 'Weekly Report'
+                        : view === 'monthly' ? 'Monthly Report'
                             : 'Report';
                 if (title) title.textContent = label;
                 if (view === 'daily' || view === 'weekly' || view === 'monthly') {
@@ -890,15 +936,6 @@
             setView(v);
             navClose();
         });
-        document.addEventListener('keydown', (e) => {
-            if (e.key !== 'Escape') return;
-            const drawer = document.getElementById('nav-drawer');
-            if (drawer?.classList.contains('open')) {
-                navClose();
-                return;
-            }
-            fraCloseModal();
-        });
 
         fraShowToastFromQuery();
         loadFraCategories();
@@ -907,7 +944,6 @@
             e.preventDefault();
             const form = e.target;
             const fd = new FormData(form);
-            
             const payload = {};
             fd.forEach((value, key) => payload[key] = value);
 
@@ -930,7 +966,7 @@
                     fraToast(errMsg, 'bad');
                 }
             } catch (err) {
-                fraToast(String(err?.message || 'Create failed'), 'bad');
+                fraToast('Create failed.', 'bad');
             }
         });
 
@@ -965,28 +1001,33 @@
                 toggleBtn.disabled = true;
                 const row = toggleBtn.closest('tr');
                 const isSusp = (row?.getAttribute('data-status') || '').toLowerCase() === 'suspended';
+                
                 const r = await fetch(`/api/fra-categories/suspend?categoryID=${encodeURIComponent(id)}`, {
                     method: 'POST',
                     credentials: 'same-origin'
                 });
-                const resp = await r.json().catch(() => null);
-                if (!r.ok) throw new Error((resp && typeof resp === 'object' && resp.error) ? resp.error : `HTTP ${r.status}`);
-                if (resp !== true) throw new Error('Update failed.');
-
-                if (row) {
-                    row.setAttribute('data-status', isSusp ? 'active' : 'suspended');
-                    const pill = row.querySelector('.pill');
-                    if (pill) {
-                        pill.className = isSusp ? 'pill ok' : 'pill bad';
-                        pill.textContent = isSusp ? 'Active' : 'Suspended';
-                    }
-                }
-                toggleBtn.className = isSusp ? 'btn btn-danger btn-sm' : 'btn btn-muted btn-sm';
-                toggleBtn.textContent = isSusp ? 'Suspend' : 'Re-activate';
                 
-                fraToast(isSusp ? 'Category re-activated.' : 'Category suspended.', 'ok');
+                const resp = await r.json().catch(() => null);
+                
+                // 🚨 FIXED SUSPEND CHECK 🚨
+                if (r.ok && resp && resp.success === true) {
+                    if (row) {
+                        row.setAttribute('data-status', isSusp ? 'active' : 'suspended');
+                        const pill = row.querySelector('.pill');
+                        if (pill) {
+                            pill.className = isSusp ? 'pill ok' : 'pill bad';
+                            pill.textContent = isSusp ? 'Active' : 'Suspended';
+                        }
+                    }
+                    toggleBtn.className = isSusp ? 'btn btn-danger btn-sm' : 'btn btn-muted btn-sm';
+                    toggleBtn.textContent = isSusp ? 'Suspend' : 'Re-activate';
+                    fraToast(isSusp ? 'Category re-activated.' : 'Category suspended.', 'ok');
+                } else {
+                    const msg = (resp && resp.error) ? resp.error : 'Suspend failed.';
+                    fraToast(msg, 'bad');
+                }
             } catch (err) {
-                fraToast(`Error: ${String(err?.message || 'Update failed')}`, 'bad');
+                fraToast('Network error.', 'bad');
             } finally {
                 toggleBtn.disabled = false;
             }
@@ -1006,19 +1047,6 @@
         }
         document.getElementById('fra-search-q')?.addEventListener('keydown', fraTriggerSearchOnEnter);
         document.getElementById('fra-filter-status')?.addEventListener('keydown', fraTriggerSearchOnEnter);
-        document.addEventListener('keydown', async (e) => {
-            if (e.key !== 'Enter') return;
-            const modal = document.getElementById('fra-modal');
-            const save = document.getElementById('fra-modal-save');
-            const isOpen = modal?.classList.contains('open');
-            const canSave = isOpen && save && save.style.display !== 'none' && !save.disabled;
-            if (!canSave) return;
-            const active = document.activeElement;
-            if (active && (active.id === 'fra-edit-name' || active.id === 'fra-edit-status' || active === save)) {
-                e.preventDefault();
-                save.click();
-            }
-        });
     });
 </script>
 </body>

@@ -15,18 +15,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-/**
- * Displays the login page and handles user login requests.
- * 
- * Responsibilities:
- * - Render the login HTML page
- * - Validate login form inputs (username, password format)
- * - Store session attributes upon successful authentication
- * - Route authenticated users to appropriate pages based on their role
- * - Display error messages for failed login attempts
- * 
- * Usage: HTTP GET /login displays the login page; POST /login processes login requests.
- */
+
 @Controller
 public class LoginPage {
 
@@ -38,23 +27,11 @@ public class LoginPage {
 
     // Stores the most recent login error message to display to the user
     private String loginErrorMessage = "Login failed.";
-
-    /**
-     * Displays the login page.
-     * 
-     * @return Forwards to LoginPage.html
-     */
     @GetMapping("/login")
     public String showLoginPage() {
         return "forward:/LoginPage.html";
     }
 
-    /**
-     * Processes user login request.
-     * 
-     * @param loginMap Form data containing username and password
-     * @return Redirect to user's dashboard if login succeeds, or redirect to login page with error if it fails
-     */
     @PostMapping("/login")
     public Object userLogin(@RequestParam Map<String, String> loginMap) {
         Object loginData = loginMap;
@@ -101,12 +78,6 @@ public class LoginPage {
         return redirectPage(readText(sessionMap.get("role")));
     }
 
-    /**
-     * Routes users to their appropriate dashboard based on their role.
-     * 
-     * @param role The user's role/permission level
-     * @return Redirect URL for the appropriate page based on role
-     */
     public String redirectPage(String role) {
         if ("User Admin".equalsIgnoreCase(role)) {
             return "redirect:/ManageProfile.html";
@@ -122,23 +93,11 @@ public class LoginPage {
         }
         return "redirect:/LoginPage.html";
     }
-
-    /**
-     * Redirects to login page with error message in query parameter.
-     * 
-     * @return Redirect to LoginPage.html with encoded error message
-     */
     public String showLoginErrorMessage() {
         String encoded = URLEncoder.encode(loginErrorMessage, StandardCharsets.UTF_8);
         return "redirect:/LoginPage.html?error=" + encoded;
     }
 
-    /**
-     * Safely converts an Object to a trimmed String.
-     * 
-     * @param value The object to convert (can be null)
-     * @return The trimmed string value, or empty string if value is null
-     */
     private String readText(Object value) {
         return value == null ? "" : String.valueOf(value).trim();
     }
