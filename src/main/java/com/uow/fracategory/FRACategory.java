@@ -77,41 +77,6 @@ public class FRACategory {
         }
     }
 
-    //Search Category
-    // public Object getSearchCategory(Object searchCategoryData) {
-    //     String name = "";
-    //     String status = "";
-    //     if (!(searchCategoryData instanceof Map<?, ?> data)) {
-    //     return new ArrayList<>(); 
-    // }
-
-    //     StringBuilder sql = new StringBuilder(
-    //             "SELECT category_id, category_name, category_status FROM fra_category WHERE 1=1 ");
-    //     if (!name.isEmpty()) sql.append("AND category_name LIKE ? ");
-    //     if (!status.isEmpty()) sql.append("AND category_status = ? ");
-    //     sql.append("ORDER BY category_id LIMIT 2000");
-
-    //     try (Connection c = DBUtils.getConnection();
-    //          PreparedStatement ps = c.prepareStatement(sql.toString())) {
-    //         int idx = 1;
-    //         if (!name.isEmpty()) ps.setString(idx++, "%" + name + "%");
-    //         if (!status.isEmpty()) ps.setString(idx++, status);
-
-    //         List<Map<String, Object>> out = new ArrayList<>();
-    //         try (ResultSet rs = ps.executeQuery()) {
-    //             while (rs.next()) {
-    //                 Map<String, Object> row = new LinkedHashMap<>();
-    //                 row.put("categoryID", rs.getInt("category_id"));
-    //                 row.put("categoryName", rs.getString("category_name"));
-    //                 row.put("categoryStatus", rs.getString("category_status"));
-    //                 out.add(row);
-    //             }
-    //         }
-    //         return out;
-    //     } catch (SQLException e) {
-    //         return List.of();
-    //     }
-    // }
     // Search Category
     public Object getSearchCategory(Object searchCategoryData) {
         if (!(searchCategoryData instanceof Map<?, ?> data)) {

@@ -29,6 +29,30 @@ public class UserAccount {
         }
     }
 
+    public int findUserIdByUsername(String username) {
+        if (username == null || username.isBlank()) {
+            return 0;
+        }
+        try (Connection c = DBUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT user_id FROM user_account WHERE TRIM(LOWER(username)) = TRIM(LOWER(?)) LIMIT 1")) {
+            ps.setString(1, username.trim());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("user_id");
+                }
+            }
+        } catch (Exception e) {
+            return 0;
+        }
+        return 0;
+    }
+
+    /** Used when session has username but userId is missing or unparsable (e.g. "My Account"). */
+    private static String blankToEmpty(String s) {
+        return s == null ? "" : s;
+    }
+
     //Create Account
     public boolean saveCreateAccount(Object newAccountData) {
         if (!(newAccountData instanceof Map<?, ?> data)) {
@@ -78,30 +102,6 @@ public class UserAccount {
         } catch (Exception e) {
             return null;
         }
-    }
-
-    /** Used when session has username but userId is missing or unparsable (e.g. "My Account"). */
-    public int findUserIdByUsername(String username) {
-        if (username == null || username.isBlank()) {
-            return 0;
-        }
-        try (Connection c = DBUtils.getConnection();
-             PreparedStatement ps = c.prepareStatement(
-                     "SELECT user_id FROM user_account WHERE TRIM(LOWER(username)) = TRIM(LOWER(?)) LIMIT 1")) {
-            ps.setString(1, username.trim());
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt("user_id");
-                }
-            }
-        } catch (Exception e) {
-            return 0;
-        }
-        return 0;
-    }
-
-    private static String blankToEmpty(String s) {
-        return s == null ? "" : s;
     }
 
     //Update Account
