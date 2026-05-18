@@ -2,9 +2,6 @@ package com.uow.logout;
 
 import org.junit.Before;
 import org.junit.Test;
-import jakarta.servlet.http.HttpSession;
-import java.util.HashMap;
-import java.util.Map;
 import static org.junit.Assert.*;
 
 public class LogoutControllerTest {
@@ -19,24 +16,14 @@ public class LogoutControllerTest {
     }
 
     @Test
-    public void test_Logout_succeeds_when_passing_HttpSession_directly() {
+    public void test_Logout_succeeds_with_valid_session() {
         boolean result = controller.logout(mockSession);
-        assertTrue("Should return true for direct session object", result);
+        assertTrue("Should return true for a valid session", result);
         assertTrue("Session should be invalidated", mockSession.isInvalidated());
     }
 
     @Test
-    public void test_Logout_succeeds_when_passing_session_wrapped_in_map() {
-        Map<String, Object> sessionMap = new HashMap<>();
-        sessionMap.put("session", mockSession);
-
-        boolean result = controller.logout(sessionMap);
-        assertTrue("Should return true for session inside a Map", result);
-        assertTrue("Session should be invalidated", mockSession.isInvalidated());
-    }
-
-    @Test
-    public void test_Logout_fails_when_passing_invalid_object() {
-        assertFalse("Should return false for random string input", controller.logout("NotASession"));
+    public void test_Logout_fails_when_session_is_null() {
+        assertFalse("Should return false when session is null", controller.logout(null));
     }
 }

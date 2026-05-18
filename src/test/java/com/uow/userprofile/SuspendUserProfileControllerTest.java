@@ -21,7 +21,7 @@ public class SuspendUserProfileControllerTest {
         CreateUserProfileController createController = new CreateUserProfileController();
 
         String roleName = TEST_PREFIX + "ToSuspend_" + System.currentTimeMillis();
-        createController.createProfile(new UserProfile(roleName, "Active"));
+        createController.createProfile(roleName, "Active");
 
         List<UserProfile> profiles = UserProfile.findAll(roleName, "all");
         if (!profiles.isEmpty()) {
@@ -40,15 +40,15 @@ public class SuspendUserProfileControllerTest {
 
     @Test
     public void test_Suspend_and_reactivate_lifecycle_succeeds() {
-        // 1. Suspend the profile
-        assertTrue("Suspension should succeed", suspendController.suspendProfile(existingProfileId));
-
-        // 2. Reactivate the profile
-        assertTrue("Reactivation should succeed", suspendController.reactivateProfile(existingProfileId));
+        assertTrue("Suspension should succeed",
+                suspendController.suspendProfile(existingProfileId, "suspend"));
+        assertTrue("Reactivation should succeed",
+                suspendController.suspendProfile(existingProfileId, "reactivate"));
     }
 
     @Test
     public void test_Suspend_fails_for_non_existent_id() {
-        assertFalse("Should return false for non-existent profile ID", suspendController.suspendProfile("-999"));
+        assertFalse("Should return false for non-existent profile ID",
+                suspendController.suspendProfile("-999", "suspend"));
     }
 }

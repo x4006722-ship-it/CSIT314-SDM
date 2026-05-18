@@ -1,5 +1,6 @@
 package com.uow.useraccount;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -20,20 +21,11 @@ public class UserAccountPage {
             Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
     private static final Pattern DIGITS_PATTERN = Pattern.compile("^\\d+$");
 
-    @Autowired
-    private CreateUserAccountController createUserAccountController;
-
-    @Autowired
-    private ViewUserAccountController viewUserAccountController;
-
-    @Autowired
-    private UpdateUserAccountController updateUserAccountController;
-
-    @Autowired
-    private SuspendUserAccountController suspendUserAccountController;
-
-    @Autowired
-    private SearchUserAccountController searchUserAccountController;
+    @Autowired private CreateUserAccountController createUserAccountController;
+    @Autowired private ViewUserAccountController viewUserAccountController;
+    @Autowired private UpdateUserAccountController updateUserAccountController;
+    @Autowired private SuspendUserAccountController suspendUserAccountController;
+    @Autowired private SearchUserAccountController searchUserAccountController;
 
     private String uiMessage = "";
 
@@ -49,7 +41,7 @@ public class UserAccountPage {
         return uiMessage.isBlank() ? "Operation failed." : uiMessage;
     }
 
-    //Create Account
+    
     @PostMapping("/api/accounts/create")
     @ResponseBody
     public boolean onCreateAccount(@RequestBody Object newAccountData) {
@@ -57,7 +49,6 @@ public class UserAccountPage {
             uiMessage = "Invalid data type.";
             return false;
         }
-
         String username = readText(raw.get("username"));
         String password = readText(raw.get("password"));
         String fullName = readText(raw.get("fullName"));
@@ -80,67 +71,32 @@ public class UserAccountPage {
             uiMessage = "Type mismatch detected.";
             return false;
         }
+        if (password.length() < 3) {
+            uiMessage = "Password too short.";
+            return false;
+        }
+        if (phoneNumber.length() < 8) {
+            uiMessage = "Phone number too short.";
+            return false;
+        }
 
         boolean result = createUserAccountController.createAccount(newAccountData);
         uiMessage = result ? "Account created successfully." : "Account create failed.";
         return result;
     }
 
-    //View Account (userId optional: when omitted, uses logged-in user from session — e.g. "My Account")
     @GetMapping("/api/accounts/view")
     @ResponseBody
     public Object onViewAccount(
             @RequestParam(value = "userId", required = false) Integer userId,
             HttpSession session) {
-        int resolved = userId != null && userId > 0 ? userId : 0;
-        if (resolved <= 0) {
-            resolved = resolveUserIdFromSession(session);
-        }
-        if (resolved <= 0 && session != null) {
-            String un = readText(session.getAttribute("username"));
-            if (!un.isBlank()) {
-                resolved = new UserAccount().findUserIdByUsername(un);
-            }
-        }
-        if (resolved <= 0) {
-            return Map.of("error", "Not signed in or missing user id.");
-        }
-        Object body = viewUserAccountController.viewAccount(resolved);
+        Object body = viewUserAccountController.viewAccount(userId, session);
         if (body == null) {
-            return Map.of("error", "Account not found.");
+            return Map.of("error", "Not signed in or account not found.");
         }
         return body;
     }
 
-    private static int resolveUserIdFromSession(HttpSession session) {
-        if (session == null) {
-            return 0;
-        }
-        Object sid = session.getAttribute("userId");
-        if (sid == null) {
-            return 0;
-        }
-        if (sid instanceof Number n) {
-            int v = n.intValue();
-            return v > 0 ? v : 0;
-        }
-        String s = readTextStatic(sid);
-        if (s.isBlank()) {
-            return 0;
-        }
-        try {
-            int v = Integer.parseInt(s);
-            return v > 0 ? v : 0;
-        } catch (NumberFormatException e) {
-            return 0;
-        }
-    }
-
-    private static String readTextStatic(Object value) {
-        return value == null ? "" : String.valueOf(value).trim();
-    }
-
-    //Update Account
     @PostMapping("/api/accounts/update")
     @ResponseBody
     public boolean onUpdateAccount(@RequestBody Object updatedAccountData) {
@@ -153,7 +109,6 @@ public class UserAccountPage {
             uiMessage = "Type mismatch detected.";
             return false;
         }
-
         String email = readText(raw.get("email"));
         if (!email.isBlank() && !EMAIL_PATTERN.matcher(email).matches()) {
             uiMessage = "Invalid email format.";
@@ -169,26 +124,21 @@ public class UserAccountPage {
             uiMessage = "Type mismatch detected.";
             return false;
         }
+        String password = readText(raw.get("password"));
+        if (!password.isBlank() && password.length() < 3) {
+            uiMessage = "Password too short.";
+            return false;
+        }
+        if (!phoneNumber.isBlank() && phoneNumber.length() < 8) {
+            uiMessage = "Phone number too short.";
+            return false;
+        }
 
         boolean result = updateUserAccountController.updateAccount(updatedAccountData);
         uiMessage = result ? "Account updated successfully." : "Account update failed.";
         return result;
     }
 
-    // //Suspend Account
-    // @PostMapping("/api/accounts/suspend")
-    // @ResponseBody
-    // public boolean onSuspendAccount(@RequestParam("targetUserId") int targetUserId,
-    //                                 @RequestParam("currentUserId") int currentUserId) {
-    //     if (targetUserId <= 0 || currentUserId <= 0) {
-    //         uiMessage = "Empty field detected.";
-    //         return false;
-    //     }
-    //     boolean result = suspendUserAccountController.suspendAccount(targetUserId, currentUserId);
-    //     uiMessage = result ? "Account suspend status changed." : "Account suspend failed.";
-    //     return result;
-    // }
-    //Suspend Account
     @PostMapping("/api/accounts/suspend")
     @ResponseBody
     public boolean onSuspendAccount(@RequestParam("targetUserId") int targetUserId, HttpSession session) {
@@ -196,14 +146,11 @@ public class UserAccountPage {
             uiMessage = "Invalid target user ID.";
             return false;
         }
-        
-        // Read operator ID from Session — reject front-end identity forgery
         Object sidObj = session.getAttribute("userId");
         if (sidObj == null) {
             uiMessage = "User not logged in.";
             return false;
         }
-        
         int currentUserId;
         try {
             currentUserId = Integer.parseInt(String.valueOf(sidObj));
@@ -216,24 +163,10 @@ public class UserAccountPage {
         return result;
     }
 
-    //Search Account
-    @GetMapping("/api/accounts/list")
-    @ResponseBody
-    public Object onListAccount() {
-        java.util.Map<String, Object> searchData = new java.util.HashMap<>();
-        searchData.put("username", "");
-        searchData.put("fullName", "");
-        searchData.put("email", "");
-        searchData.put("phoneNumber", "");
-        searchData.put("status", "");
-        searchData.put("profileID", 0);
-        return searchUserAccountController.searchAccount(searchData);
-    }
-
     @GetMapping("/api/accounts/search")
     @ResponseBody
-    public Object onSearchAccountGet(@RequestParam Map<String, String> params) {
-        java.util.Map<String, Object> searchData = new java.util.HashMap<>();
+    public Object onSearchAccount(@RequestParam Map<String, String> params) {
+        Map<String, Object> searchData = new HashMap<>();
         searchData.put("username", readText(params.get("username")));
         searchData.put("fullName", readText(params.get("fullName")));
         searchData.put("email", readText(params.get("email")));
@@ -251,29 +184,6 @@ public class UserAccountPage {
             return Map.of("error", "Type mismatch detected.");
         }
         String profileIdText = readText(searchData.get("profileID"));
-        if (!profileIdText.isBlank() && !DIGITS_PATTERN.matcher(profileIdText).matches()) {
-            return Map.of("error", "Type mismatch detected.");
-        }
-
-        return searchUserAccountController.searchAccount(searchData);
-    }
-
-    @PostMapping("/api/accounts/search")
-    @ResponseBody
-    public Object onSearchAccount(@RequestBody Object searchData) {
-        if (!(searchData instanceof Map<?, ?> raw)) {
-            return Map.of("error", "Invalid data type.");
-        }
-
-        String email = readText(raw.get("email"));
-        if (!email.isBlank() && !EMAIL_PATTERN.matcher(email).matches()) {
-            return Map.of("error", "Invalid email format.");
-        }
-        String phoneNumber = readText(raw.get("phoneNumber"));
-        if (!phoneNumber.isBlank() && !DIGITS_PATTERN.matcher(phoneNumber).matches()) {
-            return Map.of("error", "Type mismatch detected.");
-        }
-        String profileIdText = readText(raw.get("profileID"));
         if (!profileIdText.isBlank() && !DIGITS_PATTERN.matcher(profileIdText).matches()) {
             return Map.of("error", "Type mismatch detected.");
         }

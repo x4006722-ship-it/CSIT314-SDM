@@ -22,8 +22,7 @@ public class UpdateUserProfileControllerTest {
         createController = new CreateUserProfileController();
 
         String roleName = TEST_PREFIX + "ToUpdate_" + System.currentTimeMillis();
-        UserProfile newProfile = new UserProfile(roleName, "Active");
-        createController.createProfile(newProfile);
+        createController.createProfile(roleName, "Active");
 
         List<UserProfile> profiles = UserProfile.findAll(roleName, "all");
         if (!profiles.isEmpty()) {
@@ -59,7 +58,7 @@ public class UpdateUserProfileControllerTest {
     public void test_Update_throws_exception_on_duplicate_role() {
         // Create another profile to cause a conflict
         String conflictRole = TEST_PREFIX + "Conflict_" + System.currentTimeMillis();
-        createController.createProfile(new UserProfile(conflictRole, "Active"));
+        createController.createProfile(conflictRole, "Active");
 
         try {
             updateController.updateProfile(existingProfileId, conflictRole);

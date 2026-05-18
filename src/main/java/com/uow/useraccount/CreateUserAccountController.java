@@ -20,43 +20,22 @@ public class CreateUserAccountController {
             return false;
         }
 
-        String username = text(map.get("username"));
-        String password = text(map.get("password"));
-        String email = text(map.get("email"));
-        String phoneNumber = text(map.get("phoneNumber"));
-        String accountStatus = text(map.get("accountStatus"));
-        String profileIdText = text(map.get("profileId"));
+        String username = map.get("username") == null ? "" : String.valueOf(map.get("username")).trim();
+        String password = map.get("password") == null ? "" : String.valueOf(map.get("password")).trim();
+        String email    = map.get("email")    == null ? "" : String.valueOf(map.get("email")).trim();
+        String phone    = map.get("phoneNumber") == null ? "" : String.valueOf(map.get("phoneNumber")).trim();
+        String status   = map.get("accountStatus") == null ? "" : String.valueOf(map.get("accountStatus")).trim();
+        String profileIdText = map.get("profileId") == null ? "" : String.valueOf(map.get("profileId")).trim();
 
-        // Full boundary validation
-        if (username.isBlank() || password.isBlank() || email.isBlank() || phoneNumber.isBlank() 
-                || accountStatus.isBlank() || profileIdText.isBlank()) {
+        if (username.isBlank() || password.isBlank() || email.isBlank()
+                || phone.isBlank() || status.isBlank() || profileIdText.isBlank()) {
             return false;
         }
 
-        // Validate email format
-        if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-            return false;
-        }
-
-        // Validate phone number length (minimum 8 digits)
-        if (phoneNumber.length() < 8) {
-            return false;
-        }
-
-        // Validate password length (minimum 3 characters)
-        if (password.length() < 3) {
-            return false;
-        }
-
-        // Strict duplicate check — 0 means no account is excluded
-        if (userAccount.isDuplicateAccount(username, email, phoneNumber, 0)) {
+        if (userAccount.isDuplicateAccount(username, email, phone, 0)) {
             return false;
         }
 
         return userAccount.saveCreateAccount(newAccountData);
-    }
-
-    private String text(Object value) {
-        return value == null ? "" : String.valueOf(value).trim();
     }
 }

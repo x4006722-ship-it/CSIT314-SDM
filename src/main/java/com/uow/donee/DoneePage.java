@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.uow.fra.FRA;
 import com.uow.fra.SearchFRAController;
-import com.uow.fracategory.FRACategory;
+import com.uow.fracategory.SearchFRACategoryController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -26,6 +26,7 @@ public class DoneePage {
     @Autowired private SearchFavouriteController searchFavouriteController;
     @Autowired private SearchDonationController searchDonationController;
     @Autowired private ViewDonationController viewDonationController;
+    @Autowired private SearchFRACategoryController searchFRACategoryController;
 
     @GetMapping({ "/donee", "/showDoneePage" })
     public String showDoneePage() {
@@ -41,7 +42,7 @@ public class DoneePage {
     @GetMapping(value = "/api/donee/fra/category-options", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public Object onGetCategoryOptions() {
-        return new FRACategory().getSearchCategory(Map.of("categoryName", "", "categoryStatus", "Active"));
+        return searchFRACategoryController.searchCategory(Map.of("categoryName", "", "categoryStatus", "Active"));
     }
 
     // Search FRA

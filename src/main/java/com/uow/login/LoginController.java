@@ -15,31 +15,16 @@ public class LoginController {
             return Map.of("error", "Invalid credentials.");
         }
 
-        String accountStatus = readText(row.get("a_status"));
-        String profileStatus = readText(row.get("p_status"));
+        String accountStatus = row.get("a_status") == null ? "" : String.valueOf(row.get("a_status")).trim();
+        String profileStatus = row.get("p_status") == null ? "" : String.valueOf(row.get("p_status")).trim();
         if (!"Active".equalsIgnoreCase(accountStatus) || !"Active".equalsIgnoreCase(profileStatus)) {
             return Map.of("error", "Account or profile is not active.");
         }
 
-        return Map.of(
-                "userId", parseInt(row.get("user_id")),
-                "role", readText(row.get("role"))
-        );
-    }
+        Object userIdRaw = row.get("user_id");
+        int userId = userIdRaw instanceof Number n ? n.intValue() : 0;
+        String role = row.get("role") == null ? "" : String.valueOf(row.get("role")).trim();
 
-    private String readText(Object value) {
-        return value == null ? "" : String.valueOf(value).trim();
-    }
-
-    private int parseInt(Object value) {
-        if (value instanceof Number number) {
-            return number.intValue();
-        }
-        try {
-            return Integer.parseInt(readText(value));
-        } catch (NumberFormatException e) {
-            return 0;
-        }
+        return Map.of("userId", userId, "role", role);
     }
 }
-

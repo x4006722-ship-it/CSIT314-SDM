@@ -50,45 +50,30 @@ public class CreateFRACategoryControllerTest {
     }
 
     @Test
-    public void test_Creation_throws_exception_when_name_is_empty() {
+    public void test_Creation_returns_false_when_name_is_empty() {
         Map<String, String> invalidData = new HashMap<>();
         invalidData.put("categoryName", "   ");
         invalidData.put("categoryStatus", "Active");
 
-        try {
-            controller.createCategory(invalidData);
-            fail("Expected exception was not thrown");
-        } catch (IllegalArgumentException e) {
-            assertEquals("Category name cannot be empty.", e.getMessage());
-        }
+        assertFalse("Should return false when name is blank", controller.createCategory(invalidData));
     }
 
     @Test
-    public void test_Creation_throws_exception_when_status_is_missing() {
+    public void test_Creation_returns_false_when_status_is_missing() {
         Map<String, String> invalidData = new HashMap<>();
         invalidData.put("categoryName", TEST_PREFIX + "NoStatus");
         invalidData.put("categoryStatus", "   ");
 
-        try {
-            controller.createCategory(invalidData);
-            fail("Expected exception was not thrown");
-        } catch (IllegalArgumentException e) {
-            assertEquals("Category status is missing.", e.getMessage());
-        }
+        assertFalse("Should return false when status is blank", controller.createCategory(invalidData));
     }
 
     @Test
-    public void test_Creation_throws_exception_when_status_is_invalid() {
+    public void test_Creation_returns_false_when_status_is_invalid() {
         Map<String, String> invalidData = new HashMap<>();
         invalidData.put("categoryName", TEST_PREFIX + "InvalidStatus");
         invalidData.put("categoryStatus", "HackedStatus");
 
-        try {
-            controller.createCategory(invalidData);
-            fail("Expected exception was not thrown");
-        } catch (IllegalArgumentException e) {
-            assertEquals("Invalid status format.", e.getMessage());
-        }
+        assertFalse("Should return false when status is invalid", controller.createCategory(invalidData));
     }
 
     @Test

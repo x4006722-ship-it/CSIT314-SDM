@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.servlet.http.HttpSession;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Controller
 public class LoginPage {
@@ -23,91 +21,54 @@ public class LoginPage {
     @Autowired
     private LoginController loginController;
 
-    private String loginErrorMessage = "Login failed.";
-
     @GetMapping("/login")
     public String showLoginPage() {
         return "forward:/LoginPage.html";
     }
 
-    @PostMapping("/login")
-    public Object userLogin(@RequestParam Map<String, String> loginMap) {
-        Object loginData = loginMap;
-
-        String username = readText(loginMap.get("username"));
-        String password = readText(loginMap.get("password"));
-
-        if (username.isBlank() || password.isBlank()) {
-            loginErrorMessage = "Empty field detected.";
-            return showLoginErrorMessage();
-        }
-        // Server-side validation: password must be at least 3 characters
-        if (password.length() < 3) {
-            loginErrorMessage = "Password must be at least 3 characters.";
-            return showLoginErrorMessage();
-        }
-        if (!USERNAME_PATTERN.matcher(username).matches()) {
-            loginErrorMessage = "Invalid username format.";
-            return showLoginErrorMessage();
-        }
-
-        Object sessionObject = loginController.login(loginData);
-        if (!(sessionObject instanceof Map<?, ?>)) {
-            loginErrorMessage = "Login failed.";
-            return showLoginErrorMessage();
-        }
-
-        Map<?, ?> sessionMap = (Map<?, ?>) sessionObject;
-        if (sessionMap.get("error") != null) {
-            loginErrorMessage = String.valueOf(sessionMap.get("error"));
-            return showLoginErrorMessage();
-        }
-
-        ServletRequestAttributes attributes =
-                (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attributes != null) {
-            HttpSession session = attributes.getRequest().getSession();
-            session.setAttribute("username", username);
-            session.setAttribute("role", readText(sessionMap.get("role")));
-            session.setAttribute("userId", parseInt(sessionMap.get("userId")));
-        }
-        return redirectPage(readText(sessionMap.get("role")));
-    }
-
-    public String redirectPage(String role) {
-        if ("User Admin".equalsIgnoreCase(role)) {
-            return "redirect:/ManageProfile.html";
-        }
-        if ("Fund Raiser".equalsIgnoreCase(role)) {
-            return "redirect:/FundRaiserPage.html";
-        }
-        if ("Donee".equalsIgnoreCase(role)) {
-            return "redirect:/DoneePage.html";
-        }
-        if ("Platform Management".equalsIgnoreCase(role)) {
-            return "redirect:/PlatformPage.html";
-        }
-        return "redirect:/LoginPage.html";
-    }
-
-    public String showLoginErrorMessage() {
-        String encoded = URLEncoder.encode(loginErrorMessage, StandardCharsets.UTF_8);
+    public String showLoginErrorMessage(String message) {
+        String encoded = URLEncoder.encode(message, StandardCharsets.UTF_8);
         return "redirect:/LoginPage.html?error=" + encoded;
     }
 
-    private String readText(Object value) {
-        return value == null ? "" : String.valueOf(value).trim();
+    @PostMapping("/login")
+    public String userLogin(@RequestParam Map<String, String> loginMap, HttpSession session) {
+        String username = loginMap.get("username") == null ? "" : loginMap.get("username").trim();
+        String password = loginMap.get("password") == null ? "" : loginMap.get("password").trim();
+
+        if (username.isBlank() || password.isBlank()) {
+            return showLoginErrorMessage("Empty field detected.");
+        }
+        if (password.length() < 3) {
+            return showLoginErrorMessage("Password must be at least 3 characters.");
+        }
+        if (!USERNAME_PATTERN.matcher(username).matches()) {
+            return showLoginErrorMessage("Invalid username format.");
+        }
+
+        Object result = loginController.login(loginMap);
+        if (!(result instanceof Map<?, ?> sessionMap) || sessionMap.get("error") != null) {
+            String error = (result instanceof Map<?, ?> m && m.get("error") != null)
+                    ? String.valueOf(m.get("error")) : "Login failed.";
+            return showLoginErrorMessage(error);
+        }
+
+        String role = sessionMap.get("role") == null ? "" : String.valueOf(sessionMap.get("role")).trim();
+        Object userIdRaw = sessionMap.get("userId");
+        int userId = userIdRaw instanceof Number n ? n.intValue() : 0;
+
+        session.setAttribute("username", username);
+        session.setAttribute("role", role);
+        session.setAttribute("userId", userId);
+
+        return redirectPage(role);
     }
 
-    private int parseInt(Object value) {
-        if (value instanceof Number number) {
-            return number.intValue();
-        }
-        try {
-            return Integer.parseInt(readText(value));
-        } catch (NumberFormatException e) {
-            return 0;
-        }
+    private String redirectPage(String role) {
+        if ("User Admin".equalsIgnoreCase(role))          return "redirect:/ManageProfile.html";
+        if ("Fund Raiser".equalsIgnoreCase(role))         return "redirect:/FundRaiserPage.html";
+        if ("Donee".equalsIgnoreCase(role))               return "redirect:/DoneePage.html";
+        if ("Platform Management".equalsIgnoreCase(role)) return "redirect:/PlatformPage.html";
+        return "redirect:/LoginPage.html";
     }
 }
-

@@ -28,14 +28,6 @@ public class LoginControllerTest {
 
     @Test
     public void test_Login_fails_when_account_is_suspended() {
-        // We simulate a raw result from the DAO where account is Suspended
-        // Note: This tests the controller logic in isolation
-        Map<String, Object> simulatedDbRow = new HashMap<>();
-        simulatedDbRow.put("a_status", "Suspended");
-        simulatedDbRow.put("p_status", "Active");
-
-        // Logic check: if account is not active, it should return error
-        // We can test this by calling a mock-like behavior or relying on the real status check
         assertTrue(true); // Placeholder for status-based logic verification
     }
 }

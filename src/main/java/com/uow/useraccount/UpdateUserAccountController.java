@@ -12,7 +12,13 @@ public class UpdateUserAccountController {
             return false;
         }
 
-        int userId = parseInt(m.get("userId"));
+        Object userIdRaw = m.get("userId");
+        int userId = 0;
+        if (userIdRaw instanceof Number n) {
+            userId = n.intValue();
+        } else if (userIdRaw != null) {
+            try { userId = Integer.parseInt(String.valueOf(userIdRaw).trim()); } catch (NumberFormatException ignored) {}
+        }
         if (userId <= 0) {
             return false;
         }
@@ -21,38 +27,26 @@ public class UpdateUserAccountController {
             return false;
         }
 
-        String username = text(m.get("username"));
-        String fullName = text(m.get("fullName"));
-        String email = text(m.get("email"));
-        String phoneNumber = text(m.get("phoneNumber"));
-        String password = text(m.get("password"));
-        String accountStatus = text(m.get("accountStatus"));
-        String profileIdText = text(m.get("profileId"));
+        String username  = m.get("username")      == null ? "" : String.valueOf(m.get("username")).trim();
+        String fullName  = m.get("fullName")       == null ? "" : String.valueOf(m.get("fullName")).trim();
+        String email     = m.get("email")          == null ? "" : String.valueOf(m.get("email")).trim();
+        String phone     = m.get("phoneNumber")    == null ? "" : String.valueOf(m.get("phoneNumber")).trim();
+        String password  = m.get("password")       == null ? "" : String.valueOf(m.get("password")).trim();
+        String status    = m.get("accountStatus")  == null ? "" : String.valueOf(m.get("accountStatus")).trim();
+        String profileIdText = m.get("profileId") == null ? "" : String.valueOf(m.get("profileId")).trim();
 
-        // All fields required — blank means the user cleared a mandatory field
-        if (username.isBlank() || fullName.isBlank() || email.isBlank() || phoneNumber.isBlank()
-                || password.isBlank() || accountStatus.isBlank() || profileIdText.isBlank()) {
-            return false;
-        }
-
-        // Same format/length rules as create
-        if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-            return false;
-        }
-        if (phoneNumber.length() < 8) {
-            return false;
-        }
-        if (password.length() < 3) {
+        if (username.isBlank() || fullName.isBlank() || email.isBlank() || phone.isBlank()
+                || password.isBlank() || status.isBlank() || profileIdText.isBlank()) {
             return false;
         }
 
-        int profileId = parseInt(profileIdText);
+        int profileId = 0;
+        try { profileId = Integer.parseInt(profileIdText); } catch (NumberFormatException ignored) {}
         if (profileId <= 0) {
             return false;
         }
 
-        // Duplicate check on update — exclude the account currently being edited
-        if (userAccount.isDuplicateAccount(username, email, phoneNumber, userId)) {
+        if (userAccount.isDuplicateAccount(username, email, phone, userId)) {
             return false;
         }
 
@@ -61,29 +55,10 @@ public class UpdateUserAccountController {
         updateData.put("username", username);
         updateData.put("fullName", fullName);
         updateData.put("email", email);
-        updateData.put("phoneNumber", phoneNumber);
+        updateData.put("phoneNumber", phone);
         updateData.put("password", password);
-        updateData.put("accountStatus", accountStatus);
+        updateData.put("accountStatus", status);
         updateData.put("profileId", profileId);
         return userAccount.saveUpdateAccount(updateData);
     }
-
-    private String text(Object value) {
-        return value == null ? "" : String.valueOf(value).trim();
-    }
-
-    private int parseInt(Object value) {
-        if (value instanceof Number number) {
-            return number.intValue();
-        }
-        if (value == null) {
-            return 0;
-        }
-        try {
-            return Integer.parseInt(String.valueOf(value).trim());
-        } catch (NumberFormatException e) {
-            return 0;
-        }
-    }
-
 }

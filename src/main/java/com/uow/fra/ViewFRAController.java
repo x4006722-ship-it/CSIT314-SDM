@@ -4,14 +4,25 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.ArrayList;
 
+import com.uow.useraccount.UserAccount;
+
 @Service
 public class ViewFRAController {
-    // Accepts fundRaiserId and passes it to the data layer
+
+    private final UserAccount userAccount = new UserAccount();
+
     public List<FRA> viewAllFRAs(String fundRaiserId) {
-        // Boundary validation
-        if (fundRaiserId == null || fundRaiserId.trim().isEmpty()) {
+        if (fundRaiserId == null || fundRaiserId.isBlank()) {
             return new ArrayList<>();
         }
-        return FRA.findAllFRAs(fundRaiserId); 
+        return FRA.findAllFRAs(fundRaiserId);
+    }
+
+    public Object getDoneeOptions() {
+        return userAccount.getDoneeOptions();
+    }
+
+    public Object getFundRaiserOptions() {
+        return userAccount.getFundRaiserOptions();
     }
 }

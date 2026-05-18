@@ -20,8 +20,8 @@ public class SearchAndViewControllersTest {
     @Test
     public void test_View_returns_null_for_invalid_id() {
         ViewUserAccountController controller = new ViewUserAccountController();
-        
-        Object result = controller.viewAccount(-9999);
+
+        Object result = controller.viewAccount(-9999, null);
         assertNull("Should safely return null for a non-existent ID", result);
     }
 }

@@ -29,34 +29,29 @@ public class CreateUserProfileControllerTest {
 
     @Test
     public void test_Creation_succeeds_with_valid_data() {
-        UserProfile newProfile = new UserProfile(TEST_PREFIX + System.currentTimeMillis(), "Active");
-        assertTrue("Creation should succeed", controller.createProfile(newProfile));
+        assertTrue("Creation should succeed",
+                controller.createProfile(TEST_PREFIX + System.currentTimeMillis(), "Active"));
     }
 
     @Test
     public void test_Creation_fails_when_role_name_is_empty() {
-        UserProfile invalidProfile = new UserProfile("", "Active");
-        assertFalse("Should return false when role name is empty", controller.createProfile(invalidProfile));
+        assertFalse("Should return false when role name is empty",
+                controller.createProfile("", "Active"));
     }
 
     @Test
     public void test_Creation_fails_when_status_is_empty() {
-        UserProfile invalidProfile = new UserProfile(TEST_PREFIX + "Valid", "");
-        assertFalse("Should return false when status is empty", controller.createProfile(invalidProfile));
+        assertFalse("Should return false when status is empty",
+                controller.createProfile(TEST_PREFIX + "Valid", ""));
     }
 
     @Test
     public void test_Creation_throws_exception_when_duplicate_role_exists() {
         String duplicateRole = TEST_PREFIX + "Duplicate";
-        UserProfile firstProfile = new UserProfile(duplicateRole, "Active");
-        
-        // First creation succeeds
-        controller.createProfile(firstProfile);
+        controller.createProfile(duplicateRole, "Active");
 
-        // Second creation should trigger the duplicate check
-        UserProfile duplicateProfile = new UserProfile(duplicateRole, "Active");
         try {
-            controller.createProfile(duplicateProfile);
+            controller.createProfile(duplicateRole, "Active");
             fail("Expected IllegalArgumentException was not thrown");
         } catch (IllegalArgumentException e) {
             assertEquals("duplicate", e.getMessage());
