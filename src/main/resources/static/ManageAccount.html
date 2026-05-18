@@ -142,7 +142,7 @@
         tbody td { padding: 12px 16px; border-bottom: 1px solid #f8fafc; font-size: 13.5px; color: #1e293b; vertical-align: middle; }
         tbody tr:hover td { background: #fafbff; }
         .td-actions { display: inline-flex; gap: 6px; flex-wrap: nowrap; align-items: center; justify-content: center; width: 100%; }
-        #ua-list-table thead th:nth-child(4), #ua-list-table tbody td:nth-child(4),
+        #ua-list-table thead th:nth-child(5), #ua-list-table tbody td:nth-child(5),
         #ua-list-table thead th:last-child, #ua-list-table tbody td:last-child { text-align: center; }
         #ua-list-table .td-actions button.btn-sm { min-height: 28px; height: 28px; padding: 0 8px; font-size: 12px; }
         #ua-list-table .td-actions button[data-action="toggle-status"].btn-sm { min-width: 104px; }
@@ -285,15 +285,16 @@
                             <table id="ua-list-table" aria-label="User accounts list">
                                 <thead>
                                 <tr>
-                                    <th style="width: 240px;">Username</th>
-                                    <th style="width: 190px;">Phone Number</th>
+                                    <th style="width: 80px;">ID</th>
+                                    <th style="width: 200px;">Username</th>
+                                    <th style="width: 200px;">Full Name</th>
                                     <th style="width: 220px;">Role</th>
                                     <th style="width: 180px;">Account Status</th>
                                     <th style="width: 220px; text-align: center;">Action</th>
                                 </tr>
                                 </thead>
                                 <tbody id="ua-list-tbody">
-                                <tr><td colspan="5" class="muted" style="text-align: center;">Loading…</td></tr>
+                                <tr><td colspan="6" class="muted" style="text-align: center;">Loading…</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -383,7 +384,7 @@
     async function loadAccountSummaries() {
         const tbody = document.getElementById('ua-list-tbody');
         if (!tbody) return;
-        tbody.innerHTML = `<tr><td colspan="5" class="muted" style="text-align: center;">Loading…</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="muted" style="text-align: center;">Loading…</td></tr>`;
         try {
             const q = (uaState.searchQuery || '').trim();
             const status = uaState.searchStatus || 'all';
@@ -415,7 +416,7 @@
 
             const safeRows = Array.isArray(payload) ? payload : (Array.isArray(payload?.items) ? payload.items : []);
             if (safeRows.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="muted" style="text-align: center;">No accounts found.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="muted" style="text-align: center;">No accounts found.</td></tr>`;
                 uaSetAccountListCount(0, payload);
                 return;
             }
@@ -423,7 +424,7 @@
             tbody.innerHTML = safeRows.map(a => {
                 const userId = a.userId ?? '';
                 const username = uaEscapeHtml(a.username ?? '');
-                const phoneNumber = uaEscapeHtml(a.phoneNumber ?? '');
+                const fullName = uaEscapeHtml(a.fullName ?? a.full_name ?? '');
                 const roleRaw = String(a.roleName ?? a.role ?? '').trim().replace(/\s+/g, ' ');
                 const roleName = uaEscapeHtml(roleRaw);
                 const rawStatus = String(a.accountStatus ?? '');
@@ -438,7 +439,7 @@
 
                 return `
                     <tr data-status="${isSuspended ? 'suspended' : 'active'}">
-                        <td>${username}</td><td>${phoneNumber}</td><td>${roleName}</td>
+                        <td>${uaEscapeHtml(String(userId))}</td><td>${username}</td><td>${fullName}</td><td>${roleName}</td>
                         <td><span class="${statusPillClass}">${uaEscapeHtml(rawStatus) || (isSuspended ? 'Suspended' : 'Active')}</span></td>
                         <td><div class="td-actions">
                             <button type="button" class="btn btn-view btn-sm" data-action="view" data-user-id="${uaEscapeHtml(userId)}">View</button>
@@ -448,7 +449,7 @@
             }).join('');
             uaSetAccountListCount(safeRows.length, payload);
         } catch (e) {
-            tbody.innerHTML = `<tr><td colspan="5" class="muted" style="text-align: center;">Failed to load accounts.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="muted" style="text-align: center;">Failed to load accounts.</td></tr>`;
             uaModalOpen(`Failed to load accounts from database. ${e?.message ? '(' + e.message + ')' : ''}`, 'Notice');
         }
     }
@@ -521,12 +522,12 @@
             const roleSel = document.getElementById('ua-filter-role');
             if (roleSel) {
                 const current = roleSel.value || 'all';
-                roleSel.innerHTML = `<option value="all" selected>All</option>` + uaState.profiles.filter(uaAssignableProfile).map(p => `<option value="${uaEscapeHtml(p.roleName)}">${uaEscapeHtml(p.roleName)}</option>`).join('');
+                roleSel.innerHTML = `<option value="all" selected>All</option>` + uaState.profiles.filter(uaAssignableProfile).sort((a, b) => a.roleName.localeCompare(b.roleName)).map(p => `<option value="${uaEscapeHtml(p.roleName)}">${uaEscapeHtml(p.roleName)}</option>`).join('');
                 roleSel.value = Array.from(roleSel.options).some(o => o.value === current) ? current : 'all';
             }
 
             select.innerHTML = '<option value="">Select a Profile</option>';
-            uaState.profiles.forEach(p => {
+            [...uaState.profiles].sort((a, b) => a.roleName.localeCompare(b.roleName)).forEach(p => {
                 if (!uaAssignableProfile(p)) return;
                 const opt = document.createElement('option');
                 opt.value = String(p.profileId); opt.textContent = String(p.roleName); select.appendChild(opt);
@@ -569,13 +570,13 @@
             try {
                 toggleBtn.disabled = true;
                 const row = toggleBtn.closest('tr');
-                const roleText = (row?.querySelector('td:nth-child(3)')?.textContent ?? '').trim();
+                const roleText = (row?.querySelector('td:nth-child(4)')?.textContent ?? '').trim();
                 if (roleText.toLowerCase() === 'user admin') {
-                    uaNoteOpen('Accounts with the User Admin role cannot be suspended.', 'Notice');
+                    uaNoteOpen('User Admin accounts cannot be suspended.', 'Notice');
                     return;
                 }
 
-                const statusCell = row?.querySelector('td:nth-child(4)');
+                const statusCell = row?.querySelector('td:nth-child(5)');
                 const currentStatus = (statusCell?.querySelector('.pill')?.textContent ?? statusCell?.textContent ?? '').trim();
                 const nextStatus = currentStatus.toLowerCase() === 'suspended' ? 'Active' : 'Suspended';
 
@@ -702,7 +703,7 @@
             }
 
             if (field === 'profile_id') {
-                const opts = (uaState.profiles || []).filter(uaAssignableProfile).map(p => `<option value="${uaEscapeHtml(p.profileId)}">${uaEscapeHtml(p.roleName || p.role)}</option>`).join('');
+                const opts = (uaState.profiles || []).filter(uaAssignableProfile).sort((a, b) => a.roleName.localeCompare(b.roleName)).map(p => `<option value="${uaEscapeHtml(p.profileId)}">${uaEscapeHtml(p.roleName || p.role)}</option>`).join('');
                 td.innerHTML = `<select class="ua-edit-select" data-field="profile_id" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">${opts}</select>`;
                 const sel = td.querySelector('select.ua-edit-select');
                 if (sel && currentVal && currentVal !== '-') sel.value = String(currentVal);
@@ -757,12 +758,13 @@
             msg?.querySelectorAll('input.ua-edit').forEach(inp => { const k = inp.getAttribute('data-field'); if (k) { if (k === 'password') fields.password = (inp.value ?? '').trim(); else fields[k] = (inp.value ?? '').trim(); } });
             msg?.querySelectorAll('select.ua-edit-select').forEach(sel => { const k = sel.getAttribute('data-field'); if (k) { if (k === 'a_status') fields.a_status = (sel.value ?? '').trim(); if (k === 'profile_id') fields.profile_id = (sel.value ?? '').trim(); } });
 
+            const rawPhone = fields.phone_number ?? getVal('phone_number');
             const payload = {
                 userId: Number(userId),
                 username: fields.username ?? getVal('username'),
                 fullName: fields.full_name ?? getVal('full_name'),
                 email: fields.email ?? getVal('email'),
-                phoneNumber: fields.phone_number ?? getVal('phone_number'),
+                phoneNumber: rawPhone.replace(/^\+/, ''),
                 password: fields.password || msg?.querySelector('.ua-secret')?.getAttribute('data-secret') || '',
                 accountStatus: fields.a_status ?? getVal('a_status'),
                 profileId: fields.profile_id ?? getVal('profile_id')
@@ -772,7 +774,7 @@
                 saveBtn.disabled = true;
                 const r = await fetch('/api/accounts/update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body: JSON.stringify(payload) });
                 const respText = await r.text();
-                if (!r.ok || respText !== 'true') throw new Error('Update failed. Duplicate data or bad request.');
+                if (!r.ok || respText !== 'true') throw new Error('Update failed. All fields are required and cannot be left empty. Also check for duplicate username, email, or phone number.');
                 uaModalClose(); saveBtn.dataset.dirty = '0'; await loadAccountSummaries(); showUaToast('Account updated successfully.');
             } catch (err) { uaNoteOpen(`Error: ${err?.message}`, 'Notice'); } 
             finally { if (saveBtn) saveBtn.disabled = false; }

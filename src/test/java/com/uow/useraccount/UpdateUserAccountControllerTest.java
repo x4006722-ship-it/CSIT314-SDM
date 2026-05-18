@@ -54,10 +54,17 @@ public class UpdateUserAccountControllerTest {
 
     @Test
     public void test_Update_succeeds_with_valid_data() {
+        String uniqueName = TEST_PREFIX + "Updated_" + System.currentTimeMillis();
         Map<String, Object> updateData = new HashMap<>();
         updateData.put("userId", existingUserId);
+        updateData.put("username", uniqueName);
+        updateData.put("password", "123456");
         updateData.put("fullName", "Updated Name");
-        
+        updateData.put("email", uniqueName + "@test.com");
+        updateData.put("phoneNumber", "12345678");
+        updateData.put("accountStatus", "Active");
+        updateData.put("profileId", 3);
+
         assertTrue("Should return true on successful update", updateController.updateAccount(updateData));
     }
 

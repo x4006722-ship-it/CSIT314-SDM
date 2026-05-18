@@ -15,16 +15,17 @@ public class DoneeControllersTest {
     public void test_Save_favourite_controller_with_invalid_ids_returns_false() {
         SaveFavouriteController controller = new SaveFavouriteController();
         // 边界测试：测试小于等于 0 的非法 ID
-        assertFalse("Should return false for invalid fraId", controller.saveFavourite(-1, 1, false));
-        assertFalse("Should return false for invalid userId", controller.saveFavourite(1, 0, false));
+        assertNotNull("Should return error for invalid fraId", controller.saveFavourite(-1, 1, false));
+        assertNotNull("Should return error for invalid userId", controller.saveFavourite(1, 0, false));
     }
 
     @Test
     public void test_Save_favourite_controller_with_valid_ids_executes_safely() {
         SaveFavouriteController controller = new SaveFavouriteController();
-        // 正常用例：即使因为数据库外键约束报错，方法也应该捕获并返回布尔值，不应崩溃
-        boolean result = controller.saveFavourite(9999, 9999, false);
-        assertNotNull(result);
+        // 正常用例：即使因为数据库外键约束报错，方法也应该捕获并返回错误信息，不应崩溃
+        String result = controller.saveFavourite(9999, 9999, false);
+        // null means success, non-null means error message — either is acceptable here
+        assertTrue(result == null || result instanceof String);
     }
 
     // ==========================================

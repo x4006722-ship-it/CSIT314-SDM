@@ -58,7 +58,7 @@ public class FavouriteTest {
                 if (rs.next()) catId = rs.getInt(1);
             }
             
-            String sqlFra = "INSERT INTO fra (fra_title, fra_status, category_id, donee_id, fundRaiser_id, fra_targetAmount, current_amount, fra_viewCount, fra_favouriteCount) VALUES (?, 'Pending', ?, ?, ?, 100, 0, 0, 0)";
+            String sqlFra = "INSERT INTO fra (title, fra_status, category_id, donee_id, fundRaiser_id, target_amount, current_amount, viewCount, favoriteCount) VALUES (?, 'Pending', ?, ?, ?, 100, 0, 0, 0)";
             try (PreparedStatement ps = c.prepareStatement(sqlFra, Statement.RETURN_GENERATED_KEYS)) {
                 ps.setString(1, "FRA_" + SEED);
                 ps.setInt(2, catId);
@@ -89,14 +89,14 @@ public class FavouriteTest {
             fail("Test skipped: Chain setup failed.");
         }
 
-        assertTrue(favouriteDao.saveFavourite(fraId, userId, false));
-        
+        assertNull("Save should succeed (null = no error)", favouriteDao.saveFavourite(fraId, userId, false));
+
         Map<String, Object> query = new HashMap<>();
         query.put("userId", userId);
         Object results = favouriteDao.getSearchFavourite(query);
         assertFalse(((List<?>) results).isEmpty());
-        
-        assertTrue(favouriteDao.saveFavourite(fraId, userId, true));
+
+        assertNull("Remove should succeed (null = no error)", favouriteDao.saveFavourite(fraId, userId, true));
     }
 
     @Test

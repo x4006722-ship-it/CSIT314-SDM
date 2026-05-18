@@ -430,7 +430,7 @@
 <div class="container">
     <main class="main-content">
         <div class="topbar">
-            <span class="topbar-user">Logged in as: <strong>Donee</strong></span>
+            <span class="topbar-user">Logged in as: <strong id="donee-full-name">Donee</strong></span>
             <div style="display:flex; align-items:center; gap:12px;">
                 <a href="/logout" class="logout-btn" id="donee-logout">Logout</a>
             </div>
@@ -470,8 +470,8 @@
                                 <label for="fra-filter-status">FRA status</label>
                                 <select id="fra-filter-status" data-filter-select>
                                     <option value="all">All</option>
-                                    <option value="Pending">Pending</option>
                                     <option value="Completed">Completed</option>
+                                    <option value="Pending">Pending</option>
                                 </select>
                             </div>
                         </div>
@@ -489,12 +489,13 @@
                                             <th>Title</th>
                                             <th>Category</th>
                                             <th>Status</th>
+                                            <th>Progress</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody id="fra-tbody">
                                         <tr>
-                                            <td colspan="5" class="muted" style="text-align: center;">Loading…</td>
+                                            <td colspan="6" class="muted" style="text-align: center;">Loading…</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -531,8 +532,8 @@
                                 <label for="fav-filter-status">FRA status</label>
                                 <select id="fav-filter-status" data-filter-select>
                                     <option value="all">All</option>
-                                    <option value="Pending">Pending</option>
                                     <option value="Completed">Completed</option>
+                                    <option value="Pending">Pending</option>
                                 </select>
                             </div>
                         </div>
@@ -549,11 +550,12 @@
                                             <th>Title</th>
                                             <th>Category</th>
                                             <th>Status</th>
+                                            <th>Progress</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody id="fav-tbody">
-                                        <tr><td colspan="5" class="muted" style="text-align:center;">—</td></tr>
+                                        <tr><td colspan="6" class="muted" style="text-align:center;">—</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -589,16 +591,16 @@
                                 <label for="hist-filter-status">FRA status</label>
                                 <select id="hist-filter-status" data-filter-select>
                                     <option value="all">All</option>
-                                    <option value="Pending">Pending</option>
                                     <option value="Completed">Completed</option>
+                                    <option value="Pending">Pending</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="hist-date-from">Date From</label>
+                                <label for="hist-date-from">Start From <span style="font-size:11px; color:var(--text-muted); font-weight:400;">(filters by FRA start date)</span></label>
                                 <input id="hist-date-from" type="date">
                             </div>
                             <div class="form-group">
-                                <label for="hist-date-to">Date To</label>
+                                <label for="hist-date-to">Start To <span style="font-size:11px; color:var(--text-muted); font-weight:400;">(filters by FRA start date)</span></label>
                                 <input id="hist-date-to" type="date">
                             </div>
                         </div>
@@ -856,11 +858,7 @@
                     names.push(cname);
                 }
             });
-            names = names.filter(function (n, i, a) { return n && a.indexOf(n) === i; });
-            names.sort(function (a, b) { return a.localeCompare(b); });
-            fillFilterSelect('fra-filter-category', names);
-            fillFilterSelect('fav-filter-category', names);
-            fillFilterSelect('hist-filter-category', names);
+            // doneeCategoryById is now populated for name lookups — dropdowns are filled from actual data
         } catch (e) {
             // keep Browse All-only
         }
@@ -881,7 +879,7 @@
         var tbody = document.getElementById('fra-tbody');
         var countEl = document.getElementById('fra-count');
         if (!rows || !rows.length) {
-            tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">No FRA match your search.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;">No FRA match your search.</td></tr>';
             countEl.textContent = '0 FRA';
             return;
         }
@@ -898,6 +896,9 @@
             if ((category == null || category === '') && row.categoryId != null) {
                 category = doneeCategoryById[String(row.categoryId)] || null;
             }
+            var cur = row.currentAmount != null ? row.currentAmount : (row.current_amount != null ? row.current_amount : 0);
+            var tgt = row.fraTargetAmount != null ? row.fraTargetAmount : (row.targetAmount != null ? row.targetAmount : (row.target_amount != null ? row.target_amount : 0));
+            var progress = String(cur) + ' / ' + String(tgt);
             var saved = row.saved === true || row.saved === 'true' || row.saved === 1 || doneeSavedFraIds[String(id)] === true;
             var saveBtn = saved
                 ? '<button type="button" class="btn btn-sm fra-unsave" data-action="unsave" data-id="' + escapeHtml(String(id)) + '" title="Remove from your favourites">Unsave</button>'
@@ -907,6 +908,7 @@
                 '<td>' + escapeHtml(title != null ? title : '—') + '</td>' +
                 '<td>' + escapeHtml(category != null ? category : '—') + '</td>' +
                 '<td>' + statusPill(status != null ? status : '') + '</td>' +
+                '<td>' + escapeHtml(progress) + '</td>' +
                 '<td><div class="td-actions">' +
                 '<button type="button" class="btn btn-view btn-sm" data-action="view" data-id="' + escapeHtml(String(id)) + '">View</button>' +
                 saveBtn +
@@ -920,7 +922,7 @@
         var tbody = document.getElementById('fav-tbody');
         var countEl = document.getElementById('fav-count');
         if (!rows || !rows.length) {
-            tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">No favourites match this search.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;">No favourites match this search.</td></tr>';
             countEl.textContent = '0 FRA';
             return;
         }
@@ -928,11 +930,15 @@
             var id = row.fra_id;
             doneeSavedFraIds[String(id)] = true;
             var favCat = rowCategoryLabel(row);
+            var cur = row.currentAmount != null ? row.currentAmount : 0;
+            var tgt = row.targetAmount != null ? row.targetAmount : 0;
+            var progress = String(cur) + ' / ' + String(tgt);
             return '<tr>' +
                 '<td>' + escapeHtml(String(id)) + '</td>' +
                 '<td>' + escapeHtml(row.title) + '</td>' +
                 '<td>' + escapeHtml(favCat != null ? favCat : '—') + '</td>' +
                 '<td>' + statusPill(row.status) + '</td>' +
+                '<td>' + escapeHtml(progress) + '</td>' +
                 '<td><div class="td-actions">' +
                 '<button type="button" class="btn btn-view btn-sm" data-action="view" data-id="' + escapeHtml(String(id)) + '">View</button>' +
                 '<button type="button" class="btn btn-sm fra-unsave" data-action="unsave" data-id="' + escapeHtml(String(id)) + '" title="Remove from your favourites">Unsave</button>' +
@@ -945,7 +951,7 @@
         var tbody = document.getElementById('fav-tbody');
         var countEl = document.getElementById('fav-count');
         if (!silent) {
-            tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">Loading…</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;">Loading…</td></tr>';
             countEl.textContent = '—';
         }
         try {
@@ -960,7 +966,7 @@
             var data = await r.json();
             if (!r.ok) {
                 if (!silent) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">HTTP ' + r.status + ' — could not load favourites.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;">HTTP ' + r.status + ' — could not load favourites.</td></tr>';
                 } else {
                     showToast('Could not refresh favourites (HTTP ' + r.status + ').', 'err');
                 }
@@ -968,7 +974,7 @@
             }
             if (data && data.error) {
                 if (!silent) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">' + escapeHtml(String(data.error)) + '</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;">' + escapeHtml(String(data.error)) + '</td></tr>';
                     countEl.textContent = '—';
                 } else {
                     showToast(String(data.error), 'err');
@@ -978,7 +984,7 @@
             var rows = Array.isArray(data) ? data : (data && data.rows);
             if (!Array.isArray(rows)) {
                 if (!silent) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">Could not load favourites (unexpected response).</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;">Could not load favourites (unexpected response).</td></tr>';
                 } else {
                     showToast('Could not refresh favourites.', 'err');
                 }
@@ -988,7 +994,7 @@
             fillFilterSelect('fav-filter-category', distinctRowCategories(rows));
         } catch (e) {
             if (!silent) {
-                tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">' + escapeHtml(e.message || 'Request failed') + '</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;">' + escapeHtml(e.message || 'Request failed') + '</td></tr>';
             } else {
                 showToast(e.message || 'Request failed', 'err');
             }
@@ -999,7 +1005,7 @@
         var tbody = document.getElementById('fra-tbody');
         var countEl = document.getElementById('fra-count');
         if (!silent) {
-            tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">Loading…</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;">Loading…</td></tr>';
             countEl.textContent = '—';
         }
         try {
@@ -1007,7 +1013,7 @@
             var data = await r.json();
             if (!r.ok) {
                 if (!silent) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">HTTP ' + r.status + ' — could not load FRA list.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;">HTTP ' + r.status + ' — could not load FRA list.</td></tr>';
                 } else {
                     showToast('Could not refresh list (HTTP ' + r.status + ').', 'err');
                 }
@@ -1017,7 +1023,7 @@
             if (data && data.error) {
                 if (!silent) {
                     var msg = escapeHtml(String(data.error));
-                    tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">' + msg + '</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;">' + msg + '</td></tr>';
                 } else {
                     showToast(String(data.error), 'err');
                 }
@@ -1025,16 +1031,17 @@
             }
             if (!Array.isArray(rows)) {
                 if (!silent) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">Could not load FRA list (unexpected response).</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;">Could not load FRA list (unexpected response).</td></tr>';
                 } else {
                     showToast('Could not refresh list.', 'err');
                 }
                 return;
             }
             renderFraRows(rows);
+            fillFilterSelect('fra-filter-category', distinctRowCategories(rows));
         } catch (e) {
             if (!silent) {
-                tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">' + escapeHtml(e.message || 'Request failed') + '</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;">' + escapeHtml(e.message || 'Request failed') + '</td></tr>';
             } else {
                 showToast(e.message || 'Request failed', 'err');
             }
@@ -1088,9 +1095,10 @@
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: 'fraId=' + encodeURIComponent(fraId)
             }));
+            var rawText = null;
             var data = null;
-            try { data = await r.json(); } catch (e) { data = null; }
-            if (r.ok && (data === true || (data && data.success === true))) {
+            try { rawText = await r.text(); data = JSON.parse(rawText); } catch (e) { data = null; }
+            if (r.ok && (data === true || data === 'true' || (data && data.success === true))) {
                 doneeSavedFraIds[String(fraId)] = true;
                 if (triggerBtn) {
                     triggerBtn.setAttribute('data-action', 'unsave');
@@ -1098,7 +1106,7 @@
                     triggerBtn.textContent = 'Unsave';
                     triggerBtn.title = 'Remove from your favourites';
                 }
-                showToast(data.message || 'Saved to your favourites.', 'ok');
+                showToast((data && data.message) || 'Saved to your favourites.', 'ok');
                 if (panelFav && !panelFav.hidden) {
                     loadFavourites(true);
                 }
@@ -1106,7 +1114,7 @@
                     loadHistorySearch();
                 }
             } else {
-                var msg = (data && data.error) ? data.error : 'Save failed';
+                var msg = (data && data.error) ? data.error : ('Save failed [' + r.status + '] ' + (rawText || ''));
                 showToast(msg, 'err');
             }
         } catch (e) {
@@ -1121,9 +1129,10 @@
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: 'fraId=' + encodeURIComponent(fraId) + '&remove=true'
             }));
+            var rawText2 = null;
             var data = null;
-            try { data = await r.json(); } catch (e) { data = null; }
-            if (r.ok && (data === true || (data && data.success === true))) {
+            try { rawText2 = await r.text(); data = JSON.parse(rawText2); } catch (e) { data = null; }
+            if (r.ok && (data === true || data === 'true' || (data && data.success === true))) {
                 doneeSavedFraIds[String(fraId)] = false;
                 if (triggerBtn) {
                     triggerBtn.setAttribute('data-action', 'fav');
@@ -1131,7 +1140,7 @@
                     triggerBtn.textContent = 'Save';
                     triggerBtn.removeAttribute('title');
                 }
-                showToast(data.message || 'Removed from your favourites.', 'ok');
+                showToast((data && data.message) || 'Removed from your favourites.', 'ok');
                 if (panelFav && !panelFav.hidden) {
                     loadFavourites(true);
                 }
@@ -1139,7 +1148,7 @@
                     loadHistorySearch();
                 }
             } else {
-                var msg = (data && data.error) ? data.error : 'Unsave failed';
+                var msg = (data && data.error) ? data.error : ('Unsave failed [' + r.status + '] ' + (rawText2 || ''));
                 showToast(msg, 'err');
             }
         } catch (e) {
@@ -1271,6 +1280,9 @@
 
             // Render table rows on success
             renderHistRows(data);
+            if (Array.isArray(data)) {
+                fillFilterSelect('hist-filter-category', distinctRowCategories(data));
+            }
         } catch (e) {
             showToast("Network or server error occurred.", "err");
             tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;">Request failed.</td></tr>';
@@ -1296,7 +1308,7 @@
 
         // Block search if start date is later than end date
         if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
-            showToast("Date From cannot be later than Date To.", "err");
+            showToast("Start From cannot be later than Start To.", "err");
             return;
         }
 
@@ -1355,9 +1367,40 @@
         if (v) viewFra(v.getAttribute('data-id'), '/api/donee/fra/view');
     });
 
+    async function preloadSavedFraIds() {
+        try {
+            var r = await fetch(apiUrl('/api/donee/favourites/search'), fetchOptions({
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title: '', fraStatus: 'all', categoryName: 'all' })
+            }));
+            if (!r.ok) return;
+            var data = await r.json();
+            var rows = Array.isArray(data) ? data : (data && data.rows);
+            if (Array.isArray(rows)) {
+                rows.forEach(function (row) {
+                    if (row && row.fra_id != null) {
+                        doneeSavedFraIds[String(row.fra_id)] = true;
+                    }
+                });
+            }
+        } catch (e) {}
+    }
+
     (async function () {
         await loadAllCategories();
+        await preloadSavedFraIds();
         loadBrowse();
+        // Load and display the logged-in donee's full name in topbar
+        try {
+            var API_BASE = window.location.protocol === 'file:' ? 'http://localhost:8080' : '';
+            var r = await fetch(API_BASE + '/api/accounts/view', { credentials: 'include' });
+            var d = await r.json().catch(function() { return {}; });
+            if (!d.error && (d.full_name || d.fullName)) {
+                var el = document.getElementById('donee-full-name');
+                if (el) el.textContent = d.full_name || d.fullName;
+            }
+        } catch (e) {}
     })();
 })();
 

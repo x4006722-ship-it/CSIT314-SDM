@@ -509,6 +509,24 @@
                         </div>
                     </div>
                 </div>
+                <div class="subsection" style="margin-top:16px;">
+                    <h3>FRA Stats</h3>
+                    <div class="report-stats">
+                        <div class="report-stat"><div class="report-stat-key">Total New FRAs</div><div class="report-stat-val" id="rep-fra-total">0</div></div>
+                        <div class="report-stat"><div class="report-stat-key">Total Target ($)</div><div class="report-stat-val" id="rep-fra-target">$0</div></div>
+                        <div class="report-stat"><div class="report-stat-key">Total Raised ($)</div><div class="report-stat-val" id="rep-fra-raised">$0</div></div>
+                    </div>
+                    <div class="report-charts">
+                        <div class="report-chart-card">
+                            <div class="report-chart-title">Target vs Raised ($)</div>
+                            <div class="report-canvas"><canvas id="rep-fra-amount-chart"></canvas></div>
+                        </div>
+                        <div class="report-chart-card">
+                            <div class="report-chart-title">FRA Count by Category</div>
+                            <div class="report-canvas"><canvas id="rep-fra-category-chart"></canvas></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
@@ -550,6 +568,8 @@
     const reportState = {
         userStatusChart: null,
         userRoleChart: null,
+        fraAmountChart: null,
+        fraCategoryChart: null,
         loadedPeriod: ''
     };
 
@@ -861,12 +881,48 @@
         });
     }
 
+    function reportRenderFraCharts(fraStats) {
+        const target = reportToNumber(fraStats.totalTargetAmount);
+        const raised = reportToNumber(fraStats.totalRaisedAmount);
+        const byCategory = Array.isArray(fraStats.fraByCategory) ? fraStats.fraByCategory : [];
+
+        reportDestroy(reportState.fraAmountChart);
+        reportState.fraAmountChart = new Chart(document.getElementById('rep-fra-amount-chart'), {
+            type: 'bar',
+            data: {
+                labels: ['Total Target', 'Total Raised'],
+                datasets: [{ data: [target, raised], backgroundColor: ['#f59e0b', '#10b981'] }]
+            },
+            options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+
+        const catWrap = document.getElementById('rep-fra-category-chart')?.parentElement;
+        if (catWrap) {
+            catWrap.style.height = `${Math.max(260, byCategory.length * 34 + 80)}px`;
+        }
+        reportDestroy(reportState.fraCategoryChart);
+        reportState.fraCategoryChart = new Chart(document.getElementById('rep-fra-category-chart'), {
+            type: 'bar',
+            data: {
+                labels: byCategory.map(x => String(x.categoryName || 'Unknown')),
+                datasets: [{ label: 'FRA Count', data: byCategory.map(x => reportToNumber(x.count)), backgroundColor: '#8b5cf6' }]
+            },
+            options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+    }
+
     function reportRenderStats(data) {
         const userStats = data && data.userStats ? data.userStats : {};
         document.getElementById('rep-user-total').textContent = String(reportToNumber(userStats.totalUserCount));
         document.getElementById('rep-user-active').textContent = String(reportToNumber(userStats.activeCount));
         document.getElementById('rep-user-suspended').textContent = String(reportToNumber(userStats.suspendedCount));
         reportRenderUserCharts(userStats);
+
+        const fraStats = data && data.fraStats ? data.fraStats : {};
+        document.getElementById('rep-fra-total').textContent = String(reportToNumber(fraStats.totalFraCount));
+        document.getElementById('rep-fra-target').textContent = '$' + reportToNumber(fraStats.totalTargetAmount).toLocaleString();
+        document.getElementById('rep-fra-raised').textContent = '$' + reportToNumber(fraStats.totalRaisedAmount).toLocaleString();
+        reportRenderFraCharts(fraStats);
     }
 
     async function loadReport(period) {

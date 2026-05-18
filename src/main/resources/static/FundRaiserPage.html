@@ -95,7 +95,7 @@
         .subsection { padding: 1rem; border: 1px solid var(--border); border-radius: 14px; background: #f8fafc; margin-bottom: 16px; }
         .subsection h3 { font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #334155; }
 
-        .search-bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+        .search-bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 16px; }
         
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
@@ -232,11 +232,11 @@
                         <div class="value" id="stat-raised">$0</div>
                     </div>
                     <div class="stat-card c-views">
-                        <h3>Total Views (all)</h3>
+                        <h3>Total Views</h3>
                         <div class="value" id="stat-views-total">0</div>
                     </div>
                     <div class="stat-card c-favs">
-                        <h3>Total Favorites (all)</h3>
+                        <h3>Total Favorites</h3>
                         <div class="value" id="stat-favs-total">0</div>
                     </div>
                 </div>
@@ -253,13 +253,13 @@
                             <input type="text" id="search-title" placeholder="Search Title..." style="width: 180px;">
                             <select id="search-status" style="width: 140px;">
                                 <option value="">All Statuses</option>
-                                <option value="Pending">Pending</option>
                                 <option value="Completed">Completed</option>
+                                <option value="Pending">Pending</option>
                             </select>
                             <select id="search-category" style="width: 160px;">
                                 <option value="">All Categories</option>
                             </select>
-                            <input type="date" id="search-start-date" style="width: 140px;">
+                            <div style="display:flex; flex-direction:column; gap:3px;"><span style="font-size:11px; color:var(--text-muted); line-height:1;">Start From</span><input type="date" id="search-start-date" style="width: 140px; font-size:13px;"></div>
                             <button type="button" class="btn btn-primary" onclick="searchFRAs()"><i class="ti ti-search"></i> Filter</button>
                             <button type="button" class="btn btn-muted" onclick="clearSearch()"><i class="ti ti-refresh"></i> Clear</button>
                         </div>
@@ -358,8 +358,8 @@
                     <div class="form-group" id="status-group" style="display: none; max-width: 50%;">
                         <label>Campaign Status</label>
                         <select id="create-status">
-                            <option value="Pending">Pending</option>
                             <option value="Completed">Completed</option>
+                            <option value="Pending">Pending</option>
                         </select>
                     </div>
 
@@ -539,16 +539,18 @@
 
                 if (activeRes.ok) {
                     const activeList = await activeRes.json();
-                    (Array.isArray(activeList) ? activeList : []).forEach(item => {
-                        const id = item.categoryID || item.categoryId || '';
-                        const name = item.categoryName || '';
-                        const cOpt = document.createElement('option');
-                        cOpt.value = id; cOpt.textContent = name;
-                        createSelect.appendChild(cOpt);
-                        const sOpt = document.createElement('option');
-                        sOpt.value = id; sOpt.textContent = name;
-                        searchSelect.appendChild(sOpt);
-                    });
+                    (Array.isArray(activeList) ? activeList : [])
+                        .sort((a, b) => (a.categoryName || '').localeCompare(b.categoryName || ''))
+                        .forEach(item => {
+                            const id = item.categoryID || item.categoryId || '';
+                            const name = item.categoryName || '';
+                            const cOpt = document.createElement('option');
+                            cOpt.value = id; cOpt.textContent = name;
+                            createSelect.appendChild(cOpt);
+                            const sOpt = document.createElement('option');
+                            sOpt.value = id; sOpt.textContent = name;
+                            searchSelect.appendChild(sOpt);
+                        });
                 }
             } catch (e) { }
         }
@@ -560,28 +562,46 @@
             if(navElement) navElement.classList.add('active');
         }
 
-        function fetchEngagementTotals() {
-            Promise.all([
-                fetch(`${API_BASE_URL}/engagement/views`).then(r => r.ok ? r.json() : []),
-                fetch(`${API_BASE_URL}/engagement/favorites`).then(r => r.ok ? r.json() : [])
-            ]).then(([byViews, byFavs]) => {
-                const vList = Array.isArray(byViews) ? byViews : [];
-                const fList = Array.isArray(byFavs) ? byFavs : [];
-                const sumViews = vList.reduce((s, i) => s + (i.viewCount || 0), 0);
-                const sumFavs = fList.reduce((s, i) => s + (i.favoriteCount || 0), 0);
-                document.getElementById('stat-views-total').innerText = sumViews;
-                document.getElementById('stat-favs-total').innerText = sumFavs;
-            }).catch(e => { });
+        function updateEngagementTotals(rows) {
+            const sumViews = rows.reduce((s, i) => s + (i.viewCount || 0), 0);
+            const sumFavs = rows.reduce((s, i) => s + (i.favoriteCount || 0), 0);
+            document.getElementById('stat-views-total').innerText = sumViews;
+            document.getElementById('stat-favs-total').innerText = sumFavs;
+        }
+
+        function updateSearchCategoryDropdown(rows) {
+            const searchSelect = document.getElementById('search-category');
+            const currentVal = searchSelect.value;
+            // Collect unique categoryIds from this user's FRAs, sorted A-Z by name
+            const seen = new Map();
+            rows.forEach(item => {
+                const id = String(item.categoryId || '');
+                if (id && !seen.has(id)) {
+                    seen.set(id, window.fraCategoryMap[id] || id);
+                }
+            });
+            const sorted = [...seen.entries()].sort((a, b) => a[1].localeCompare(b[1]));
+            searchSelect.innerHTML = '<option value="">All Categories</option>';
+            sorted.forEach(([id, name]) => {
+                const opt = document.createElement('option');
+                opt.value = id; opt.textContent = name;
+                searchSelect.appendChild(opt);
+            });
+            // Restore previous selection if still valid
+            if (currentVal && [...searchSelect.options].some(o => o.value === currentVal)) {
+                searchSelect.value = currentVal;
+            }
         }
 
         function fetchAllFRAs() {
             fetch(`${API_BASE_URL}/view`)
                 .then(r => r.json())
                 .then(data => {
-                    const rows = Array.isArray(data) ? data : [];
+                    const rows = (Array.isArray(data) ? data : []).sort((a, b) => (a.startedAt || '').localeCompare(b.startedAt || ''));
                     renderTable(rows, 'fra-table-body', true);
                     updateStats(rows);
-                    fetchEngagementTotals();
+                    updateEngagementTotals(rows);
+                    updateSearchCategoryDropdown(rows);
                 })
                 .catch(e => { document.getElementById('fra-table-body').innerHTML = '<tr><td colspan="13" style="text-align:center;">Data loading failed.</td></tr>'; });
         }
@@ -608,11 +628,18 @@
             if(!payload.categoryId) { showMessage("Please select a Category.", "error"); return; }
             if(!payload.fundRaiserId) { showMessage("Fund Raiser is required.", "error"); return; }
     
-            if(payload.fraTargetAmount <= 0) { 
-                showMessage("Amount must be greater than 0.", "error"); return; 
+            if(payload.fraTargetAmount <= 0) {
+                showMessage("Amount must be greater than 0.", "error"); return;
             }
-            if(new Date(payload.startedAt) >= new Date(payload.endedAt)) { 
-                showMessage("Start Date must be before End Date.", "error"); return; 
+
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const startDate = new Date(payload.startedAt);
+            const endDate = new Date(payload.endedAt);
+            if (startDate < today) {
+                showMessage("Start Date cannot be earlier than today.", "error"); return;
+            }
+            if (endDate <= startDate) {
+                showMessage("End Date must be after Start Date.", "error"); return;
             }
 
             const inputTitle = payload.fraTitle.trim().toLowerCase();
@@ -699,7 +726,7 @@
                         }
                         renderTable(rows, 'fra-table-body', true);
                         updateStats(rows);
-                        fetchEngagementTotals();
+                        updateEngagementTotals(rows);
                     }).catch(e => console.error("History search failed", e));
                 return;
             }
@@ -713,13 +740,13 @@
             fetch(url)
                 .then(r => r.json())
                 .then(data => {
-                    const rows = Array.isArray(data) ? data : [];
+                    const rows = (Array.isArray(data) ? data : []).sort((a, b) => (a.startedAt || '').localeCompare(b.startedAt || ''));
                     renderTable(rows, 'fra-table-body', true);
                     updateStats(rows);
-                    fetchEngagementTotals();
+                    updateEngagementTotals(rows);
                 })
-                .catch(e => { 
-                    document.getElementById('fra-table-body').innerHTML = '<tr><td colspan="13" style="text-align:center;">Search failed.</td></tr>'; 
+                .catch(e => {
+                    document.getElementById('fra-table-body').innerHTML = '<tr><td colspan="13" style="text-align:center;">Search failed.</td></tr>';
                 });
         }
 
@@ -786,9 +813,8 @@
             loadDoneeOptions(doneeId);
             document.getElementById('create-fund-raiser-id').value = frId;
             document.getElementById('create-fund-raiser-name').value = frName;
-            document.getElementById('fund-raiser-name-group').style.display = 'none';
-            document.getElementById('fund-raiser-select-group').style.display = 'block';
-            loadFundRaiserOptions(frId);
+            document.getElementById('fund-raiser-name-group').style.display = 'block';
+            document.getElementById('fund-raiser-select-group').style.display = 'none';
             document.getElementById('create-category').value = cat;
             document.getElementById('create-amount').value = amt;
             document.getElementById('create-start-date').value = normalizeDateInputValue(start);
@@ -836,7 +862,18 @@
             switchPage('dashboard', document.querySelector('.tab-btn.active'));
             loadCurrentAccount();
             loadDoneeOptions();
-            
+
+            // Set min date for start date to today
+            const todayStr = new Date().toISOString().split('T')[0];
+            document.getElementById('create-start-date').min = todayStr;
+
+            // When start date changes, update end date min to be at least one day after start
+            document.getElementById('create-start-date').addEventListener('change', function() {
+                const endInput = document.getElementById('create-end-date');
+                endInput.min = this.value || todayStr;
+                if (endInput.value && endInput.value <= this.value) endInput.value = '';
+            });
+
             // Load categories first (async), then fetch table data so category names are available
             loadCategoryOptions().then(() => {
                 fetchAllFRAs();

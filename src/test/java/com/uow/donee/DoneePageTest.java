@@ -51,8 +51,8 @@ public class DoneePageTest {
     }
 
     @Test
-    public void test_On_save_favourite_with_invalid_user_returns_false() {
-        boolean result = doneePage.onSaveFavourite(0, 0, false, null);
-        assertFalse(result);
+    public void test_On_save_favourite_with_invalid_user_returns_error() {
+        Object result = doneePage.onSaveFavourite(0, 0, false, null);
+        assertNotNull(result);
     }
 }

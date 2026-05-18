@@ -17,18 +17,39 @@ public class UpdateUserAccountController {
             return false;
         }
 
-        Object current = userAccount.getViewAccount(userId);
-        if (!(current instanceof java.util.Map<?, ?> currentMap)) {
+        if (userAccount.getViewAccount(userId) == null) {
             return false;
         }
 
-        String username = nonBlankOrDefault(m.get("username"), currentMap.get("username"));
-        String fullName = nonBlankOrDefault(m.get("fullName"), currentMap.get("full_name"));
-        String email = nonBlankOrDefault(m.get("email"), currentMap.get("email"));
-        String phoneNumber = nonBlankOrDefault(m.get("phoneNumber"), currentMap.get("phone_number"));
-        String password = nonBlankOrDefault(m.get("password"), currentMap.get("password"));
-        String accountStatus = nonBlankOrDefault(m.get("accountStatus"), currentMap.get("a_status"));
-        int profileId = parseInt(nonBlankOrDefault(m.get("profileId"), currentMap.get("profile_id")));
+        String username = text(m.get("username"));
+        String fullName = text(m.get("fullName"));
+        String email = text(m.get("email"));
+        String phoneNumber = text(m.get("phoneNumber"));
+        String password = text(m.get("password"));
+        String accountStatus = text(m.get("accountStatus"));
+        String profileIdText = text(m.get("profileId"));
+
+        // All fields required — blank means the user cleared a mandatory field
+        if (username.isBlank() || fullName.isBlank() || email.isBlank() || phoneNumber.isBlank()
+                || password.isBlank() || accountStatus.isBlank() || profileIdText.isBlank()) {
+            return false;
+        }
+
+        // Same format/length rules as create
+        if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            return false;
+        }
+        if (phoneNumber.length() < 8) {
+            return false;
+        }
+        if (password.length() < 3) {
+            return false;
+        }
+
+        int profileId = parseInt(profileIdText);
+        if (profileId <= 0) {
+            return false;
+        }
 
         // Duplicate check on update — exclude the account currently being edited
         if (userAccount.isDuplicateAccount(username, email, phoneNumber, userId)) {
@@ -47,6 +68,10 @@ public class UpdateUserAccountController {
         return userAccount.saveUpdateAccount(updateData);
     }
 
+    private String text(Object value) {
+        return value == null ? "" : String.valueOf(value).trim();
+    }
+
     private int parseInt(Object value) {
         if (value instanceof Number number) {
             return number.intValue();
@@ -61,11 +86,4 @@ public class UpdateUserAccountController {
         }
     }
 
-    private String nonBlankOrDefault(Object incoming, Object fallback) {
-        String in = incoming == null ? "" : String.valueOf(incoming).trim();
-        if (!in.isBlank()) {
-            return in;
-        }
-        return fallback == null ? "" : String.valueOf(fallback).trim();
-    }
 }

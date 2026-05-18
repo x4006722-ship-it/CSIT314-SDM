@@ -71,7 +71,7 @@ public class DoneePage {
     // Save Favourite
     @PostMapping(value = "/api/donee/favourites/save", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public boolean onSaveFavourite(
+    public Object onSaveFavourite(
             @RequestParam(value = "fraId", defaultValue = "0") int fraId,
             @RequestParam(value = "userId", defaultValue = "0") int userId,
             @RequestParam(value = "remove", defaultValue = "false") boolean remove,
@@ -82,7 +82,11 @@ public class DoneePage {
                 userId = n.intValue();
             }
         }
-        return saveFavouriteController.saveFavourite(fraId, userId, remove);
+        if (fraId <= 0) return Map.of("error", "Invalid FRA id: " + fraId);
+        if (userId <= 0) return Map.of("error", "Not logged in (userId=0)");
+        String err = saveFavouriteController.saveFavourite(fraId, userId, remove);
+        if (err == null) return true;
+        return Map.of("error", err);
     }
 
     // View Favourite

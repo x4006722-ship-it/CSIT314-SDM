@@ -13,17 +13,18 @@ import com.uow.util.DBUtils;
 
 public class Favourite {
 
-    // Save Favourite
-    public boolean saveFavourite(int fraId, int userId, boolean remove) {
+    // Save Favourite — returns null on success, error message string on failure
+    public String saveFavourite(int fraId, int userId, boolean remove) {
         if (remove) {
             try (Connection c = DBUtils.getConnection();
                  PreparedStatement ps = c.prepareStatement(
                          "DELETE FROM fra_favourite WHERE user_id = ? AND fra_id = ?")) {
                 ps.setInt(1, userId);
                 ps.setInt(2, fraId);
-                return ps.executeUpdate() > 0;
+                ps.executeUpdate();
+                return null;
             } catch (SQLException e) {
-                return false;
+                return "DELETE failed: " + e.getMessage();
             }
         }
         try (Connection c = DBUtils.getConnection();
@@ -33,11 +34,11 @@ public class Favourite {
             check.setInt(2, fraId);
             try (ResultSet rs = check.executeQuery()) {
                 if (rs.next()) {
-                    return true;
+                    return null; // already saved
                 }
             }
         } catch (SQLException e) {
-            return false;
+            return "SELECT failed: " + e.getMessage();
         }
 
         try (Connection c = DBUtils.getConnection();
@@ -45,9 +46,10 @@ public class Favourite {
                      "INSERT INTO fra_favourite (user_id, fra_id) VALUES (?, ?)")) {
             ps.setInt(1, userId);
             ps.setInt(2, fraId);
-            return ps.executeUpdate() > 0;
+            ps.executeUpdate();
+            return null;
         } catch (SQLException e) {
-            return false;
+            return "INSERT failed: " + e.getMessage();
         }
     }
 
@@ -63,13 +65,13 @@ public class Favourite {
         String categoryName = readText(data.get("categoryName"));
 
         StringBuilder sql = new StringBuilder(
-                "SELECT f.fra_id, f.fra_title, f.fra_status, f.category_id, IFNULL(TRIM(fc.category_name),'') AS category_name "
+                "SELECT f.fra_id, f.title, f.fra_status, f.category_id, IFNULL(TRIM(fc.category_name),'') AS category_name, f.current_amount, f.target_amount "
                         + "FROM fra f "
                         + "INNER JOIN fra_favourite ff ON ff.fra_id = f.fra_id AND ff.user_id = ? "
                         + "LEFT JOIN fra_category fc ON f.category_id = fc.category_id "
                         + "WHERE 1=1 ");
         if (!title.isBlank()) {
-            sql.append("AND LOWER(f.fra_title) LIKE LOWER(?) ");
+            sql.append("AND LOWER(f.title) LIKE LOWER(?) ");
         }
         if (!fraStatus.isBlank() && !"all".equalsIgnoreCase(fraStatus)) {
             sql.append("AND f.fra_status = ? ");
@@ -98,10 +100,12 @@ public class Favourite {
                 while (rs.next()) {
                     Map<String, Object> row = new LinkedHashMap<>();
                     row.put("fra_id", rs.getInt("fra_id"));
-                    row.put("title", rs.getString("fra_title"));
+                    row.put("title", rs.getString("title"));
                     row.put("status", rs.getString("fra_status"));
                     row.put("categoryId", rs.getObject("category_id"));
                     row.put("category", rs.getString("category_name"));
+                    row.put("currentAmount", rs.getObject("current_amount"));
+                    row.put("targetAmount", rs.getObject("target_amount"));
                     out.add(row);
                 }
             }
@@ -115,28 +119,22 @@ public class Favourite {
     public Object getViewFavourite(int fraId) {
         try (Connection c = DBUtils.getConnection();
              PreparedStatement ps = c.prepareStatement(
-                     "SELECT f.fra_title, f.fra_status, f.fra_startedAt, f.fra_viewCount, f.fra_favouriteCount, "
-                            + "f.current_amount AS current_amount, f.fra_targetAmount AS target_amount, COALESCE(NULLIF(TRIM(ua.full_name),''), ua.username, '-') AS doneeName "
+                     "SELECT f.title, f.fra_status, f.startedAt, f.viewCount, f.favoriteCount, "
+                            + "f.current_amount AS current_amount, f.target_amount AS target_amount, COALESCE(NULLIF(TRIM(ua.full_name),''), ua.username, '-') AS doneeName "
                              + "FROM fra f "
                              + "LEFT JOIN user_account ua ON f.donee_id = ua.user_id "
-                             + "WHERE f.fra_id = ? LIMIT 1")) {
+                             + "WHERE f.fra_id = ?")) {
             ps.setInt(1, fraId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (!rs.next()) {
                     return null;
                 }
                 Map<String, Object> out = new LinkedHashMap<>();
-                out.put("title", rs.getString("fra_title"));
+                out.put("title", rs.getString("title"));
                 out.put("status", rs.getString("fra_status"));
-                out.put("createAt", rs.getString("fra_startedAt"));
-                out.put("viewCount", rs.getObject("fra_viewCount"));
-                int favCount;
-                try {
-                    favCount = rs.getInt("fra_favouriteCount");
-                } catch (SQLException e) {
-                    favCount = rs.getInt("fra_favoriteCount");
-                }
-                out.put("favouriteCount", favCount);
+                out.put("createAt", rs.getString("startedAt"));
+                out.put("viewCount", rs.getObject("viewCount"));
+                out.put("favouriteCount", rs.getObject("favoriteCount"));
                 out.put("currentAmount", rs.getObject("current_amount"));
                 out.put("targetAmount", rs.getObject("target_amount"));
                 out.put("doneeName", rs.getString("doneeName"));
