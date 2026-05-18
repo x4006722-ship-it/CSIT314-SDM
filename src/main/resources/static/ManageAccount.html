@@ -390,7 +390,7 @@
             const status = uaState.searchStatus || 'all';
             const role = uaState.searchRole || 'all';
             const useSearch = !!q || (status && status !== 'all') || (role && role !== 'all');
-            const baseUrl = useSearch ? '/api/accounts/search' : '/api/accounts/list';
+            const baseUrl = '/api/accounts/search';
 
             const profileIdByRole = (() => {
                 if (!role || role === 'all') return '0';
