@@ -405,9 +405,11 @@
             const bodyHtml = `<div class="muted" style="margin-bottom: 12px; text-align:left;">Tip: Double-click a value to edit, then click “Save changes”.</div><div class="table-wrap"><div class="table-scroll" style="max-height: none;"><table aria-label="Account detail" style="min-width: 0;"><thead><tr><th style="width: 220px;">Field</th><th>Value</th></tr></thead><tbody>
                 ${ordered.filter(([k]) => !['roleName'].includes(String(k))).map(([k, v]) => {
                     const label = fieldLabels[k] ?? k; const isPassword = String(k) === 'password';
-                    const safeVal = (v === null || v === undefined || String(v).trim() === '') ? '-' : String(v);
+                    const isValueEmpty = (v === null || v === undefined || String(v).trim() === '' || String(v).trim() === '-');
+                    const safeVal = (v == null) ? '' : String(v).trim();
                     const valueHtml = isPassword ? `<span class="ua-secret" role="button" tabindex="0" style="cursor:pointer; user-select:none; color: var(--accent);" data-secret="${uaEscapeHtml(safeVal)}">*****</span>`
-                        : (String(k) === 'profile_id' ? `<span class="ua-value" data-field="profile_id" data-value="${uaEscapeHtml(ordered[6][1])}">${uaEscapeHtml(ordered[7][1] || '-')}</span>` : `<span class="ua-value" data-field="${uaEscapeHtml(k)}">${uaEscapeHtml(safeVal)}</span>`);
+    : (String(k) === 'profile_id' ? `<span class="ua-value" data-field="profile_id" data-value="${uaEscapeHtml(ordered[6][1])}">${uaEscapeHtml(ordered[7][1] || '')}</span>` 
+    : `<span class="ua-value" data-field="${uaEscapeHtml(k)}">${uaEscapeHtml(safeVal)}</span>`);
                     return `<tr data-field="${uaEscapeHtml(k)}" data-editable="${editableKeys.has(String(k)) ? '1' : '0'}"><td class="muted" style="font-weight: 600;">${uaEscapeHtml(label)}</td><td>${valueHtml}</td></tr>`;
                 }).join('')}
             </tbody></table></div></div>`;
@@ -530,47 +532,65 @@
             else td.innerHTML = `<span class="ua-value" data-field="a_status">${uaEscapeHtml(sel.value)}</span>`;
             document.getElementById('ua-modal-save').dataset.dirty = '1';
         });
-
-        document.getElementById('ua-modal-save')?.addEventListener('click', async () => {
+document.getElementById('ua-modal-save')?.addEventListener('click', async () => {
             const saveBtn = document.getElementById('ua-modal-save');
             const msg = document.getElementById('ua-modal-message');
             const currentUserId = Number(saveBtn.dataset.userId);
             
-            // 🚨 THIS IS THE CRITICAL FIX: Gracefully grabs active inputs even without pressing enter 🚨
             const getVal = (key) => {
                 const inputEl = msg.querySelector(`input[data-field="${CSS.escape(key)}"], select[data-field="${CSS.escape(key)}"]`);
                 if (inputEl) return inputEl.value.trim();
-                return (msg.querySelector(`.ua-value[data-field="${CSS.escape(key)}"]`)?.dataset?.value ?? msg.querySelector(`.ua-value[data-field="${CSS.escape(key)}"]`)?.textContent ?? '').trim();
+                const el = msg.querySelector(`.ua-value[data-field="${CSS.escape(key)}"]`);
+                return (el?.dataset?.value ?? el?.textContent ?? '').trim();
             };
             
-            const username = getVal('username');
-            const email = getVal('email');
-            const phoneNumber = getVal('phone_number');
-            
-            // Web Boundary: Validate required fields
-            if (!username) { showToast('Username is required.', 'error'); return; }
-            if (!email) { showToast('Email is required.', 'error'); return; }
-            
-            // Backend update handles the duplicate check directly
             const payload = {
                 userId: currentUserId,
-                username: username, fullName: getVal('full_name'), email: email, phoneNumber: phoneNumber,
+                username: getVal('username'),
+                fullName: getVal('full_name'),
+                email: getVal('email'),
+                phoneNumber: getVal('phone_number'),
                 password: msg.querySelector('.ua-secret')?.getAttribute('data-secret') || '',
-                accountStatus: getVal('a_status'), profileId: getVal('profile_id')
+                accountStatus: getVal('a_status'),
+                profileId: getVal('profile_id')
             };
+
+            // 核心校验：只要是空字符串直接弹窗
+            const fields = [
+                { v: payload.username, n: 'Username' },
+                { v: payload.fullName, n: 'Full name' },
+                { v: payload.email, n: 'Email' },
+                { v: payload.phoneNumber, n: 'Phone number' },
+                { v: payload.password, n: 'Password' }
+            ];
+
+            for (const f of fields) {
+                if (!f.v) { // 没有任何字符即报错
+                    showToast(`${f.n} cannot be empty!`, 'error');
+                    return;
+                }
+            }
 
             try {
                 saveBtn.disabled = true; 
-                const r = await fetch('/api/accounts/update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body: JSON.stringify(payload) });
+                const r = await fetch('/api/accounts/update', { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify(payload) 
+                });
                 const res = await r.json();
-                
                 if (res.success) {
-                    uaModalClose(); await loadAccountSummaries(); showToast(res.message, 'success');
+                    uaModalClose(); 
+                    await loadAccountSummaries(); 
+                    showToast(res.message, 'success');
                 } else {
-                    // Backend duplicate check fails gracefully here with a Toast
                     showToast(res.message, 'error');
                 }
-            } catch (err) { showToast(`Server Error`, 'error'); } finally { saveBtn.disabled = false; }
+            } catch (err) { 
+                showToast(`Server Error`, 'error'); 
+            } finally { 
+                saveBtn.disabled = false; 
+            }
         });
 
         document.getElementById('ua-modal-backdrop')?.addEventListener('click', uaModalClose);

@@ -35,467 +35,92 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; }
 
-        body {
-            min-height: 100vh;
-            color: var(--text);
-            background: #f8fafc;
-        }
+        body { min-height: 100vh; color: var(--text); background: #f8fafc; }
 
         .container { min-height: 100vh; }
         .main-content { padding: 20px; max-width: 1560px; margin: 0 auto; }
 
         .topbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #fff;
-            padding: 16px 20px;
-            border-radius: 14px;
-            margin-bottom: 1.25rem;
-            box-shadow: var(--shadow-card);
-            border: 1px solid var(--border);
-            border-left: 3px solid var(--accent);
+            display: flex; justify-content: space-between; align-items: center;
+            background: #fff; padding: 16px 20px; border-radius: 14px;
+            margin-bottom: 1.25rem; box-shadow: var(--shadow-card);
+            border: 1px solid var(--border); border-left: 3px solid var(--accent);
         }
 
-        .tab-bar {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 1rem;
-            background: #f1f5f9;
-            padding: 4px;
-            border-radius: 8px;
-            width: fit-content;
-        }
+        .tab-bar { display: flex; gap: 4px; margin-bottom: 1rem; background: #f1f5f9; padding: 4px; border-radius: 8px; width: fit-content; }
 
         .tab-btn {
-            padding: 8px 14px;
-            border-radius: 6px;
-            border: 1px solid transparent;
-            background: transparent;
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 13px;
+            padding: 8px 14px; border-radius: 6px; border: 1px solid transparent;
+            background: transparent; cursor: pointer; font-weight: 500; font-size: 13px;
             transition: color .2s, background .2s, border-color .2s;
-            color: var(--text-muted);
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            color: var(--text-muted); display: inline-flex; align-items: center; gap: 6px;
         }
 
-        .tab-btn.active {
-            background: #fff;
-            color: var(--text);
-            border-color: #e2e8f0;
-            box-shadow: var(--shadow-card);
-        }
-
-        .tab-btn:hover:not(.active) {
-            background: #f8fafc;
-            border-color: #e2e8f0;
-            color: var(--accent);
-        }
+        .tab-btn.active { background: #fff; color: var(--text); border-color: #e2e8f0; box-shadow: var(--shadow-card); }
 
         .admin-section {
-            background: var(--surface);
-            border-radius: 14px;
-            padding: 1.25rem;
-            margin-bottom: 1rem;
-            box-shadow: var(--shadow-card);
-            border: 1px solid var(--border);
+            background: var(--surface); border-radius: 14px; padding: 1.25rem;
+            margin-bottom: 1rem; box-shadow: var(--shadow-card); border: 1px solid var(--border);
         }
 
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: .875rem;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: .6rem;
-        }
-        .section-header::after {
-            content: '';
-            width: 3px;
-            height: 16px;
-            border-radius: 99px;
-            background: var(--accent);
-            display: inline-block;
-        }
+        .section-header { display: flex; align-items: center; gap: 8px; margin-bottom: .875rem; border-bottom: 1px solid var(--border); padding-bottom: .6rem; }
+        .section-header::after { content: ''; width: 3px; height: 16px; border-radius: 99px; background: var(--accent); display: inline-block; }
 
         h2 { font-size: 16px; color: #334155; font-weight: 600; letter-spacing: .01em; }
 
-        .action-bar {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 10px;
-        }
+        .action-bar { display: grid; grid-template-columns: 1fr; gap: 10px; }
 
         .form-group { margin-bottom: 10px; }
-        label {
-            display: block;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: .05em;
-            color: var(--text-faint);
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-        input, select {
-            width: 100%;
-            height: 40px;
-            padding: 0 10px;
-            border: 1.5px solid var(--border-soft);
-            border-radius: 8px;
-            font-size: 14px;
-            background: #f8fafc;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-ring);
-        }
+        label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--text-faint); margin-bottom: 5px; font-weight: 600; }
+        input, select { width: 100%; height: 40px; padding: 0 10px; border: 1.5px solid var(--border-soft); border-radius: 8px; font-size: 14px; background: #f8fafc; transition: border-color 0.2s, box-shadow 0.2s; }
+        input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
 
-        /* 统一的标准按钮样式，和 Create 保持绝对一致 */
-        .btn {
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: 1px solid transparent;
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 13px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            transition: transform .15s, box-shadow .2s, background .2s, color .2s;
-        }
+        .btn { padding: 8px 16px; border-radius: 8px; border: 1px solid transparent; cursor: pointer; font-weight: 500; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 5px; transition: transform .15s, box-shadow .2s, background .2s, color .2s; }
         .btn:active { transform: translateY(1px); }
-        
-        .btn-primary {
-            background: var(--accent);
-            color: #fff;
-            border: none;
-        }
-        .btn-primary:hover { background: var(--accent-dark); }
-        
-        .btn-view {
-            background: transparent;
-            color: var(--text-muted);
-            border: 1px solid var(--border-soft);
-        }
-        .btn-view:hover {
-            background: #f8fafc;
-            color: var(--text);
-        }
-        .logout-btn {
-            border: 1px solid var(--danger-border);
-            color: var(--danger-text);
-            background: var(--danger-bg);
-            padding: 6px 12px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 12px;
-            font-weight: 500;
-            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .logout-btn:hover {
-            background: #ffe4e6;
-        }
+        .btn-primary { background: var(--accent); color: #fff; border: none; }
+        .btn-view { background: transparent; color: var(--text-muted); border: 1px solid var(--border-soft); }
+        .btn-danger { background: var(--danger-bg); color: var(--danger-text); border: 1px solid var(--danger-border); }
+        .btn-muted { background: transparent; color: var(--text-muted); border: 1px solid var(--border-soft); }
 
-        .topbar-user {
-            font-size: 13px;
-            color: var(--text-faint);
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .logout-btn { border: 1px solid var(--danger-border); color: var(--danger-text); background: var(--danger-bg); padding: 6px 12px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 5px; }
 
-        .topbar-user::before {
-            content: "UA";
-            width: 34px;
-            height: 34px;
-            border-radius: 999px;
-            background: var(--accent-light);
-            color: var(--accent-dark);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: 600;
-            letter-spacing: .03em;
-        }
-        .topbar-user strong {
-            color: var(--accent-dark);
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .card {
-            background: var(--surface);
-            border: 1px solid var(--border-soft);
-            border-radius: 14px;
-            box-shadow: var(--shadow-card);
-        }
-
-        .subsection {
-            padding: 1rem;
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            background: #f8fafc;
-        }
-
-        .subsection h3 {
-            font-size: 15px;
-            font-weight: 500;
-            margin-bottom: 10px;
-            color: #334155;
-        }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .btn-sm {
-            padding: 5px 10px;
-            font-size: 12px;
-            border-radius: 6px;
-        }
-
-        .btn-danger {
-            background: var(--danger-bg);
-            color: var(--danger-text);
-            border: 1px solid var(--danger-border);
-        }
-        .btn-danger:hover { background: #ffe4e6; }
-
-        .btn-muted {
-            background: transparent;
-            color: var(--text-muted);
-            border: 1px solid var(--border-soft);
-        }
-        .btn-muted:hover { background: #f8fafc; color: var(--text); }
-
-        .pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 10px;
-            border-radius: 999px;
-            font-size: 12px;
-            border: 0;
-            font-weight: 500;
-        }
-        .pill::before { content: ''; width: 5px; height: 5px; border-radius: 999px; display: inline-block; }
-
+        .pill { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 500; }
         .pill.ok { background: var(--ok-bg); color: var(--ok-text); }
-        .pill.ok::before { background: var(--ok-dot); }
         .pill.bad { background: var(--bad-bg); color: var(--bad-text); }
-        .pill.bad::before { background: var(--bad-dot); }
 
-        .table-wrap {
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            overflow: hidden;
-            background: #fff;
-            box-shadow: var(--shadow-card);
-        }
-
-        .table-scroll {
-            max-height: 1000px;
-            overflow: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            min-width: 980px;
-        }
-
+        .table-wrap { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: #fff; box-shadow: var(--shadow-card); }
+        .table-scroll { max-height: 1000px; overflow: auto; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 980px; }
         #up-table { min-width: 0; }
-
-        #up-table thead th:nth-child(1) { width: 80px; }
-        #up-table thead th:nth-child(2) { width: 200px; }
-        #up-table thead th:nth-child(3) { width: 120px; }
-        #up-table thead th:nth-child(4) { width: 220px; text-align: center; }
-
-        thead th {
-            position: sticky;
-            top: 0;
-            z-index: 1;
-            background: #f8fafc;
-            border-bottom: 1px solid var(--border);
-            font-size: 11px;
-            letter-spacing: 0.07em;
-            text-transform: uppercase;
-            color: var(--text-faint);
-            padding: 11px 16px;
-            text-align: left;
-            white-space: nowrap;
-        }
-
-        tbody td {
-            padding: 11px 16px;
-            border-bottom: 1px solid #f8fafc;
-            font-size: 14px;
-            color: #1e293b;
-            vertical-align: middle;
-        }
-
-        tbody tr:hover td { background: #fafbff; }
-
-        .td-actions {
-            display: inline-flex;
-            gap: 6px;
-            flex-wrap: nowrap;
-            align-items: center;
-            justify-content: flex-end;
-            width: 100%;
-        }
-
-        #up-table thead th:last-child { text-align: center; }
-        #up-table tbody td:last-child { text-align: center; vertical-align: middle; }
-        #up-table .td-actions { justify-content: center; align-items: center; }
-
-        #up-table .td-actions button.btn-sm {
-            box-sizing: border-box;
-            min-height: 28px;
-            height: 28px;
-            padding: 0 8px;
-            font-size: 12px;
-            font-weight: 600;
-            border-radius: 6px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-
-        #up-table .td-actions button[data-action="toggle"].btn-sm { min-width: 104px; }
-
-        .muted { color: var(--text-muted); font-size: 12px; }
-
-        .pagination {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 9px 16px;
-            gap: 12px;
-            border-top: 1px solid var(--border);
-            background: #f8fafc;
-        }
-
-        .drawer-backdrop {
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.45);
-            display: none;
-            z-index: 999;
-        }
-
-        .drawer {
-            position: fixed;
-            top: 0;
-            right: 0;
-            height: 100vh;
-            width: min(520px, 92vw);
-            background: #fff;
-            box-shadow: var(--shadow-float);
-            border-left: 3px solid var(--accent);
-            transform: translateX(100%);
-            transition: transform 0.18s ease;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-        }
-
+        thead th { position: sticky; top: 0; z-index: 1; background: #f8fafc; border-bottom: 1px solid var(--border); font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-faint); padding: 11px 16px; text-align: left; }
+        tbody td { padding: 11px 16px; border-bottom: 1px solid #f8fafc; font-size: 14px; color: #1e293b; vertical-align: middle; }
+        
+        .drawer-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); display: none; z-index: 999; }
+        .drawer { position: fixed; top: 0; right: 0; height: 100vh; width: min(520px, 92vw); background: #fff; box-shadow: var(--shadow-float); border-left: 3px solid var(--accent); transform: translateX(100%); transition: transform 0.18s ease; z-index: 1000; display: flex; flex-direction: column; }
         .drawer.open { transform: translateX(0); }
         .drawer-backdrop.open { display: block; }
-
-        .drawer-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 18px;
-            border-bottom: 1px solid var(--border-soft);
-            background: linear-gradient(135deg, #eef2ff 0%, #ffffff 100%);
-        }
-
-        .drawer-title { display: grid; gap: 2px; }
-        .drawer-title strong { font-size: 14px; color: #1e293b; }
-
+        .drawer-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 18px; border-bottom: 1px solid var(--border-soft); background: linear-gradient(135deg, #eef2ff 0%, #ffffff 100%); }
         .drawer-body { padding: 18px; overflow: auto; display: grid; gap: 14px; }
+        .drawer-footer { padding: 14px 18px; border-top: 1px solid var(--border-soft); display: flex; justify-content: flex-end; gap: 10px; background: #f8fafc; }
 
-        .drawer-footer {
-            padding: 14px 18px;
-            border-top: 1px solid var(--border-soft);
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            background: #f8fafc;
-        }
-
-        .kv {
-            display: grid;
-            grid-template-columns: 140px 1fr;
-            gap: 10px;
-            align-items: center;
-        }
+        .kv { display: grid; grid-template-columns: 140px 1fr; gap: 10px; align-items: center; }
         .kv .k { color: var(--text-muted); font-size: 12px; }
         .kv .v { color: #1e293b; font-size: 14px; }
 
-        /* ========= Enhanced floating notification (Toast) ========= */
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
-        .toast-msg { min-width: 250px; padding: 15px 20px; border-radius: 8px; color: white; font-size: 14px; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.15); opacity: 0; transform: translateX(100%); transition: all 0.3s ease-in-out; }
+        .toast-msg { min-width: 250px; padding: 15px 20px; border-radius: 8px; color: white; font-size: 14px; font-weight: 600; opacity: 0; transform: translateX(100%); transition: all 0.3s ease; }
         .toast-msg.show { opacity: 1; transform: translateX(0); }
-        .toast-success { background-color: #2ecc71; border-left: 6px solid #27ae60; }
-        .toast-error { background-color: #e74c3c; border-left: 6px solid #c0392b; }
+        .toast-success { background-color: #2ecc71; }
+        .toast-error { background-color: #e74c3c; }
 
-        /* ================= 纯净版 Modal 样式 (完美贴合标准按钮) ================= */
-        .modal-backdrop {
-            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); display: none; z-index: 1300;
-        }
-        .modal-backdrop.open { display: block; }
-
-        .modal {
-            position: fixed; left: 50%; top: 18%; transform: translateX(-50%);
-            width: min(440px, 92vw); max-height: 70vh; background: #fff;
-            border: none;
-            border-radius: 14px;
-            box-shadow: var(--shadow-float);
-            display: none; z-index: 1310; overflow: hidden;
-        }
+        .modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); display: none; z-index: 1300; }
+        .modal { position: fixed; left: 50%; top: 18%; transform: translateX(-50%); width: min(440px, 92vw); background: #fff; border-radius: 14px; display: none; z-index: 1310; }
         .modal.open { display: block; }
-        
-        .modal-header {
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 16px 20px;
-            background: #f8fafc;
-            border-bottom: 1px solid #f1f5f9;
-        }
-        .modal-header strong { font-size: 16px; color: #1e293b; font-weight: 600; }
-        
-        .modal-body {
-            padding: 24px 20px; font-size: 15px; line-height: 1.5; color: #334155;
-            text-align: center; word-break: break-word; overflow: auto; 
-            max-height: calc(70vh - 56px - 60px);
-        }
-        
-        .modal-footer {
-            padding: 0 20px 20px 20px;
-            background: #fff;
-            display: flex; justify-content: center; gap: 10px;
-        }
-
-        #up-edit-form.card {
-            padding: 14px; border-radius: 12px; border: 1px solid var(--border-soft);
-            background: linear-gradient(180deg, #fafbfc 0%, #fff 100%);
-        }
+        .modal-header { padding: 16px 20px; background: #f8fafc; border-bottom: 1px solid #f1f5f9; font-weight: 600; }
+        .modal-body { padding: 24px 20px; text-align: center; }
+        .modal-footer { padding: 0 20px 20px 20px; display: flex; justify-content: center; gap: 10px; }
+        .subsection { padding: 1rem; border: 1px solid var(--border); border-radius: 14px; background: #f8fafc; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     </style>
 </head>
 <body>
@@ -505,22 +130,17 @@
 <div class="container">
     <main class="main-content">
         <div class="topbar">
-            <span class="topbar-user">Logged in as: <strong> User Admin</strong></span>
-            <div style="display:flex; align-items:center; gap:12px;">
-                <a href="/logout" class="logout-btn"><i class="ti ti-logout"></i> Logout</a>
-            </div>
+            <span>Logged in as: <strong>User Admin</strong></span>
+            <a href="/logout" class="logout-btn"><i class="ti ti-logout"></i> Logout</a>
         </div>
 
         <div class="tab-bar">
-            <button class="tab-btn active" type="button" onclick="location.href='ManageProfile.html'"><i class="ti ti-id-badge-2"></i> Manage Profile</button>
-            <button class="tab-btn" type="button" onclick="location.href='ManageAccount.html'"><i class="ti ti-users"></i> Manage Account</button>
+            <button class="tab-btn active"><i class="ti ti-id-badge-2"></i> Manage Profile</button>
+            <button class="tab-btn" onclick="location.href='ManageAccount.html'"><i class="ti ti-users"></i> Manage Account</button>
         </div>
 
         <div class="admin-section">
-            <div class="section-header">
-                <h2> Profile Management</h2>
-            </div>
-
+            <div class="section-header"><h2>Profile Management</h2></div>
             <div class="action-bar">
                 <form id="up-create-form" class="subsection" novalidate>
                     <h3>Create User Profile</h3>
@@ -544,400 +164,228 @@
         </div>
 
         <div class="admin-section">
-            <div class="section-header">
-                <h2> Manage Profiles</h2>
-            </div>
-
-            <div class="action-bar">
-                <div class="subsection">
-                    <h3>Search User Profiles</h3>
-                    <div class="grid-2" style="margin-bottom: 12px;">
-                        <div class="form-group">
-                            <label>Search Role Name</label>
-                            <input id="up-search" type="text" placeholder="e.g. Admin, Fund Raiser">
-                        </div>
-                        <div class="form-group">
-                            <label>Status</label>
-                            <select id="up-status">
-                                <option value="all">All</option>
-                                <option value="active">Active</option>
-                                <option value="suspended">Suspended</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="table-wrap">
-                        <div class="table-scroll">
-                            <table id="up-table">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Role Name</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="up-tbody">
-                                    <tr>
-                                        <td colspan="4" class="muted" style="text-align: center;">Loading…</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="pagination">
-                            <div class="muted" id="up-count">—</div>
-                        </div>
-                    </div>
+            <div class="section-header"><h2>Manage Profiles</h2></div>
+            <div class="grid-2" style="margin-bottom: 12px;">
+                <div class="form-group">
+                    <label>Search Role Name</label>
+                    <input id="up-search" type="text" placeholder="e.g. Admin, Fund Raiser">
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="up-status">
+                        <option value="all">All</option>
+                        <option value="active">Active</option>
+                        <option value="suspended">Suspended</option>
+                    </select>
                 </div>
             </div>
+            <div class="table-wrap">
+                <div class="table-scroll">
+                    <table>
+                        <thead><tr><th>ID</th><th>Role Name</th><th>Status</th><th>Actions</th></tr></thead>
+                        <tbody id="up-tbody"></tbody>
+                    </table>
+                </div>
+                <div style="padding:10px; font-size:12px; color:var(--text-muted);" id="up-count">Showing 0 roles</div>
+            </div>
         </div>
-
     </main>
 </div>
 
 <div id="up-backdrop" class="drawer-backdrop"></div>
 <aside id="up-drawer" class="drawer">
     <div class="drawer-header">
-        <div class="drawer-title">
-            <strong id="up-drawer-title">Profile Details</strong>
-        </div>
-        <button id="up-close" type="button" class="btn btn-muted btn-sm"><i class="ti ti-x"></i> Close</button>
+        <strong id="up-drawer-title">Profile Details</strong>
+        <button id="up-close" class="btn btn-muted btn-sm"><i class="ti ti-x"></i> Close</button>
     </div>
     <div class="drawer-body">
-        <div class="kv">
-            <div class="k">Profile ID</div>
-            <div class="v" id="up-v-id">-</div>
-        </div>
-        <div class="kv">
-            <div class="k">Role Name</div>
-            <div class="v" id="up-v-role">-</div>
-        </div>
-        <div class="kv">
-            <div class="k">Status</div>
-            <div class="v" id="up-v-status">-</div>
-        </div>
-
-        <div id="up-edit-form" class="card" style="display: none;">
-            <div class="muted" style="margin-bottom: 10px;">Update Role Name</div>
-            <div class="form-group">
-                <label>Role Name</label>
-                <input id="up-e-role" type="text" placeholder="Role Name">
-            </div>
+        <div class="kv"><div class="k">Profile ID</div><div class="v" id="up-v-id">-</div></div>
+        <div class="kv"><div class="k">Role Name</div><div class="v" id="up-v-role">-</div></div>
+        <div class="kv"><div class="k">Status</div><div class="v" id="up-v-status">-</div></div>
+        <div id="up-edit-form" style="display:none; margin-top:10px; padding:10px; background:#f8fafc; border-radius:8px;">
+            <label>Update Role Name</label>
+            <input id="up-e-role" type="text">
         </div>
     </div>
     <div class="drawer-footer">
-        <button id="up-save" type="button" class="btn btn-primary" style="display: none;"><i class="ti ti-check"></i> Save Changes</button>
-        <button id="up-toggle" type="button" class="btn btn-danger"><i class="ti ti-ban"></i> Suspend</button>
+        <button id="up-save" class="btn btn-primary" style="display:none;"><i class="ti ti-check"></i> Save Changes</button>
+        <button id="up-toggle" class="btn btn-danger">Suspend</button>
     </div>
 </aside>
 
 <div id="up-note-backdrop" class="modal-backdrop"></div>
-<div id="up-note-modal" class="modal" role="dialog">
-    <div class="modal-header">
-        <strong id="up-note-title">Notice</strong>
-    </div>
-    <div id="up-note-message" class="modal-body"></div>
-    <div class="modal-footer">
-        <button id="up-note-ok" type="button" class="btn btn-primary"><i class="ti ti-check"></i> OK</button>
-    </div>
+<div id="up-note-modal" class="modal">
+    <div class="modal-header" id="up-note-title">Notice</div>
+    <div class="modal-body" id="up-note-message"></div>
+    <div class="modal-footer"><button id="up-note-ok" class="btn btn-primary">OK</button></div>
 </div>
 
 <div id="up-confirm-backdrop" class="modal-backdrop"></div>
-<div id="up-confirm-modal" class="modal" role="dialog">
-    <div class="modal-header">
-        <strong>Confirm Action</strong>
-    </div>
-    <div id="up-confirm-message" class="modal-body">Are you sure?</div>
+<div id="up-confirm-modal" class="modal">
+    <div class="modal-header">Confirm Action</div>
+    <div class="modal-body" id="up-confirm-message"></div>
     <div class="modal-footer">
-        <button id="up-confirm-cancel" type="button" class="btn btn-muted">Cancel</button>
-        <button id="up-confirm-yes" type="button" class="btn btn-primary">Proceed</button>
+        <button id="up-confirm-cancel" class="btn btn-muted">Cancel</button>
+        <button id="up-confirm-yes" class="btn btn-primary">Proceed</button>
     </div>
 </div>
 
 <script>
-    // ================= Enhanced Toast =================
-    function showToast(message, type = 'success') {
-        let container = document.getElementById('toast-container');
-        if (!container) {
-            container = document.createElement('div');
-            container.id = 'toast-container';
-            document.body.appendChild(container);
-        }
-        const toast = document.createElement('div');
-        toast.className = `toast-msg toast-${type}`;
-        toast.innerText = message;
-        container.appendChild(toast);
-        
-        setTimeout(() => { toast.classList.add('show'); }, 10);
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => { toast.remove(); }, 300);
-        }, 3000);
+    function showToast(msg, type='success'){
+        const container = document.getElementById('toast-container');
+        const t = document.createElement('div');
+        t.className = `toast-msg toast-${type}`; t.innerText = msg;
+        container.appendChild(t);
+        setTimeout(() => t.classList.add('show'), 10);
+        setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
     }
 
-    // ================= Custom Alert / Notice =================
-    function upNoteOpen(message, title = 'Notice') {
-        document.getElementById('up-note-title').textContent = title;
-        document.getElementById('up-note-message').innerHTML = message;
+    function upNoteOpen(msg, title='Notice'){
+        document.getElementById('up-note-title').innerText = title;
+        document.getElementById('up-note-message').innerText = msg;
         document.getElementById('up-note-backdrop').classList.add('open');
         document.getElementById('up-note-modal').classList.add('open');
     }
-
-    function upNoteClose() {
+    document.getElementById('up-note-ok').onclick = () => {
         document.getElementById('up-note-backdrop').classList.remove('open');
         document.getElementById('up-note-modal').classList.remove('open');
-    }
-    document.getElementById('up-note-backdrop').addEventListener('click', upNoteClose);
-    document.getElementById('up-note-ok').addEventListener('click', upNoteClose);
+    };
 
-    // ================= Custom Confirm =================
-    let confirmCallback = null;
-    function upConfirmOpen(message, callback) {
-        document.getElementById('up-confirm-message').textContent = message;
-        confirmCallback = callback;
+    let confirmCb = null;
+    function upConfirmOpen(msg, cb){
+        document.getElementById('up-confirm-message').innerText = msg;
+        confirmCb = cb;
         document.getElementById('up-confirm-backdrop').classList.add('open');
         document.getElementById('up-confirm-modal').classList.add('open');
     }
-
-    function upConfirmClose() {
+    document.getElementById('up-confirm-cancel').onclick = () => {
         document.getElementById('up-confirm-backdrop').classList.remove('open');
         document.getElementById('up-confirm-modal').classList.remove('open');
-        confirmCallback = null;
-    }
-    document.getElementById('up-confirm-cancel').addEventListener('click', upConfirmClose);
-    document.getElementById('up-confirm-yes').addEventListener('click', () => {
-        if (confirmCallback) confirmCallback();
-        upConfirmClose();
-    });
+    };
+    document.getElementById('up-confirm-yes').onclick = () => { if(confirmCb) confirmCb(); 
+        document.getElementById('up-confirm-backdrop').classList.remove('open');
+        document.getElementById('up-confirm-modal').classList.remove('open');
+    };
 
-    // ================= Basic utilities and loading logic =================
-    function upEscapeHtml(s) {
-        return String(s ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
-    }
+    function isAdmin(role) { return role.toLowerCase().replace(/\s/g, '') === 'useradmin'; }
 
-    function normalizeRoleKey(s) {
-        return String(s || '').replace(/\s+/g, '').toLowerCase();
-    }
-
-    function profileIsUserAdminRole(roleText) {
-        return normalizeRoleKey(roleText) === 'useradmin';
-    }
-
-    function loadProfilesFromDatabase() {
-        fetch('/api/profiles/list')
-            .then(res => res.json())
-            .then(profiles => {
-                if (profiles && profiles.length > 0) displayProfiles(profiles);
-                else displayDefaultProfiles();
-            }).catch(() => displayDefaultProfiles());
-    }
-
-    function displayDefaultProfiles() {
-        document.getElementById('up-tbody').innerHTML = '<tr><td colspan="4" class="muted" style="text-align: center;">Could not load profiles.</td></tr>';
-        document.getElementById('up-count').textContent = 'Showing 0 roles';
-    }
-
-    function filterTable() {
-        const keyword = document.getElementById('up-search').value.trim();
+    function loadProfiles(){
+        const keyword = document.getElementById('up-search').value;
         const status = document.getElementById('up-status').value;
-        
-        if (keyword) {
-            const params = new URLSearchParams();
-            params.append('keyword', keyword);
-            if (status && status !== 'all') params.append('status', status);
-            
-            fetch(`/api/profiles/search?${params.toString()}`)
-                .then(r => r.json())
-                .then(profiles => displayProfiles(profiles))
-                .catch(() => showToast("Search failed", "error"));
-        } else {
-            loadProfilesFromDatabase();
-        }
+        fetch(`/api/profiles/list?keyword=${encodeURIComponent(keyword)}&status=${status}`)
+            .then(r => r.json()).then(data => {
+                const tbody = document.getElementById('up-tbody');
+                tbody.innerHTML = '';
+                data.forEach(p => {
+                    const isSusp = p.status.toLowerCase() === 'suspended';
+                    const tr = document.createElement('tr');
+                    tr.setAttribute('data-status', isSusp ? 'suspended' : 'active');
+                    tr.innerHTML = `
+                        <td>${p.profileId}</td>
+                        <td>${p.roleName}</td>
+                        <td><span class="pill ${isSusp?'bad':'ok'}">${p.status}</span></td>
+                        <td>
+                            <div style="display:flex; gap:5px;">
+                                <button class="btn btn-view btn-sm" data-action="edit">Update</button>
+                                <button class="btn ${isSusp?'btn-muted':'btn-danger'} btn-sm" data-action="toggle">${isSusp?'Re-activate':'Suspend'}</button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                document.getElementById('up-count').innerText = `Showing ${data.length} roles`;
+            });
     }
 
-    function displayProfiles(profiles) {
-        const tbody = document.getElementById('up-tbody');
-        const statusFilter = document.getElementById('up-status').value;
-        tbody.innerHTML = '';
-        
-        let filteredProfiles = profiles;
-        if (statusFilter && statusFilter !== 'all') {
-            filteredProfiles = profiles.filter(p => p.status && p.status.toLowerCase() === statusFilter.toLowerCase());
-        }
-        
-        if (!filteredProfiles || filteredProfiles.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No profiles found.</td></tr>`;
-            document.getElementById('up-count').textContent = `Showing 0 roles`;
-            return;
-        }
-
-        filteredProfiles.forEach(profile => {
-            const isSuspended = profile.status && profile.status.toLowerCase() === 'suspended';
-            const tr = document.createElement('tr');
-            tr.setAttribute('data-status', isSuspended ? 'suspended' : 'active');
-            
-            tr.innerHTML = `
-                <td>${profile.profileId}</td>
-                <td>${upEscapeHtml(profile.roleName)}</td>
-                <td><span class="${isSuspended ? 'pill bad' : 'pill ok'}">${isSuspended ? 'Suspended' : 'Active'}</span></td>
-                <td>
-                    <div class="td-actions">
-                        <button type="button" class="btn btn-view btn-sm" data-action="edit">Update</button>
-                        <button type="button" class="btn ${isSuspended ? 'btn-muted' : 'btn-danger'} btn-sm" data-action="toggle">
-                            ${isSuspended ? 'Re-activate' : 'Suspend'}
-                        </button>
-                    </div>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-        document.getElementById('up-count').textContent = `Showing ${filteredProfiles.length} roles`;
-    }
-
-    // ================= Drawer interaction logic =================
-    function openDrawer(mode, row) {
-        const cells = row.querySelectorAll('td');
-        const id = cells[0].textContent;
-        const role = cells[1].textContent;
-        const status = row.getAttribute('data-status');
-
-        document.getElementById('up-drawer-title').textContent = mode === 'edit' ? 'Update Profile' : 'View Profile';
-        document.getElementById('up-v-id').textContent = id;
-        document.getElementById('up-v-role').textContent = role;
-        document.getElementById('up-v-status').textContent = status === 'active' ? 'Active' : 'Suspended';
-        
-        document.getElementById('up-e-role').value = role;
+    function openDrawer(mode, row){
+        const cells = row.cells;
+        document.getElementById('up-v-id').innerText = cells[0].innerText;
+        document.getElementById('up-v-role').innerText = cells[1].innerText;
+        document.getElementById('up-v-status').innerText = cells[2].innerText;
+        document.getElementById('up-e-role').value = cells[1].innerText;
         document.getElementById('up-edit-form').style.display = mode === 'edit' ? 'block' : 'none';
         document.getElementById('up-save').style.display = mode === 'edit' ? 'inline-flex' : 'none';
-
+        
+        const isSusp = row.getAttribute('data-status') === 'suspended';
         const toggleBtn = document.getElementById('up-toggle');
-        const isSusp = status === 'suspended';
-        toggleBtn.textContent = isSusp ? 'Re-activate' : 'Suspend';
+        toggleBtn.innerHTML = isSusp ? '<i class="ti ti-check"></i> Re-activate' : '<i class="ti ti-ban"></i> Suspend';
         toggleBtn.className = isSusp ? 'btn btn-muted' : 'btn btn-danger';
-
+        
         document.getElementById('up-backdrop').classList.add('open');
         document.getElementById('up-drawer').classList.add('open');
     }
 
-    function closeDrawer() {
+    document.getElementById('up-close').onclick = () => {
         document.getElementById('up-backdrop').classList.remove('open');
         document.getElementById('up-drawer').classList.remove('open');
-    }
+    };
 
-    document.addEventListener('DOMContentLoaded', function() {
-        loadProfilesFromDatabase();
-        
-        document.getElementById('up-create-form')?.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btn-create');
-            const roleName = document.getElementById('up-role-name').value.trim();
-            const status = document.getElementById('up-role-status').value;
-            
-            if (!roleName) { 
-                showToast("Role name cannot be empty", "error"); 
-                document.getElementById('up-role-name').focus();
-                return; 
-            }
-            if (!status) { 
-                showToast("Please select an initial status", "error"); 
-                document.getElementById('up-role-status').focus();
-                return; 
-            }
-            
-            btn.disabled = true; btn.innerText = "Processing...";
-            
-            const params = new URLSearchParams();
-            params.append('roleName', roleName);
-            params.append('status', status);
-            
-            fetch('/api/profiles/create', { method: 'POST', body: params })
-            .then(r => r.text())
-            .then(res => {
-                if (res === 'true') {
-                    showToast('Profile created successfully!', 'success');
-                    this.reset();
-                    loadProfilesFromDatabase();
-                } else if (res === 'duplicate') {
-                    upNoteOpen('Role already exists! Please try another name.', 'Notice');
-                } else {
-                    showToast('Failed to create profile.', 'error');
+    // --- 这里是修复详情页按钮的关键代码 ---
+    document.getElementById('up-toggle').onclick = () => {
+        const id = document.getElementById('up-v-id').innerText;
+        const role = document.getElementById('up-v-role').innerText;
+        const isSusp = document.getElementById('up-v-status').innerText.toLowerCase() === 'suspended';
+
+        if(!isSusp && isAdmin(role)){
+            upNoteOpen('User Admin cannot be suspended.'); return;
+        }
+
+        const action = isSusp ? 'reactivate' : 'suspend';
+        upConfirmOpen(`Confirm ${action} for ${role}?`, () => {
+            fetch(`/api/profiles/${action}/${id}`, {method:'POST'}).then(r=>r.text()).then(res => {
+                if(res === 'true'){ showToast('Success'); loadProfiles(); 
+                    document.getElementById('up-backdrop').classList.remove('open');
+                    document.getElementById('up-drawer').classList.remove('open');
                 }
-            }).finally(() => { btn.disabled = false; btn.innerText = "Create"; });
+            });
         });
-        
-        document.getElementById('up-search').addEventListener('input', () => {
-            clearTimeout(window.searchTimeout);
-            window.searchTimeout = setTimeout(filterTable, 300); 
-        });
-        document.getElementById('up-status').addEventListener('change', filterTable);
+    };
 
-        document.getElementById('up-close').addEventListener('click', closeDrawer);
-        document.getElementById('up-backdrop').addEventListener('click', closeDrawer);
-
-        document.getElementById('up-tbody').addEventListener('click', (e) => {
-            const btn = e.target.closest('button');
-            if (!btn) return;
-            const row = btn.closest('tr');
-            if (btn.getAttribute('data-action') === 'edit') openDrawer('edit', row);
-            
-            if (btn.getAttribute('data-action') === 'toggle') {
-                const roleName = row.querySelector('td:nth-child(2)')?.textContent?.trim() ?? '';
-                const isSusp = row.getAttribute('data-status') === 'suspended';
-                
-                if (!isSusp && profileIsUserAdminRole(roleName)) {
-                    upNoteOpen('Error: User Admin profiles cannot be suspended.', 'Warning');
-                    return;
-                }
-                
-                const actionText = isSusp ? 'REACTIVATE' : 'SUSPEND';
-                upConfirmOpen(`Are you sure you want to ${actionText} the role "${roleName}"?`, () => {
-                    
-                    const profileId = row.querySelector('td:first-child').textContent;
-                    const apiEndpoint = isSusp ? `/api/profiles/reactivate/${profileId}` : `/api/profiles/suspend/${profileId}`;
-                    
-                    fetch(apiEndpoint, { method: 'POST' }).then(r => r.text()).then(res => {
-                        if (res === 'true') {
-                            showToast(isSusp ? 'Profile reactivated!' : 'Profile suspended!', 'success');
-                            loadProfilesFromDatabase();
-                        } else {
-                            showToast('Failed to update profile status', 'error');
-                        }
-                    });
+    document.getElementById('up-tbody').onclick = (e) => {
+        const btn = e.target.closest('button'); if(!btn) return;
+        const row = btn.closest('tr');
+        const act = btn.getAttribute('data-action');
+        if(act === 'edit') openDrawer('edit', row);
+        if(act === 'toggle'){
+            const id = row.cells[0].innerText;
+            const role = row.cells[1].innerText;
+            const isSusp = row.getAttribute('data-status') === 'suspended';
+            if(!isSusp && isAdmin(role)) { upNoteOpen('User Admin cannot be suspended.'); return; }
+            const action = isSusp ? 'reactivate' : 'suspend';
+            upConfirmOpen(`Confirm ${action}?`, () => {
+                fetch(`/api/profiles/${action}/${id}`, {method:'POST'}).then(r=>r.text()).then(res => {
+                    if(res === 'true') { showToast('Success'); loadProfiles(); }
                 });
+            });
+        }
+    };
+
+    document.getElementById('up-create-form').onsubmit = function(e){
+        e.preventDefault();
+        const role = document.getElementById('up-role-name').value;
+        const status = document.getElementById('up-role-status').value;
+        const params = new URLSearchParams({roleName:role, status:status});
+        fetch('/api/profiles/create', {method:'POST', body:params}).then(r=>r.text()).then(res => {
+            if(res === 'true') { showToast('Created'); loadProfiles(); this.reset(); }
+            else if(res === 'duplicate') upNoteOpen('Role name exists');
+        });
+    };
+
+    document.getElementById('up-save').onclick = () => {
+        const id = document.getElementById('up-v-id').innerText;
+        const name = document.getElementById('up-e-role').value;
+        const params = new URLSearchParams({newRoleName:name});
+        fetch(`/api/profiles/update-role/${id}`, {method:'POST', body:params}).then(r=>r.text()).then(res => {
+            if(res === 'true') { showToast('Updated'); loadProfiles(); 
+                document.getElementById('up-backdrop').classList.remove('open');
+                document.getElementById('up-drawer').classList.remove('open');
             }
         });
+    };
 
-        document.getElementById('up-save').addEventListener('click', () => {
-            const profileId = document.getElementById('up-v-id').textContent.trim();
-            const newRoleName = document.getElementById('up-e-role').value.trim();
-            const btn = document.getElementById('up-save');
-
-            if (!newRoleName) { 
-                showToast('Role name cannot be empty', 'error'); 
-                document.getElementById('up-e-role').focus();
-                return; 
-            }
-
-            btn.disabled = true; btn.innerText = "Saving...";
-
-            const params = new URLSearchParams();
-            params.append('newRoleName', newRoleName);
-
-            fetch(`/api/profiles/update-role/${encodeURIComponent(profileId)}`, { method: 'POST', body: params })
-            .then(r => r.text())
-            .then(res => {
-                if (res === 'true') {
-                    showToast('Role name updated!', 'success');
-                    closeDrawer();
-                    loadProfilesFromDatabase();
-                } else if (res === 'duplicate') {
-                    upNoteOpen('Role name already exists! Please choose another.', 'Notice');
-                } else {
-                    showToast('Failed to update role.', 'error');
-                }
-            }).finally(() => { btn.disabled = false; btn.innerText = "Save Changes"; });
-        });
-    });
+    document.getElementById('up-search').oninput = loadProfiles;
+    document.getElementById('up-status').onchange = loadProfiles;
+    window.onload = loadProfiles;
 </script>
 </body>
 </html>

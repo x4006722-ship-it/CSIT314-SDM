@@ -66,27 +66,50 @@ public class UserAccountPage {
     @ResponseBody
     public Map<String, Object> onUpdateAccount(@RequestBody Map<String, Object> updatedAccountData) {
         try {
-            // Boundary Guard: Filter incoming request map structure
+            // 1. 解析数据
             int userId = parseInt(updatedAccountData.get("userId"));
-            if (userId <= 0) return Map.of("success", false, "message", "Invalid User ID.");
-
+            String username = text(updatedAccountData.get("username"));
+            String fullName = text(updatedAccountData.get("fullName"));
             String email = text(updatedAccountData.get("email"));
             String phoneNumber = text(updatedAccountData.get("phoneNumber"));
             String password = text(updatedAccountData.get("password"));
 
-            if (!email.isBlank() && !EMAIL_PATTERN.matcher(email).matches()) {
+            // 2. 基础非空校验 (Boundary Guard)
+            if (userId <= 0) {
+                return Map.of("success", false, "message", "Invalid User ID.");
+            }
+            if (username.isBlank()) {
+                return Map.of("success", false, "message", "Username cannot be empty.");
+            }
+            if (fullName.isBlank()) {
+                return Map.of("success", false, "message", "Full name cannot be empty.");
+            }
+            if (email.isBlank()) {
+                return Map.of("success", false, "message", "Email cannot be empty.");
+            }
+            if (phoneNumber.isBlank()) {
+                return Map.of("success", false, "message", "Phone number cannot be empty.");
+            }
+            if (password.isBlank()) {
+                return Map.of("success", false, "message", "Password cannot be empty.");
+            }
+
+            // 3. 格式校验 (RegEx & Length)
+            if (!EMAIL_PATTERN.matcher(email).matches()) {
                 return Map.of("success", false, "message", "Invalid email format.");
             }
-            if (!phoneNumber.isBlank() && !PHONE_PATTERN.matcher(phoneNumber).matches()) {
+            if (!PHONE_PATTERN.matcher(phoneNumber).matches()) {
                 return Map.of("success", false, "message", "Phone number must be exactly 8 digits.");
             }
-            if (!password.isBlank() && password.length() < 3) {
+            if (password.length() < 3) {
                 return Map.of("success", false, "message", "Password must be at least 3 characters.");
             }
 
-            // Delegate to business layer
+            // 4. 调用业务层 (Controller -> Service/Entity)
             boolean result = updateUserAccountController.updateAccount(userId, updatedAccountData);
-            if (result) return Map.of("success", true, "message", "Account updated successfully.");
+            if (result) {
+                return Map.of("success", true, "message", "Account updated successfully.");
+            }
             return Map.of("success", false, "message", "Database error occurred.");
 
         } catch (IllegalArgumentException e) {
