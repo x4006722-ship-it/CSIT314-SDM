@@ -5,12 +5,34 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Handles creation of new FRA categories with comprehensive validation.
+ * 
+ * Responsibilities:
+ * - Validate category data (name and status)
+ * - Enforce valid status values (Active, Suspended)
+ * - Check for duplicate category names
+ * - Persist new category to database
+ * - Throw exceptions for validation failures
+ */
 @Controller
 public class CreateFRACategoryController {
 
     private final FRACategory fraCategory = new FRACategory();
 
     // 保持返回 boolean 不变！
+    /**
+     * Creates a new FRA category with validation.
+     * 
+     * Validates:
+     * - Category name is not empty
+     * - Status is provided and valid (Active or Suspended)
+     * - Category name is not a duplicate
+     * 
+     * @param newCategoryData A Map with categoryName and categoryStatus
+     * @return true if category created successfully
+     * @throws IllegalArgumentException if validation fails
+     */
     public boolean createCategory(Object newCategoryData) {
         if (!(newCategoryData instanceof Map<?, ?> map)) {
             throw new IllegalArgumentException("Invalid data format.");

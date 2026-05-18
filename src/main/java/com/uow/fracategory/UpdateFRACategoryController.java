@@ -5,12 +5,36 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Handles updates to FRA categories with comprehensive validation.
+ * 
+ * Responsibilities:
+ * - Validate category ID and data
+ * - Enforce valid status values
+ * - Check for duplicate names (excluding current category)
+ * - Persist changes to database
+ * - Throw exceptions for validation failures
+ */
 @Controller
 public class UpdateFRACategoryController {
 
     private final FRACategory fraCategory = new FRACategory();
 
     // 保持返回 boolean 不变！
+    /**
+     * Updates an existing FRA category with validation.
+     * 
+     * Validates:
+     * - Category ID is valid
+     * - Category exists
+     * - New name and status are not empty
+     * - Status is valid (Active or Suspended)
+     * - Name is not a duplicate (excluding this category)
+     * 
+     * @param updatedCategoryData A Map with categoryId, categoryName, categoryStatus
+     * @return true if update was successful
+     * @throws IllegalArgumentException if validation fails
+     */
     public boolean updateCategory(Object updatedCategoryData) {
         if (!(updatedCategoryData instanceof Map<?, ?> map)) {
             throw new IllegalArgumentException("Invalid data format.");

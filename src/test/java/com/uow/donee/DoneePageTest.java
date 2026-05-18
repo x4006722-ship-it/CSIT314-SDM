@@ -29,10 +29,10 @@ public class DoneePageTest {
         field.set(doneePage, value);
     }
 
-    @Test
+   @Test
     public void test_On_search_FRA_executes_safely_with_all_params() {
-        // 正常用例：测试刚添加了 startDate 的搜索接口
-        Object result = doneePage.onSearchFRA("test", "1", "Pending", "2023-01-01", null);
+        // 正常用例：补上漏掉的 endDate 参数 (比如 "2023-12-31")
+        Object result = doneePage.onSearchFRA("test", "1", "Pending", "2023-01-01", "2023-12-31", null);
         assertTrue("Should return a list", result instanceof java.util.List);
     }
 

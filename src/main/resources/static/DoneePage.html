@@ -7,7 +7,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
     <style>
+
         :root {
             --surface: #ffffff;
             --surface-soft: #f8fafc;
@@ -43,6 +45,7 @@
         .container { min-height: 100vh; position: relative; z-index: 1; }
         .main-content { padding: 30px; max-width: 1500px; margin: 0 auto; }
 
+  
         .topbar {
             display: flex;
             justify-content: space-between;
@@ -56,342 +59,186 @@
             border-left: 4px solid var(--accent);
         }
 
-        .tab-bar { display: flex; gap: 12px; margin-bottom: 26px; }
+        .topbar-user { font-size: 16px; color: var(--text-muted); display: inline-flex; align-items: center; gap: 8px; }
+        .topbar-user::before {
+            content: "DN"; width: 34px; height: 34px; border-radius: 999px;
+            background: var(--accent-light); color: var(--accent-hover); display: inline-flex;
+            align-items: center; justify-content: center; font-size: 12px; font-weight: 600; letter-spacing: .03em;
+        }
+        .topbar-user strong { color: var(--accent-hover); font-size: 17px; font-weight: 700; }
 
-        .tab-btn {
-            padding: 12px 24px;
-            border-radius: 10px;
-            border: 1px solid var(--border-soft);
-            background: #fff;
-            cursor: pointer;
-            font-weight: 600;
-            transition: color 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s;
-            color: var(--text-muted);
-            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        .logout-btn {
+            border: 1px solid rgba(248, 113, 113, 0.5);
+            color: #b91c1c; background: var(--danger-soft);
+            padding: 10px 18px; border-radius: 10px; text-decoration: none; font-size: 15px; font-weight: 600;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+        }
+        .logout-btn:hover {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #fff; border-color: transparent; box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
         }
 
+        /* ================= 导航标签 (悬浮渐变态) ================= */
+        .tab-bar { display: flex; gap: 12px; margin-bottom: 26px; }
+        .tab-btn {
+            padding: 12px 24px; border-radius: 10px; border: 1px solid var(--border-soft);
+            background: #fff; cursor: pointer; font-weight: 600;
+            transition: color 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s;
+            color: var(--text-muted); box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
         .tab-btn.active {
             background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
-            color: #fff;
-            border-color: #ea580c;
-            box-shadow: 0 4px 14px rgba(234, 88, 12, 0.28);
+            color: #fff; border-color: #ea580c; box-shadow: 0 4px 14px rgba(234, 88, 12, 0.28);
         }
-
         .tab-btn:hover:not(.active) {
-            background: #fafafa;
-            border-color: var(--accent-soft);
-            color: var(--accent);
+            background: #fafafa; border-color: var(--accent-soft); color: var(--accent);
         }
 
         .admin-section {
-            background: #fff;
-            border-radius: 14px;
-            padding: 26px;
-            margin-bottom: 28px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-soft);
+            background: #fff; border-radius: 14px; padding: 26px;
+            margin-bottom: 28px; box-shadow: var(--shadow); border: 1px solid var(--border-soft);
         }
 
         .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--border-soft);
-            padding-bottom: 12px;
-            position: relative;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; border-bottom: 1px solid var(--border-soft);
+            padding-bottom: 12px; position: relative;
         }
         .section-header::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            bottom: -1px;
-            width: min(180px, 45%);
-            height: 2px;
-            border-radius: 2px;
+            content: ''; position: absolute; left: 0; bottom: -1px;
+            width: min(180px, 45%); height: 2px; border-radius: 2px;
             background: linear-gradient(90deg, #fb923c, #f97316);
         }
 
         h2 { font-size: 20px; color: var(--text); letter-spacing: -0.02em; font-weight: 700; }
 
+        .subsection {
+            padding: 18px; border: 1px solid var(--border-soft); border-radius: 12px;
+            background: #f8fafc; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        }
+        .subsection h3 { font-size: 15px; margin-bottom: 10px; color: #9a3412; font-weight: 700; white-space: nowrap; }
+
         .action-bar { display: grid; grid-template-columns: 1fr; gap: 18px; }
 
+  
         .form-group { margin-bottom: 15px; }
         label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
         input, select {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid var(--border-soft);
-            border-radius: 8px;
-            font-size: 14px;
-            background: #fff;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            width: 100%; padding: 10px 12px; border: 1px solid var(--border-soft);
+            border-radius: 8px; font-size: 14px; background: #fff; transition: border-color 0.2s, box-shadow 0.2s;
         }
         input:focus, select:focus {
-            outline: none;
-            border-color: var(--accent-bright);
-            box-shadow: 0 0 0 3px var(--accent-ring);
+            outline: none; border-color: var(--accent-bright); box-shadow: 0 0 0 3px var(--accent-ring);
         }
 
+
         .btn {
-            padding: 10px 20px;
-            border-radius: 10px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+            padding: 10px 20px; border-radius: 10px; border: none;
+            cursor: pointer; font-weight: 600; transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
         }
         .btn:active { transform: translateY(1px); }
         .btn-black {
             background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
-            color: #fff;
-            box-shadow: 0 4px 14px rgba(234, 88, 12, 0.3);
+            color: #fff; box-shadow: 0 4px 14px rgba(234, 88, 12, 0.3);
         }
         .btn-black:hover {
             background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
             box-shadow: 0 6px 20px rgba(234, 88, 12, 0.35);
         }
         .btn-view {
-            background: var(--accent-light);
-            color: #9a3412;
-            border: 1px solid var(--accent-soft);
-            font-weight: 600;
-            box-shadow: none;
+            background: var(--accent-light); color: #9a3412;
+            border: 1px solid var(--accent-soft); font-weight: 600; box-shadow: none;
         }
         .btn-view:hover { background: #ffedd5; border-color: #fdba74; }
-        .logout-btn {
-            border: 1px solid rgba(248, 113, 113, 0.5);
-            color: #b91c1c;
-            background: var(--danger-soft);
-            padding: 10px 18px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-size: 15px;
-            font-weight: 600;
-            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-        }
-        .logout-btn:hover {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            color: #fff;
-            border-color: transparent;
-            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
-        }
-        .topbar-user { font-size: 16px; color: var(--text-muted); }
-        .topbar-user strong { color: #c2410c; font-size: 17px; font-weight: 700; }
-
-        .subsection {
-            padding: 18px;
-            border: 1px solid var(--border-soft);
-            border-radius: 12px;
-            background: #f8fafc;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
-        }
-        .subsection h3 {
-            font-size: 15px;
-            margin-bottom: 10px;
-            color: #9a3412;
-            font-weight: 700;
-        }
-
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-
-        .btn-sm { padding: 8px 12px; font-size: 13px; border-radius: 8px; }
+        
         .btn-danger {
             background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
-            color: #fff;
-            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.38);
+            color: #fff; box-shadow: 0 4px 16px rgba(220, 38, 38, 0.38);
         }
         .btn-danger:hover { background: linear-gradient(135deg, #fca5a5 0%, #ef4444 100%); }
-        .btn-muted {
-            background: #e2e8f0;
-            color: #334155;
-            border: 1px solid #cbd5e1;
-        }
-        .btn-muted:hover { background: #cbd5e1; }
 
+        .btn-muted { background: #e2e8f0; color: #334155; border: 1px solid #cbd5e1; }
+        .btn-muted:hover { background: #cbd5e1; }
+        .btn-sm { padding: 8px 12px; font-size: 13px; border-radius: 8px; }
+
+        /* ================= 小药丸徽章 ================= */
         .pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 10px;
-            border-radius: 999px;
-            font-size: 12px;
-            border: 1px solid var(--border-soft);
-            background: #fff;
-            color: #1e293b;
-            font-weight: 600;
+            display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 999px;
+            font-size: 12px; border: 1px solid var(--border-soft); background: #fff; color: #1e293b; font-weight: 600;
         }
         .pill.ok { background: #ecfdf5; border-color: #6ee7b7; color: #065f46; }
         .pill.neutral { background: #f1f5f9; color: #475569; }
         .pill.bad { background: #fef2f2; border-color: #fca5a5; color: #991b1b; }
 
+        /* ================= 表格 (空气呼吸感) ================= */
         .table-wrap {
-            border: 1px solid var(--border-soft);
-            border-radius: 12px;
-            overflow: hidden;
-            background: #fff;
-            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+            border: 1px solid var(--border-soft); border-radius: 12px; overflow: hidden;
+            background: #fff; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
         }
         .table-scroll { max-height: 520px; overflow: auto; }
-
-        #fra-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            min-width: 800px;
-            table-layout: fixed;
-        }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+        
+        /* 针对不同表格的最小宽度和列宽控制（保留原有逻辑） */
+        #fra-table { min-width: 800px; }
+        #fav-table, #hist-table { min-width: 720px; }
         #fra-table thead th:nth-child(1), #fav-table thead th:nth-child(1), #hist-table thead th:nth-child(1) { width: 56px; }
         #fra-table thead th:nth-child(4), #fav-table thead th:nth-child(4), #hist-table thead th:nth-child(4) { width: 132px; }
         #fra-table thead th:nth-child(5), #fav-table thead th:nth-child(5) { width: 232px; text-align: center; }
         #hist-table thead th:nth-child(5) { width: 150px; text-align: left; }
         #hist-table thead th:nth-child(6) { width: 120px; text-align: center; }
-        #fra-table tbody td:nth-child(4), #fav-table tbody td:nth-child(4), #hist-table tbody td:nth-child(4) {
-            width: 132px;
-            max-width: 132px;
-            vertical-align: middle;
-        }
-        #fra-table tbody td:nth-child(5), #fav-table tbody td:nth-child(5) {
-            text-align: center;
-            vertical-align: middle;
-            width: 232px;
-        }
-        #hist-table tbody td:nth-child(6) {
-            text-align: center;
-            vertical-align: middle;
-            width: 120px;
-        }
-        #fav-table, #hist-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            min-width: 720px;
-            table-layout: fixed;
-        }
+        #fra-table tbody td:nth-child(4), #fav-table tbody td:nth-child(4), #hist-table tbody td:nth-child(4) { width: 132px; max-width: 132px; vertical-align: middle; }
+        #fra-table tbody td:nth-child(5), #fav-table tbody td:nth-child(5) { text-align: center; vertical-align: middle; width: 232px; }
+        #hist-table tbody td:nth-child(6) { text-align: center; vertical-align: middle; width: 120px; }
 
         thead th {
-            position: sticky;
-            top: 0;
-            z-index: 1;
+            position: sticky; top: 0; z-index: 1;
             background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-            border-bottom: 1px solid var(--border-soft);
-            font-size: 11px;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            color: var(--head-fg);
-            font-weight: 600;
-            padding: 13px 12px;
-            text-align: left;
-            white-space: nowrap;
+            border-bottom: 1px solid var(--border-soft); font-size: 11px;
+            letter-spacing: 0.05em; text-transform: uppercase; color: var(--head-fg);
+            font-weight: 600; padding: 13px 12px; text-align: left; white-space: nowrap;
         }
         tbody td {
-            padding: 12px 12px;
-            border-bottom: 1px solid #f1f5f9;
-            font-size: 14px;
-            color: #1e293b;
-            vertical-align: middle;
-            background: #fff;
+            padding: 12px 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px; color: #1e293b; vertical-align: middle; background: #fff;
         }
         tbody tr:hover td { background: #fff7ed; }
 
-        .td-actions {
-            width: 100%;
-            box-sizing: border-box;
-            align-items: center;
-            gap: 6px;
+        /* 动作按钮布局 */
+        .td-actions { width: 100%; box-sizing: border-box; align-items: center; gap: 6px; }
+        #fra-table .td-actions, #fav-table .td-actions { display: grid; grid-template-columns: auto 84px; gap: 6px; align-items: center; justify-content: center; }
+        #hist-table .td-actions { display: flex; flex-wrap: nowrap; justify-content: center; }
+        
+        .td-actions button.btn-sm {
+            min-height: 28px; height: 28px; padding: 0 6px; font-size: 12px; font-weight: 600; border-radius: 6px; box-sizing: border-box; min-width: 0;
         }
-        #fra-table .td-actions,
-        #fav-table .td-actions {
-            display: grid;
-            grid-template-columns: auto 84px;
-            gap: 6px;
-            align-items: center;
-            justify-content: center;
+        #hist-table .td-actions button.btn-sm { padding: 0 10px; }
+        
+        .td-actions button.btn-view.btn-sm { width: auto; padding: 0 10px; justify-self: center; }
+        #fra-table .td-actions .btn-danger.btn-sm, #fav-table .td-actions .btn-danger.btn-sm,
+        #fra-table .td-actions button.fra-unsave.btn-sm, #fav-table .td-actions button.fra-unsave.btn-sm {
+            width: 100%; max-width: 84px; padding: 0 4px; font-size: 11px; justify-self: stretch; white-space: nowrap;
         }
-        #hist-table .td-actions {
-            display: flex;
-            flex-wrap: nowrap;
-            justify-content: center;
-        }
-        #hist-table .td-actions button.btn-sm {
-            min-height: 28px;
-            height: 28px;
-            padding: 0 10px;
-            font-size: 12px;
-            font-weight: 600;
-            border-radius: 6px;
-        }
-        #fra-table .td-actions button.btn-sm,
-        #fav-table .td-actions button.btn-sm {
-            min-height: 28px;
-            height: 28px;
-            padding: 0 6px;
-            font-size: 12px;
-            font-weight: 600;
-            border-radius: 6px;
-            box-sizing: border-box;
-            min-width: 0;
-        }
-        #fra-table .td-actions button.btn-view.btn-sm,
-        #fav-table .td-actions button.btn-view.btn-sm {
-            width: auto;
-            padding: 0 10px;
-            justify-self: center;
-        }
-        #fra-table .td-actions .btn-danger.btn-sm,
-        #fav-table .td-actions .btn-danger.btn-sm,
-        #fra-table .td-actions button.fra-unsave.btn-sm,
-        #fav-table .td-actions button.fra-unsave.btn-sm {
-            width: 100%;
-            max-width: 84px;
-            padding: 0 4px;
-            font-size: 11px;
-            justify-self: stretch;
-            white-space: nowrap;
-        }
-        #fra-table .td-actions .btn-danger,
-        #fav-table .td-actions .btn-danger {
-            box-shadow: none;
-        }
-        #fra-table .td-actions button.fra-unsave,
-        #fav-table .td-actions button.fra-unsave {
-            background: #f8fafc;
-            color: #475569;
-            border: 1px solid #cbd5e1;
-            cursor: pointer;
-        }
-        #fra-table .td-actions button.fra-unsave:hover,
-        #fav-table .td-actions button.fra-unsave:hover {
-            background: #f1f5f9;
-            border-color: #94a3b8;
-        }
+        .td-actions .btn-danger { box-shadow: none; }
+        
+        .td-actions button.fra-unsave { background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; cursor: pointer; }
+        .td-actions button.fra-unsave:hover { background: #f1f5f9; border-color: #94a3b8; }
 
         .muted { color: var(--text-muted); font-size: 12px; }
+        
         .pagination {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 14px;
-            gap: 12px;
-            border-top: 1px solid var(--border-soft);
-            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+            display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; gap: 12px;
+            border-top: 1px solid var(--border-soft); background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
         }
 
-        @media (max-width: 980px) {
-            .grid-2, .grid-3 { grid-template-columns: 1fr; }
-        }
-
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+        @media (max-width: 980px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
         @media (max-width: 768px) {
             .main-content { padding: 16px; }
-            .topbar {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
-            }
+            .topbar { flex-direction: column; align-items: flex-start; gap: 12px; }
             .admin-section { padding: 16px; }
         }
 
+        /* ================= 弹窗 (毛玻璃背景与阴影) ================= */
         .modal-backdrop {
             position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45);
             display: none; z-index: 1200; align-items: center; justify-content: center; padding: 20px;
@@ -408,32 +255,20 @@
             background: #fafafa;
         }
         .modal-card .modal-body { padding: 0; font-size: 14px; }
+        
         .fra-view-detail { display: flex; flex-direction: column; }
         .fra-view-row {
-            display: grid;
-            grid-template-columns: minmax(120px, 38%) 1fr;
-            gap: 8px 16px;
-            padding: 12px 18px;
-            border-bottom: 1px solid #f1f5f9;
-            align-items: start;
+            display: grid; grid-template-columns: minmax(120px, 38%) 1fr; gap: 8px 16px;
+            padding: 12px 18px; border-bottom: 1px solid #f1f5f9; align-items: start;
         }
         .fra-view-row:last-child { border-bottom: none; }
         .fra-view-label {
-            font-size: 11px;
-            font-weight: 700;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            padding-top: 2px;
+            font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;
+            letter-spacing: 0.06em; padding-top: 2px;
         }
-        .fra-view-value {
-            font-size: 15px;
-            color: #0f172a;
-            font-weight: 500;
-            line-height: 1.45;
-            word-break: break-word;
-        }
+        .fra-view-value { font-size: 15px; color: #0f172a; font-weight: 500; line-height: 1.45; word-break: break-word; }
 
+        /* ================= 漂亮的高亮 Toast 提示 ================= */
         .donee-toast {
             position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(120%);
             z-index: 3000; max-width: min(90vw, 420px); padding: 12px 18px; border-radius: 12px;
@@ -451,7 +286,9 @@
     <main class="main-content">
         <div class="topbar">
             <span class="topbar-user">Logged in as: <strong>Donee</strong></span>
-            <a href="/logout" class="logout-btn" id="donee-logout">Logout</a>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <a href="/logout" class="logout-btn" id="donee-logout">Logout</a>
+            </div>
         </div>
         <p id="file-open-hint" style="display:none; margin: -10px 0 18px; padding: 12px 14px; background: #fff7ed; border: 1px solid #fdba74; border-radius: 10px; font-size: 14px; color: #431407;">
             This page was opened as a <strong>local file</strong>. Requests go to <code>http://localhost:8080</code> with cookies (CORS).
@@ -621,7 +458,7 @@
                             </div>
                         </div>
                         <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom: 12px;">
-                            <button type="button" class="btn btn-black" id="hist-search-btn" style="background:linear-gradient(135deg,#c2410c,#f97316);">Search</button>
+                            <button type="button" class="btn btn-black" id="hist-search-btn">Search</button>
                             <button type="button" class="btn btn-muted" id="hist-clear-btn">Clear</button>
                         </div>
                         <div class="table-wrap" style="margin-top: 16px;">
@@ -652,6 +489,7 @@
         </div>
     </main>
 </div>
+
 <div id="fra-view-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="fra-view-title">
     <div class="modal-card">
         <header>
@@ -661,7 +499,9 @@
         <div class="modal-body" id="fra-view-body"></div>
     </div>
 </div>
+
 <div id="donee-toast" class="donee-toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
 <script>
 (function () {
     var doneeCategoryById = {};
@@ -776,31 +616,38 @@
         sel.value = found ? keep : 'all';
     }
 
-    function addCategoryOption(id, name) {
-        if (!name || name === '—') return;
-        var v = String(name).trim();
-        if (!v) return;
-        var sel = document.getElementById(id);
-        if (!sel) return;
-        for (var i = 0; i < sel.options.length; i++) {
-            if (sel.options[i].value === v) return;
+    function distinctRowCategories(rows) {
+        var seen = {};
+        var result = [];
+        (rows || []).forEach(function (row) {
+            var cat = rowCategoryLabel(row);
+            if (cat && !seen[cat]) {
+                seen[cat] = true;
+                result.push(cat);
+            }
+        });
+        result.sort(function (a, b) { return a.localeCompare(b); });
+        return result;
+    }
+
+    function rowCategoryLabel(row) {
+        if (!row) return null;
+        var cat = row.category != null && String(row.category).trim() !== '' ? String(row.category).trim() : null;
+        if (!cat && row.categoryName != null && String(row.categoryName).trim() !== '') {
+            cat = String(row.categoryName).trim();
         }
-        var o = document.createElement('option');
-        o.value = v;
-        o.textContent = v;
-        sel.appendChild(o);
+        if (!cat && row.categoryId != null) cat = doneeCategoryById[String(row.categoryId)] || null;
+        if (!cat && row.category_id != null) cat = doneeCategoryById[String(row.category_id)] || null;
+        return cat && cat !== '—' ? cat : null;
     }
 
     function resetCategorySelect(id) {
         var sel = document.getElementById(id);
         if (!sel) return;
-        
         var keepVal = sel.value; 
-        
         while (sel.options.length > 1) {
             sel.remove(1);
         }
-        
         sel.setAttribute('data-keep-value', keepVal);
     }
 
@@ -815,7 +662,21 @@
                 }
             }
             if (category != null && category !== '—') {
-                addCategoryOption(selectId, category);
+                var v = String(category).trim();
+                if (v) {
+                    var sel = document.getElementById(selectId);
+                    if (sel) {
+                        var exists = false;
+                        for (var i = 0; i < sel.options.length; i++) {
+                            if (sel.options[i].value === v) exists = true;
+                        }
+                        if (!exists) {
+                            var o = document.createElement('option');
+                            o.value = v; o.textContent = v;
+                            sel.appendChild(o);
+                        }
+                    }
+                }
             }
         });
 
@@ -836,24 +697,30 @@
         }
     }
 
+    /** Full Active category list for Browse FRA only; fills doneeCategoryById for name lookups. */
     async function loadAllCategories() {
         try {
             var r = await fetch(apiUrl('/api/fra-categories/list'), fetchOptions());
             if (!r.ok) return;
             var data = await r.json();
             var rows = Array.isArray(data) ? data : [];
+            var names = [];
             rows.forEach(function (c) {
                 var cid = c.categoryID != null ? c.categoryID : c.categoryId;
                 var cname = c.categoryName != null ? String(c.categoryName).trim() : '';
                 if (cid != null && cname) {
                     doneeCategoryById[String(cid)] = cname;
-                    addCategoryOption('fra-filter-category', cname);
-                    addCategoryOption('fav-filter-category', cname);
-                    addCategoryOption('hist-filter-category', cname);
+                    names.push(cname);
                 }
             });
+            names = names.filter(function (n, i, a) { return n && a.indexOf(n) === i; });
+            names.sort(function (a, b) { return a.localeCompare(b); });
+            
+            fillFilterSelect('fra-filter-category', names);
+            fillFilterSelect('fav-filter-category', names);
+            fillFilterSelect('hist-filter-category', names);
         } catch (e) {
-            // keep existing fallback behavior
+            // keep Browse All-only
         }
     }
 
@@ -867,7 +734,6 @@
                     + '&status=' + encodeURIComponent(status));
     }
 
-
     function renderFraRows(rows) {
         var tbody = document.getElementById('fra-tbody');
         var countEl = document.getElementById('fra-count');
@@ -880,12 +746,14 @@
             var id = row.fra_id != null ? row.fra_id : row.fraId;
             var title = row.title != null ? row.title : row.fraTitle;
             var status = row.status != null ? row.status : row.fraStatus;
-            var category = row.category != null ? row.category : row.categoryName;
+            var category = (row.categoryName != null && String(row.categoryName).trim() !== '')
+                ? String(row.categoryName).trim()
+                : (row.category != null && String(row.category).trim() !== '' ? String(row.category).trim() : null);
             if ((category == null || category === '') && row.category_id != null) {
-                category = doneeCategoryById[String(row.category_id)] || row.category_id;
+                category = doneeCategoryById[String(row.category_id)] || null;
             }
             if ((category == null || category === '') && row.categoryId != null) {
-                category = doneeCategoryById[String(row.categoryId)] || row.categoryId;
+                category = doneeCategoryById[String(row.categoryId)] || null;
             }
             var saved = row.saved === true || row.saved === 'true' || row.saved === 1 || doneeSavedFraIds[String(id)] === true;
             var saveBtn = saved
@@ -916,10 +784,11 @@
         tbody.innerHTML = rows.map(function (row) {
             var id = row.fra_id;
             doneeSavedFraIds[String(id)] = true;
+            var favCat = rowCategoryLabel(row);
             return '<tr>' +
                 '<td>' + escapeHtml(String(id)) + '</td>' +
                 '<td>' + escapeHtml(row.title) + '</td>' +
-                '<td>' + escapeHtml(row.category != null ? row.category : '—') + '</td>' +
+                '<td>' + escapeHtml(favCat != null ? favCat : '—') + '</td>' +
                 '<td>' + statusPill(row.status) + '</td>' +
                 '<td><div class="td-actions">' +
                 '<button type="button" class="btn btn-view btn-sm" data-action="view" data-id="' + escapeHtml(String(id)) + '">View</button>' +
@@ -973,8 +842,7 @@
                 return;
             }
             renderFavRows(rows);
-            resetCategorySelect('fav-filter-category');
-            mergeCategoryDropdownFromRows(rows, 'fav-filter-category');
+            fillFilterSelect('fav-filter-category', distinctRowCategories(rows));
         } catch (e) {
             if (!silent) {
                 tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">' + escapeHtml(e.message || 'Request failed') + '</td></tr>';
@@ -1021,8 +889,6 @@
                 return;
             }
             renderFraRows(rows);
-            resetCategorySelect('fra-filter-category');
-            mergeCategoryDropdownFromRows(rows, 'fra-filter-category');
         } catch (e) {
             if (!silent) {
                 tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">' + escapeHtml(e.message || 'Request failed') + '</td></tr>';
@@ -1043,12 +909,13 @@
         var rows = [
             ['Title', data.title],
             ['Status', data.status],
-            ['Create At', data.createAt],
+            ['Start from', data.startedAt != null ? data.startedAt : (data.startFrom != null ? data.startFrom : data.createAt)],
+            ['End at', data.endedAt != null ? data.endedAt : (data.endAt != null ? data.endAt : null)],
             ['View count', data.viewCount],
-            ['Favourite count', data.favouriteCount],
+            ['Favourite count', data.favouriteCount != null ? data.favouriteCount : data.favourite_count],
             ['Target amount', data.targetAmount != null ? data.targetAmount : data.target_amount],
-            ['Current amount', data.currentAmount],
-            ['Donee', data.doneeName]
+            ['Current amount', data.currentAmount != null ? data.currentAmount : data.current_amount],
+            ['Donee', data.doneeName != null ? data.doneeName : data.donee]
         ];
         body.innerHTML = '<div class="fra-view-detail">' + rows.map(function (r) {
             var v = r[1];
@@ -1151,15 +1018,6 @@
         loadFavourites();
     }
 
-    function buildHistorySearchUrl() {
-        var title = (document.getElementById('hist-search-q').value || '').trim();
-        var categoryName = (document.getElementById('hist-filter-category').value || 'all').trim();
-        var fraStatus = (document.getElementById('hist-filter-status').value || 'all').trim();
-        return apiUrl('/api/donee/history/search?title=' + encodeURIComponent(title)
-            + '&categoryName=' + encodeURIComponent(categoryName)
-            + '&fraStatus=' + encodeURIComponent(fraStatus));
-    }
-    
     function renderHistRows(rows) {
         var tbody = document.getElementById('hist-tbody');
         var countEl = document.getElementById('hist-count');
@@ -1173,10 +1031,11 @@
             var currentAmount = (row.currentAmount == null || row.currentAmount === '') ? '0' : row.currentAmount;
             var targetAmount = (row.targetAmount == null || row.targetAmount === '') ? '0' : row.targetAmount;
             var progress = String(currentAmount) + ' / ' + String(targetAmount);
+            var histCat = rowCategoryLabel(row);
             return '<tr>' +
                 '<td>' + escapeHtml(String(id)) + '</td>' +
                 '<td>' + escapeHtml(row.title) + '</td>' +
-                '<td>' + escapeHtml(row.category != null ? row.category : '—') + '</td>' +
+                '<td>' + escapeHtml(histCat != null ? histCat : '—') + '</td>' +
                 '<td>' + statusPill(row.status) + '</td>' +
                 '<td>' + escapeHtml(progress) + '</td>' +
                 '<td><div class="td-actions">' +
@@ -1188,42 +1047,6 @@
         mergeCategoryDropdownFromRows(rows, 'hist-filter-category');
     }
     
-    // async function loadHistorySearch() {
-    //     var tbody = document.getElementById('hist-tbody');
-    //     var countEl = document.getElementById('hist-count');
-    //     tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;">Loading…</td></tr>';
-    //     countEl.textContent = '—';
-    //     try {
-    //         var title = (document.getElementById('hist-search-q').value || '').trim();
-    //         var categoryName = (document.getElementById('hist-filter-category').value || 'all').trim();
-    //         var fraStatus = (document.getElementById('hist-filter-status').value || 'all').trim();
-    //         var startDate = (document.getElementById('hist-date-from').value || '').trim();
-    //         var endDate = (document.getElementById('hist-date-to').value || '').trim();
-    //         var r = await fetch(apiUrl('/api/donee/history/search'), fetchOptions({
-    //             method: 'POST',
-    //             headers: { 'Content-Type': 'application/json' },
-    //             body: JSON.stringify({ title: title, categoryName: categoryName, fraStatus: fraStatus, startDate: startDate, endDate: endDate })
-    //         }));
-    //         var data = await r.json();
-    //         if (!r.ok) {
-    //             tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;">HTTP ' + r.status + '</td></tr>';
-    //             return;
-    //         }
-    //         if (data && data.error) {
-    //             tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;">' + escapeHtml(String(data.error)) + '</td></tr>';
-    //             countEl.textContent = '—';
-    //             return;
-    //         }
-    //         var rows = Array.isArray(data) ? data : (data && data.rows);
-    //         if (!Array.isArray(rows)) {
-    //             tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;">Unexpected response.</td></tr>';
-    //             return;
-    //         }
-    //         renderHistRows(rows);
-    //     } catch (e) {
-    //         tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;">' + escapeHtml(e.message || 'Request failed') + '</td></tr>';
-    //     }
-    // }
     async function loadHistorySearch() {
         var tbody = document.getElementById('hist-tbody');
         var countEl = document.getElementById('hist-count');
@@ -1252,15 +1075,13 @@
             
             var data = await r.json();
 
-            // ================= 处理来自 Control Layer 的业务规则拦截 =================
             if (data && data.error) {
-                showToast(data.error, "err"); // 弹出漂亮的红色 Toast
+                showToast(data.error, "err");
                 tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center; color:#b91c1c;">' + escapeHtml(data.error) + '</td></tr>';
                 countEl.textContent = '0 FRA';
                 return;
             }
 
-            // 数据正常，渲染表格
             renderHistRows(data);
         } catch (e) {
             showToast("Network or server error occurred.", "err");
@@ -1268,9 +1089,6 @@
         }
     }
 
-    // 搜索按钮依然保留
-    document.getElementById('hist-search-btn').addEventListener('click', loadHistorySearch);
-    
     function clearHistFilters() {
         document.getElementById('hist-search-q').value = '';
         document.getElementById('hist-filter-category').value = 'all';
@@ -1280,22 +1098,18 @@
         loadHistorySearch();
     }
 
-    // ================= 【核心修改】：专门处理历史搜索的验证逻辑 =================
     function validateAndSearchHistory() {
         var startDate = document.getElementById('hist-date-from').value;
         var endDate = document.getElementById('hist-date-to').value;
-        
-        // 拦截点：如果起始时间大于结束时间，直接拦截
+
         if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
             showToast("Date From cannot be later than Date To.", "err");
-            return; // 终止函数，不再调用底层搜索
+            return;
         }
-        
-        // 校验通过，放行搜索
         loadHistorySearch();
     }
-    // =========================================================================
 
+    document.getElementById('hist-search-btn').addEventListener('click', validateAndSearchHistory);
     document.getElementById('fra-search-btn').addEventListener('click', runSearch);
     document.getElementById('fra-search-clear').addEventListener('click', clearAllFilters);
     document.getElementById('fra-search-q').addEventListener('keydown', function (e) {
@@ -1333,11 +1147,9 @@
             return;
         }
         var v = e.target.closest('button[data-action="view"]');
-        if (v) viewFra(v.getAttribute('data-id'), '/api/donee/favourites/view');
+        if (v) viewFra(v.getAttribute('data-id'), '/api/donee/fra/view');
     });
     
-    // 【修改点】：将原先绑定 loadHistorySearch 的地方全部换成 validateAndSearchHistory
-    document.getElementById('hist-search-btn').addEventListener('click', validateAndSearchHistory);
     document.getElementById('hist-clear-btn').addEventListener('click', clearHistFilters);
     document.getElementById('hist-search-q').addEventListener('keydown', function (e) {
         if (e.key === 'Enter') { e.preventDefault(); validateAndSearchHistory(); }
@@ -1348,8 +1160,10 @@
         if (v) viewFra(v.getAttribute('data-id'), '/api/donee/fra/view');
     });
 
-    loadAllCategories();
-    loadBrowse();
+    (async function () {
+        await loadAllCategories();
+        loadBrowse();
+    })();
 })();
 </script>
 </body>

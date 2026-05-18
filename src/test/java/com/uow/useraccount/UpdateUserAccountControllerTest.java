@@ -17,25 +17,29 @@ public class UpdateUserAccountControllerTest {
     private UserAccount dao;
     private final String TEST_PREFIX = "PragmTest_";
     private int existingUserId;
+    private String existingPhone;
+
+    private String gen8DigitPhone() {
+        return "9" + String.format("%07d", (int)(Math.random() * 10000000));
+    }
 
     @Before
     public void setUp() {
         updateController = new UpdateUserAccountController();
         dao = new UserAccount();
 
-        // Dynamically create a real user to test the update logic
+        existingPhone = gen8DigitPhone();
         String uniqueName = TEST_PREFIX + "Update_" + System.currentTimeMillis();
         Map<String, Object> newAcc = new HashMap<>();
         newAcc.put("username", uniqueName);
         newAcc.put("password", "123456");
         newAcc.put("fullName", "To Update");
         newAcc.put("email", uniqueName + "@test.com");
-        newAcc.put("phoneNumber", "88888888");
+        newAcc.put("phoneNumber", existingPhone); // 修复：使用合法的 8 位
         newAcc.put("accountStatus", "Active");
         newAcc.put("profileId", 3);
         dao.saveCreateAccount(newAcc);
 
-        // Fetch its ID
         Map<String, Object> searchParam = new HashMap<>();
         searchParam.put("username", uniqueName);
         List<Map<String, Object>> results = (List<Map<String, Object>>) dao.getSearchAccount(searchParam);
@@ -56,7 +60,7 @@ public class UpdateUserAccountControllerTest {
         Map<String, Object> updateData = new HashMap<>();
         updateData.put("userId", existingUserId);
         updateData.put("fullName", "Updated Name");
-        
+        // 更新时如果用不重复的属性也可以通过
         assertTrue("Should return true on successful update", updateController.updateAccount(updateData));
     }
 
@@ -74,7 +78,6 @@ public class UpdateUserAccountControllerTest {
     public void test_Update_fails_when_user_id_is_missing() {
         Map<String, Object> updateData = new HashMap<>();
         updateData.put("fullName", "Updated Name");
-        
         assertFalse(updateController.updateAccount(updateData));
     }
 
@@ -82,7 +85,6 @@ public class UpdateUserAccountControllerTest {
     public void test_Update_fails_when_user_id_is_invalid() {
         Map<String, Object> updateData = new HashMap<>();
         updateData.put("userId", -999); // Invalid ID
-        
         assertFalse("Should return false for invalid ID", updateController.updateAccount(updateData));
     }
 
@@ -91,13 +93,11 @@ public class UpdateUserAccountControllerTest {
         Map<String, Object> updateData = new HashMap<>();
         updateData.put("userId", 999999); // Non-existent ID
         updateData.put("fullName", "Updated Name");
-        
         assertFalse("Should return false if user not found", updateController.updateAccount(updateData));
     }
-    // 【新增】测试：更新资料时，如果使用了其他用户已经占用的邮箱/电话/账号名，必须被拦截
+
     @Test
     public void test_Update_fails_when_data_conflicts_with_another_existing_user() {
-        // 1. 在数据库里临时再建一个"干扰用户 (User B)"
         String userBName = TEST_PREFIX + "Collision_" + System.currentTimeMillis();
         String userBEmail = userBName + "@test.com";
         
@@ -105,18 +105,16 @@ public class UpdateUserAccountControllerTest {
         userB.put("username", userBName);
         userB.put("password", "123456");
         userB.put("fullName", "User B");
-        userB.put("email", userBEmail); // 这是我们要冲突的目标邮箱
-        userB.put("phoneNumber", "11112222");
+        userB.put("email", userBEmail);
+        userB.put("phoneNumber", gen8DigitPhone()); // 修复：给B分配独立的8位手机号
         userB.put("accountStatus", "Active");
         userB.put("profileId", 3);
         dao.saveCreateAccount(userB);
 
-        // 2. 尝试把我们在 setUp() 里建好的 User A (existingUserId) 的邮箱，改成 User B 的邮箱
         Map<String, Object> maliciousUpdateData = new HashMap<>();
         maliciousUpdateData.put("userId", existingUserId); 
         maliciousUpdateData.put("email", userBEmail); // 核心冲突点
         
-        // 3. 断言控制器成功拦截了这次撞车更新
         assertFalse("Update should fail because the email belongs to another user", 
                     updateController.updateAccount(maliciousUpdateData));
     }

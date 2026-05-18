@@ -7,9 +7,29 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Handles searching for donations/fundraising progress.
+ * 
+ * Responsibilities:
+ * - Validate user identity and permissions
+ * - Enforce business rules (search field length, date logic)
+ * - Search for FRAs (donations) by title and date range
+ * - Return proper error messages for validation failures
+ */
 @Component
 public class SearchDonationController {
 
+    /**
+     * Searches for FRAs (donations/fundraising activities) with business rule validation.
+     * 
+     * Validates:
+     * - User identity is provided
+     * - Search title is not too long (max 50 characters)
+     * - Date range is logical (start <= end)
+     * 
+     * @param searchDonationData A Map with userId, title (optional), startDate (optional), endDate (optional)
+     * @return List of matching FRAs, or a Map with error message if validation fails
+     */
     public Object searchDonation(Object searchDonationData) {
         // 1. 修复泛型类型：将 <?, ?> 改为 <String, Object>
         if (!(searchDonationData instanceof Map)) {

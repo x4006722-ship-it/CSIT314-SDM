@@ -14,9 +14,12 @@ public class UserAccountTest {
 
     private final String TEST_PREFIX = "PragmDAO_";
 
+    private String gen8DigitPhone() {
+        return "7" + String.format("%07d", (int)(Math.random() * 10000000));
+    }
+
     @After
     public void tearDown() {
-        // 清理测试产生的数据
         try (Connection c = DBUtils.getConnection();
              PreparedStatement ps = c.prepareStatement("DELETE FROM user_account WHERE username LIKE ?")) {
             ps.setString(1, TEST_PREFIX + "%");
@@ -28,21 +31,20 @@ public class UserAccountTest {
     public void test_UserAccount_DAO_lifecycle_succeeds() {
         UserAccount dao = new UserAccount();
         String uniqueName = TEST_PREFIX + System.currentTimeMillis();
+        String uniquePhone = gen8DigitPhone(); // 修复：全局唯一 8 位数字手机号
 
-        // 1. Create - 确保所有字段都填上，且 profileId 使用最通用的 1
         Map<String, Object> newAcc = new HashMap<>();
         newAcc.put("username", uniqueName);
         newAcc.put("password", "pass123");
         newAcc.put("fullName", "DAO Lifecycle Test");
         newAcc.put("email", uniqueName + "@example.com");
-        newAcc.put("phoneNumber", "99998888");
+        newAcc.put("phoneNumber", uniquePhone); 
         newAcc.put("accountStatus", "Active");
-        newAcc.put("profileId", 1); // <--- 尝试使用 ID 1，通常这是管理员或默认角色
+        newAcc.put("profileId", 3); // 修复：使用 3，避免 1(User Admin) 产生不可控外键冲突
         
         boolean createResult = dao.saveCreateAccount(newAcc);
         assertTrue("Creation should succeed", createResult);
 
-        // 2. Search
         Map<String, Object> searchParams = new HashMap<>();
         searchParams.put("username", uniqueName);
         List<Map<String, Object>> searchResults = (List<Map<String, Object>>) dao.getSearchAccount(searchParams);
@@ -50,35 +52,30 @@ public class UserAccountTest {
 
         int generatedId = (Integer) searchResults.get(0).get("userId");
 
-        // 3. View
         Object viewedUser = dao.getViewAccount(generatedId);
         assertNotNull("View should return the user details", viewedUser);
 
-        // 4. Update
         Map<String, Object> updateData = new HashMap<>();
         updateData.put("userId", generatedId);
         updateData.put("username", uniqueName);
         updateData.put("fullName", "Updated DAO Name");
         updateData.put("email", uniqueName + "@example.com");
-        updateData.put("phoneNumber", "99998888");
+        updateData.put("phoneNumber", uniquePhone); // 同一个号
         updateData.put("password", "pass123");
         updateData.put("accountStatus", "Active");
-        updateData.put("profileId", 1);
+        updateData.put("profileId", 3);
         assertTrue("Update should succeed", dao.saveUpdateAccount(updateData));
 
-        // 5. Suspend
         assertTrue("Suspend toggle should succeed", dao.saveSuspendAccount(generatedId, 0));
     }
 
     @Test
     public void test_Stats_generation_executes_safely() {
         UserAccount dao = new UserAccount();
-        // 验证统计方法不会崩溃
         assertTrue(dao.getDailyUserStats() instanceof Map);
         assertTrue(dao.getWeeklyUserStats() instanceof Map);
         assertTrue(dao.getMonthlyUserStats() instanceof Map);
         
-        // 验证下拉框获取不会崩溃
         assertTrue(dao.getDoneeOptions() instanceof List);
         assertTrue(dao.getFundRaiserOptions() instanceof List);
     }

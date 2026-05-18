@@ -8,8 +8,25 @@ import java.util.Map;
 
 import com.uow.util.DBUtils;
 
+/**
+ * Handles authentication and login verification logic.
+ * 
+ * Responsibilities:
+ * - Validate user credentials against the database
+ * - Retrieve user account and profile information on successful login
+ * - Verify account and profile status
+ * 
+ * Usage: This class is called by LoginController during login processing to authenticate users.
+ */
 public class Login {
 
+    /**
+     * Verifies user login credentials by querying the database.
+     * 
+     * @param loginData A Map containing "username" and "password" fields
+     * @return A Map containing user_id, account status, role, and profile status if login is successful;
+     *         null if login fails or invalid data is provided
+     */
     public Object verifyLogin(Object loginData) {
         if (!(loginData instanceof Map<?, ?> data)) {
             return null;
@@ -42,10 +59,17 @@ public class Login {
                 );
             }
         } catch (SQLException e) {
+            // Database error occurred during login verification
             return null;
         }
     }
 
+    /**
+     * Safely converts an Object to a trimmed String.
+     * 
+     * @param value The object to convert (can be null)
+     * @return The trimmed string value, or empty string if value is null
+     */
     private String readText(Object value) {
         return value == null ? "" : String.valueOf(value).trim();
     }

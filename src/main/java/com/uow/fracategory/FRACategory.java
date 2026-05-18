@@ -11,9 +11,27 @@ import java.util.Map;
 
 import com.uow.util.DBUtils;
 
+/**
+ * Represents a category for organizing Fund Raising Activities.
+ * 
+ * FRA categories help organize and group fundraising campaigns by type or theme.
+ * Each FRA can be assigned to a category for better organization and filtering.
+ * 
+ * Responsibilities:
+ * - Create and manage FRA categories
+ * - Retrieve category information
+ * - Update category details
+ * - Toggle category activation status
+ * - Search and list categories with filters
+ */
 public class FRACategory {
 
-    //Create Category
+    /**
+     * Creates and saves a new FRA category to the database.
+     * 
+     * @param newCategoryData A Map containing: categoryName, categoryStatus
+     * @return true if category was successfully created, false otherwise
+     */
     public boolean saveCreateCategory(Object newCategoryData) {
         if (!(newCategoryData instanceof Map<?, ?> data)) {
             return false;
@@ -29,7 +47,12 @@ public class FRACategory {
         }
     }
 
-    //View Category
+    /**
+     * Retrieves a specific FRA category by its ID.
+     * 
+     * @param categoryId The category ID to retrieve
+     * @return A Map containing category details (categoryID, categoryName, categoryStatus), or null if not found
+     */
     public Object getViewCategory(int categoryId) {
         try (Connection c = DBUtils.getConnection();
              PreparedStatement ps = c.prepareStatement(

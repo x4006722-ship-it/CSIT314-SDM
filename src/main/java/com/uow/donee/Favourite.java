@@ -13,7 +13,6 @@ import com.uow.util.DBUtils;
 
 public class Favourite {
 
-    // Save Favourite
     public boolean saveFavourite(int fraId, int userId, boolean remove) {
         if (remove) {
             try (Connection c = DBUtils.getConnection();
@@ -23,6 +22,7 @@ public class Favourite {
                 ps.setInt(2, fraId);
                 return ps.executeUpdate() > 0;
             } catch (SQLException e) {
+                System.err.println("[Remove Fav SQL Error] " + e.getMessage());
                 return false;
             }
         }
@@ -37,6 +37,7 @@ public class Favourite {
                 }
             }
         } catch (SQLException e) {
+            System.err.println("[Check Fav SQL Error] " + e.getMessage());
             return false;
         }
 
@@ -51,7 +52,6 @@ public class Favourite {
         }
     }
 
-    // Search Favourite
     public Object getSearchFavourite(Object searchFavouriteData) {
         if (!(searchFavouriteData instanceof Map<?, ?> data)) {
             return List.of();
@@ -63,13 +63,13 @@ public class Favourite {
         String categoryName = readText(data.get("categoryName"));
 
         StringBuilder sql = new StringBuilder(
-                "SELECT f.fra_id, f.fra_title, f.fra_status, IFNULL(TRIM(fc.category_name),'') AS category_name "
+                "SELECT f.fra_id, f.title AS fra_title, f.fra_status, IFNULL(TRIM(fc.category_name),'') AS category_name "
                         + "FROM fra f "
                         + "INNER JOIN fra_favourite ff ON ff.fra_id = f.fra_id AND ff.user_id = ? "
                         + "LEFT JOIN fra_category fc ON f.category_id = fc.category_id "
                         + "WHERE 1=1 ");
         if (!title.isBlank()) {
-            sql.append("AND LOWER(f.fra_title) LIKE LOWER(?) ");
+            sql.append("AND LOWER(f.title) LIKE LOWER(?) ");
         }
         if (!fraStatus.isBlank() && !"all".equalsIgnoreCase(fraStatus)) {
             sql.append("AND f.fra_status = ? ");
@@ -110,12 +110,11 @@ public class Favourite {
         }
     }
 
-    // View Favourite
     public Object getViewFavourite(int fraId) {
         try (Connection c = DBUtils.getConnection();
              PreparedStatement ps = c.prepareStatement(
-                     "SELECT f.fra_title, f.fra_status, f.fra_startedAt, f.fra_viewCount, f.fra_favouriteCount, "
-                            + "f.current_amount AS current_amount, f.fra_targetAmount AS target_amount, COALESCE(NULLIF(TRIM(ua.full_name),''), ua.username, '-') AS doneeName "
+                     "SELECT f.title AS fra_title, f.fra_status, f.startedAt AS fra_startedAt, f.endedAt AS fra_endedAt, f.viewCount AS fra_viewCount, f.favoriteCount AS fra_favouriteCount, "
+                            + "f.current_amount AS current_amount, f.target_amount AS target_amount, COALESCE(NULLIF(TRIM(ua.full_name),''), ua.username, '-') AS doneeName "
                              + "FROM fra f "
                              + "LEFT JOIN user_account ua ON f.donee_id = ua.user_id "
                              + "WHERE f.fra_id = ? LIMIT 1")) {
@@ -128,6 +127,7 @@ public class Favourite {
                 out.put("title", rs.getString("fra_title"));
                 out.put("status", rs.getString("fra_status"));
                 out.put("createAt", rs.getString("fra_startedAt"));
+                out.put("endedAt", rs.getString("fra_endedAt")); 
                 out.put("viewCount", rs.getObject("fra_viewCount"));
                 out.put("favouriteCount", rs.getObject("fra_favouriteCount"));
                 out.put("currentAmount", rs.getObject("current_amount"));

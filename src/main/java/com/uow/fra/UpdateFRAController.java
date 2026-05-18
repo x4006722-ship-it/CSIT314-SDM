@@ -1,9 +1,32 @@
 package com.uow.fra;
 import org.springframework.stereotype.Service;
 
+/**
+ * Handles updates to existing Fund Raising Activities with validation.
+ * 
+ * Responsibilities:
+ * - Validate FRA data (same as Create)
+ * - Ensure date logic is correct
+ * - Check for duplicate titles (excluding the current FRA)
+ * - Persist changes to database
+ */
 @Service
 public class UpdateFRAController {
     
+    /**
+     * Updates an existing FRA with validation.
+     * 
+     * Validates:
+     * - FRA ID and data are valid
+     * - All required fields are present
+     * - Target amount is greater than 0
+     * - Start date is before end date
+     * - No duplicate title (excluding this FRA)
+     * 
+     * @param fraId The FRA ID to update
+     * @param fraData The updated FRA information
+     * @return true if update was successful, false if validation fails
+     */
     public boolean updateFRA(String fraId, FRA fraData) {
         // 1. 和 Create 保持同等强度的边界防御
         if (fraData == null || fraId == null || fraId.trim().isEmpty() ||

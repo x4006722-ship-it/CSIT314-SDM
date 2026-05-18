@@ -3,11 +3,30 @@ package com.uow.fracategory;
 import org.springframework.stereotype.Controller;
 import java.util.Map;
 
+/**
+ * Handles searching for FRA categories with validation.
+ * 
+ * Responsibilities:
+ * - Validate search/filter criteria
+ * - Enforce valid status values in searches
+ * - Delegate to FRACategory entity for database query
+ * - Return list of matching categories
+ */
 @Controller
 public class SearchFRACategoryController {
 
     private final FRACategory fraCategory = new FRACategory();
 
+    /**
+     * Searches for FRA categories with optional filter criteria.
+     * 
+     * Validates:
+     * - If status filter is provided, it must be valid (Active, Suspended, or blank/all)
+     * 
+     * @param searchCategoryData A Map with optional filters: categoryName, categoryStatus
+     * @return List of Maps representing matching categories
+     * @throws IllegalArgumentException if status format is invalid
+     */
     public Object searchCategory(Object searchCategoryData) {
         // 1. 在业务层集中进行状态格式的校验
         if (searchCategoryData instanceof Map<?, ?> map) {
